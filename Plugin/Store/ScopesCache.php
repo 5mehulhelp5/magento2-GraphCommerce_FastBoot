@@ -1,0 +1,46 @@
+<?php
+declare(strict_types=1);
+
+namespace GraphCommerce\FastBoot\Plugin\Store;
+
+use Magento\Framework\App\CacheInterface;
+use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Store\App\Config\Source\RuntimeConfigSource;
+use Magento\Store\Model\Group;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\Website;
+
+/**
+ * The websites, groups and stores from the cache instead of three selects
+ * on every request. The tags are the ones a store, website or group save
+ * cleans through the store manager's reinit, so the entry follows the
+ * tables; a shop that dumped its scopes into config.php never reads this.
+ */
+class ScopesCache
+{
+    private const KEY = 'FASTBOOT_SCOPES';
+
+    public function __construct(
+        private readonly CacheInterface $cache,
+        private readonly SerializerInterface $serializer,
+    ) {
+    }
+
+    public function aroundGet(RuntimeConfigSource $subject, callable $proceed, $path = '')
+    {
+        $cached = $this->cache->load(self::KEY);
+        if ($cached) {
+            return $this->serializer->unserialize($cached);
+        }
+        $data = $proceed($path);
+        if ($data) {
+            $this->cache->save(
+                $this->serializer->serialize($data),
+                self::KEY,
+                [Store::CACHE_TAG, Website::CACHE_TAG, Group::CACHE_TAG]
+            );
+        }
+
+        return $data;
+    }
+}

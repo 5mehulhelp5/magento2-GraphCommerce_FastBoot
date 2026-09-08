@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- With FASTBOOT_RECORD set, every request appends the classes it declared to var/fastboot/classes.txt. -->
+    <type name="Magento\Framework\AppInterface">
+        <plugin name="graphcommerce_fastboot_record_classes" type="GraphCommerce\FastBoot\Plugin\RecordClasses" sortOrder="1000"/>
+    </type>
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="fastboot_preload" xsi:type="object">GraphCommerce\FastBoot\Console\Command\Preload</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Config data sets a request takes from an opcache PHP file: the stitched GraphQL schema, 1.6 MB of JSON per request otherwise. -->
+    <virtualType name="Magento\Framework\GraphQl\Config\Data" type="GraphCommerce\FastBoot\Model\Config\OpcacheData">
+        <arguments>
+            <argument name="reader" xsi:type="object">Magento\Framework\GraphQlSchemaStitching\Reader</argument>
+            <argument name="cacheId" xsi:type="string">Magento_Framework_GraphQlSchemaStitching_Config_Data</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Opcache in front of the cache types that hold configuration, by their tag. -->
+    <type name="Magento\Framework\Cache\Frontend\Decorator\TagScope">
+        <plugin name="graphcommerce_fastboot_opcache_layer" type="GraphCommerce\FastBoot\Plugin\Cache\OpcacheLayer"/>
+    </type>
+    <type name="GraphCommerce\FastBoot\Plugin\Cache\OpcacheLayer">
+        <arguments>
+            <argument name="types" xsi:type="array">
+                <item name="config" xsi:type="const">Magento\Framework\App\Cache\Type\Config::CACHE_TAG</item>
+                <item name="eav" xsi:type="const">Magento\Eav\Model\Cache\Type::CACHE_TAG</item>
+                <item name="translate" xsi:type="const">Magento\Framework\App\Cache\Type\Translate::CACHE_TAG</item>
+                <item name="db_ddl" xsi:type="const">Magento\Framework\DB\Adapter\DdlCache::CACHE_TAG</item>
+                <item name="reflection" xsi:type="const">Magento\Framework\App\Cache\Type\Reflection::CACHE_TAG</item>
+                <item name="compiled_config" xsi:type="const">Magento\Framework\App\Interception\Cache\CompiledConfig::CACHE_TAG</item>
+                <item name="collections" xsi:type="const">Magento\Framework\App\Cache\Type\Collection::CACHE_TAG</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- The same, in front of the default frontend, for the configuration entries that use no cache type. -->
+    <type name="Magento\Framework\App\Cache">
+        <plugin name="graphcommerce_fastboot_opcache_default_layer" type="GraphCommerce\FastBoot\Plugin\Cache\OpcacheDefaultLayer"/>
+    </type>
+    <type name="GraphCommerce\FastBoot\Plugin\Cache\OpcacheDefaultLayer">
+        <arguments>
+            <argument name="ids" xsi:type="array">
+                <item name="eav_types" xsi:type="string">EAV_ENTITY_TYPES</item>
+                <item name="eav_attributes" xsi:type="string">EAV_ENTITY_ATTRIBUTES</item>
+                <item name="resolved_stores" xsi:type="string">resolved_stores_</item>
+                <item name="app" xsi:type="string">app_</item>
+                <item name="ddl" xsi:type="string">DB_PDO_MYSQL_DDL_</item>
+                <item name="scopes" xsi:type="string">FASTBOOT_SCOPES</item>
+                <item name="config_unchanged" xsi:type="string">FASTBOOT_CONFIG_UNCHANGED_</item>
+                <item name="theme" xsi:type="string">THEME_BY_ID</item>
+                <item name="website_stores" xsi:type="string">FASTBOOT_WEBSITE_STORES_</item>
+                <item name="tax_factor" xsi:type="string">FASTBOOT_TAX_FACTOR_</item>
+                <item name="sort_by" xsi:type="string">PRODUCT_LISTING_SORT_BY_ATTRIBUTES</item>
+                <item name="placeholder" xsi:type="string">FASTBOOT_PLACEHOLDER_</item>
+            </argument>
+            <argument name="tags" xsi:type="array">
+                <item name="config" xsi:type="const">Magento\Framework\App\Cache\Type\Config::CACHE_TAG</item>
+                <item name="eav" xsi:type="const">Magento\Eav\Model\Cache\Type::CACHE_TAG</item>
+                <item name="eav_attribute" xsi:type="const">Magento\Eav\Model\Entity\Attribute::CACHE_TAG</item>
+                <item name="db_ddl" xsi:type="const">Magento\Framework\DB\Adapter\DdlCache::CACHE_TAG</item>
+                <item name="store" xsi:type="const">Magento\Store\Model\Store::CACHE_TAG</item>
+                <item name="website" xsi:type="const">Magento\Store\Model\Website::CACHE_TAG</item>
+                <item name="group" xsi:type="const">Magento\Store\Model\Group::CACHE_TAG</item>
+                <item name="store_relations" xsi:type="const">Magento\Store\Model\StoreResolver::CACHE_TAG</item>
+                <item name="theme" xsi:type="string">THEME</item>
+                <item name="tax" xsi:type="const">GraphCommerce\FastBoot\Plugin\CacheId\GuestTaxFactor::TAG</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- The theme's view.xml as an opcache file; core parses and validates it on every request that asks for an image size. -->
+    <preference for="Magento\Framework\Config\View" type="GraphCommerce\FastBoot\Model\Config\OpcacheView"/>
+    <preference for="Magento\Framework\Config\ViewFactory" type="GraphCommerce\FastBoot\Model\Config\OpcacheViewFactory"/>
+
+    <!-- The system configuration of every scope as one opcache PHP array: no decrypt and no unserialise per request. -->
+    <type name="Magento\Config\App\Config\Type\System">
+        <plugin name="graphcommerce_fastboot_system_from_file" type="GraphCommerce\FastBoot\Plugin\Config\SystemFromFile"/>
+    </type>
+
+    <!-- A value is quoted without a connection, so a request that serves its selects from the cache never connects. -->
+    <preference for="Magento\Framework\DB\Adapter\Pdo\Mysql" type="GraphCommerce\FastBoot\Model\Db\Mysql"/>
+
+    <!-- The deployment config check from the cache instead of a flag table read per request. -->
+    <type name="Magento\Deploy\Model\DeploymentConfig\ChangeDetector">
+        <plugin name="graphcommerce_fastboot_config_unchanged" type="GraphCommerce\FastBoot\Plugin\Deploy\ConfigUnchanged" sortOrder="5"/>
+    </type>
+
+    <!-- The object manager receives only the entries an area changes, not the whole configuration again. -->
+    <type name="Magento\Framework\App\Http">
+        <arguments>
+            <argument name="configLoader" xsi:type="object">GraphCommerce\FastBoot\Model\ObjectManager\AreaConfigLoader</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\App\Area">
+        <arguments>
+            <argument name="diConfigLoader" xsi:type="object">GraphCommerce\FastBoot\Model\ObjectManager\AreaConfigLoader</argument>
+        </arguments>
+    </type>
+
+    <!-- A built-in scalar is answered without a walk over every declared type. -->
+    <preference for="Magento\Framework\GraphQl\SchemaFactory" type="GraphCommerce\FastBoot\Model\GraphQl\SchemaFactory"/>
+
+    <!-- A query validated once against this schema version runs without the validation rules. -->
+    <type name="Magento\Framework\GraphQl\Query\QueryProcessor">
+        <plugin name="graphcommerce_fastboot_validated_queries" type="GraphCommerce\FastBoot\Plugin\Query\ValidatedQueries" sortOrder="200"/>
+    </type>
+
+    <!-- The placeholder image URL per store and image type from the cache. -->
+    <type name="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Image\Placeholder">
+        <plugin name="graphcommerce_fastboot_placeholder_url" type="GraphCommerce\FastBoot\Plugin\Catalog\PlaceholderUrl"/>
+    </type>
+
+    <!-- The stores of a website and the default store of a group without a select per request. -->
+    <type name="Magento\Store\Model\ResourceModel\StoreWebsiteRelation">
+        <plugin name="graphcommerce_fastboot_website_stores" type="GraphCommerce\FastBoot\Plugin\Store\WebsiteStores"/>
+    </type>
+    <type name="Magento\Store\Model\Group">
+        <plugin name="graphcommerce_fastboot_default_store" type="GraphCommerce\FastBoot\Plugin\Store\DefaultStore"/>
+    </type>
+
+    <!-- The guest tax rate factor of the response cache id from the cache; a tax or customer group save drops it. -->
+    <type name="Magento\CustomerGraphQl\CacheIdFactorProviders\CustomerTaxRateProvider">
+        <plugin name="graphcommerce_fastboot_guest_tax_factor" type="GraphCommerce\FastBoot\Plugin\CacheId\GuestTaxFactor"/>
+    </type>
+    <type name="Magento\Tax\Model\ResourceModel\Calculation\Rate">
+        <plugin name="graphcommerce_fastboot_forget_tax_factors" type="GraphCommerce\FastBoot\Plugin\Tax\ForgetTaxFactors"/>
+    </type>
+    <type name="Magento\Tax\Model\ResourceModel\Calculation\Rule">
+        <plugin name="graphcommerce_fastboot_forget_tax_factors" type="GraphCommerce\FastBoot\Plugin\Tax\ForgetTaxFactors"/>
+    </type>
+    <type name="Magento\Tax\Model\ResourceModel\TaxClass">
+        <plugin name="graphcommerce_fastboot_forget_tax_factors" type="GraphCommerce\FastBoot\Plugin\Tax\ForgetTaxFactors"/>
+    </type>
+    <type name="Magento\Customer\Model\ResourceModel\Group">
+        <plugin name="graphcommerce_fastboot_forget_tax_factors" type="GraphCommerce\FastBoot\Plugin\Tax\ForgetTaxFactors"/>
+    </type>
+
+    <!-- The websites, groups and stores from the cache instead of three selects per request. -->
+    <type name="Magento\Store\App\Config\Source\RuntimeConfigSource">
+        <plugin name="graphcommerce_fastboot_scopes_cache" type="GraphCommerce\FastBoot\Plugin\Store\ScopesCache"/>
+    </type>
+</config>

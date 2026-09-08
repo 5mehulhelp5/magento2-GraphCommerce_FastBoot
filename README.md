@@ -1,6 +1,6 @@
 # GraphCommerce_FastBoot
 
-A faster php-fpm bootstrap of Magento. The worker runtime keeps everything between requests; this module is for the deployments that run php-fpm, where every request starts from nothing.
+A faster php-fpm bootstrap of Magento, for the deployments where every request starts from nothing.[^1]
 
 ## Where a php-fpm request spends its start
 
@@ -28,7 +28,7 @@ A trivial GraphQL query (`storeConfig { store_code }`) on this shop, before this
 - **No select for the response cache id and the store config.** The guest tax rate factor of the cache id loads the customer group, its tax class, its excluded websites and the tax rates on every response; the storeConfig resolver loads the website's stores with a three-table select; the Store header asks the group for its default store through a collection load. The factor and the stores come from the cache (`Plugin/CacheId/GuestTaxFactor`, dropped by `Plugin/Tax/ForgetTaxFactors` on a tax or customer group save; `Plugin/Store/WebsiteStores`), the default store from the store repository (`Plugin/Store/DefaultStore`), the placeholder image URL from the cache (`Plugin/Catalog/PlaceholderUrl`).
 - **Opcache preload from real requests.** `FASTBOOT_RECORD=1` in the php-fpm environment records the classes every request declares; `bin/magento fastboot:preload` writes `var/fastboot/preload.php` for `opcache.preload`. Preloaded classes change only with a php-fpm restart, and one preload serves one code base per php-fpm master.
 
-Outside the module: persistent MySQL and Redis connections in env.php (`persistent`), the phpredis extension instead of Predis, `opcache.validate_timestamps=0` with `opcache.file_update_protection=0`, `zend.assertions=-1` (webonyx's executor builds an assertion message per field otherwise; production's default), the GraphQL session disabled (`graphql/session/disable`), and in the catalog storefront package: the prefilled field routing per materialised type instead of a walk of the whole type map, and the worker memos out of the way under php-fpm.
+Outside the module: persistent MySQL and Redis connections in env.php (`persistent`), the phpredis extension instead of Predis, `opcache.validate_timestamps=0` with `opcache.file_update_protection=0`, `zend.assertions=-1` (webonyx's executor builds an assertion message per field otherwise; production's default), the GraphQL session disabled (`graphql/session/disable`), and in the catalog storefront package: the prefilled field routing per materialised type instead of a walk of the whole type map.
 
 ## Measured
 
@@ -43,7 +43,7 @@ The trivial query and the 24 item unfiltered listing on php-fpm, PHP time from t
 | System config array, lifetime entries, no type map walk, no MySQL connection | 22 ms | 5 ms | 33 ms | 113 ms | 119 ms |
 | Scalars without the type walk, area diff, validated queries, cache id and store config from the cache, assertions off | 9 ms | 6 ms | 19 ms | 109 ms | 111 ms |
 
-The last row's "before the query" holds the parse of the query; the trivial request's query itself runs in 2 ms. The 24 item category listing runs in 59 ms. A request sends one Redis command per grace period and no SQL at all. The listing's remaining time is the search engine (the unfiltered search with its 30 aggregations, 45 to 60 ms) and the resolvers, which the worker runtime serves the same way; on the PHP side the executor, the schema objects of the types the query touches, the document decoding and core's search request build share the rest.
+The last row's "before the query" holds the parse of the query; the trivial request's query itself runs in 2 ms. The 24 item category listing runs in 59 ms. A request sends one Redis command per grace period and no SQL at all. The listing's remaining time is the search engine (the unfiltered search with its 30 aggregations, 45 to 60 ms) and the resolvers; on the PHP side the executor, the schema objects of the types the query touches, the document decoding and core's search request build share the rest.
 
 ## How this was built
 
@@ -74,14 +74,16 @@ The module is a normal Magento module: install, enable, `setup:di:compile`. The 
 
 What to watch after the rollout: opcache memory. Every config invalidation leaves one version of about a thousand files behind as wasted memory until opcache restarts itself; `opcache.max_wasted_percentage` and `opcache.memory_consumption` set how many invalidations a master lives through. A shop that cleans its config cache every minute needs a larger opcache or a longer restart cadence; a shop that cleans it on deployments notices nothing.
 
-What this does not do: it makes no request faster than its own work. A listing still waits for the search engine, and a request that runs SQL still connects. It removes the 50 ms every php-fpm request paid before its work began, which the worker runtime removed by keeping the process alive, and it does so with a module and three ini lines instead of a new runtime.
+What this does not do: it makes no request faster than its own work. A listing still waits for the search engine, and a request that runs SQL still connects. It removes the 50 ms every php-fpm request paid before its work began, with a module and three ini lines.
 
 ## Costs and limits
 
 - Opcache keeps the compiled copy of a dropped file as wasted memory until its own restart. Each config invalidation leaves one version of files behind; `opcache.max_wasted_percentage` decides after how many invalidations a php-fpm master restarts opcache, and the file count per version (about a thousand here, most of them EAV attributes) is what a version costs.
-- Two installations that share `var/` but not their cache, such as a php-fpm host and a worker container, keep their trees apart by the cache backend's identity.
+- Two installations that share `var/` but not their cache, such as a php-fpm host and a container with its own Redis database, keep their trees apart by the cache backend's identity.
 - Another server's config clean reaches a server at the end of the grace period.
 
 ## Next
 
 What is left is in the framework: the object manager's factory reflects every class it creates (about 3 ms on a listing), the GraphQL config elements of the types a query touches are rebuilt per request (about 5 ms), and the EAV config creates its attribute objects per request (about 2.5 ms). The parse of a large query (3 ms) could come from an opcache file through `AST::fromArray`, at the price of error locations. The Redis client is connected at the grace boundary by the cache backend factory even when no command follows.
+
+[^1]: A process that keeps everything between requests, such as [mage-os-lab/module-worker-mode](https://github.com/mage-os-lab/module-worker-mode), pays the start once; this module is for php-fpm, where it is paid per request.

@@ -1,6 +1,6 @@
 {
     "name": "graphcommerce/module-fast-boot",
-    "description": "A faster php-fpm bootstrap of Magento: the per-request work of the framework remembered, and preload from recorded classes",
+    "description": "A faster php-fpm bootstrap of Magento: the per-request work the framework repeats, remembered",
     "type": "magento2-module",
     "license": "MIT",
     "require": {

@@ -15,6 +15,7 @@
     "replace": {
         "graphcommerce/module-fast-boot-cache": "self.version",
         "graphcommerce/module-fast-boot": "self.version",
+        "graphcommerce/module-fast-boot-preload": "self.version",
         "graphcommerce/module-fast-boot-graph-ql": "self.version"
     },
     "suggest": {
@@ -24,11 +25,13 @@
         "files": [
             "src/FastBootCache/registration.php",
             "src/FastBoot/registration.php",
+            "src/FastBootPreload/registration.php",
             "src/FastBootGraphQl/registration.php"
         ],
         "psr-4": {
             "GraphCommerce\\FastBootCache\\": "src/FastBootCache/",
             "GraphCommerce\\FastBoot\\": "src/FastBoot/",
+            "GraphCommerce\\FastBootPreload\\": "src/FastBootPreload/",
             "GraphCommerce\\FastBootGraphQl\\": "src/FastBootGraphQl/"
         }
     }

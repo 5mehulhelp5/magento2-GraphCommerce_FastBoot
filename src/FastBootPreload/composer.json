@@ -1,0 +1,18 @@
+{
+    "name": "graphcommerce/module-fast-boot-preload",
+    "description": "An opcache preload script that loads the classes real requests declared, from a list that records itself after every compile",
+    "type": "magento2-module",
+    "license": "MIT",
+    "require": {
+        "php": "~8.1.0|~8.2.0|~8.3.0|~8.4.0",
+        "magento/framework": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "GraphCommerce\\FastBootPreload\\": ""
+        }
+    }
+}

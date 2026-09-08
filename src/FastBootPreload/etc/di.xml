@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Every request in a recording window appends the classes it declared to var/fastboot/classes.txt. -->
+    <type name="Magento\Framework\AppInterface">
+        <plugin name="graphcommerce_fastboot_record_classes" type="GraphCommerce\FastBootPreload\Plugin\RecordClasses" sortOrder="1000"/>
+    </type>
+</config>

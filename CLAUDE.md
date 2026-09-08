@@ -4,7 +4,7 @@ A faster php-fpm bootstrap of Magento: opcache PHP files in front of the configu
 
 ## Layout
 
-One composer package, one git repository, one Magento module per directory under `src/`, named as the module. `FastBootCache` is the base every other module depends on: the file layer (`Model\PhpFiles`, `Model\Version`), the two cache plugins, and the `Feature` switch reader. `FastBoot` holds what any request pays; `FastBootGraphQl` what a GraphQL request pays. A mechanism for another area or module goes into a module with that suffix, and depends only on the core modules it plugs into.
+One composer package, one git repository, one Magento module per directory under `src/`, named as the module. `FastBootCache` is the base every other module depends on: the file layer (`Model\PhpFiles`, `Model\Version`), the two cache plugins, and the `Feature` switch reader. `FastBoot` holds what any request pays; `FastBootGraphQl` what a GraphQL request pays; `FastBootPreload` the self-recording preload list and its script, apart because its lifecycle is the php-fpm master's, not the request's. A mechanism for another area or module goes into a module with that suffix, and depends only on the core modules it plugs into.
 
 ## Rules
 

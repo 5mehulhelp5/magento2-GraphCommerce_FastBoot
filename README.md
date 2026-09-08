@@ -13,10 +13,11 @@ PHP time from the profiler, medians, on a shop with 500 000 products; the trivia
 
 Before, the 51 ms in front of the trivial query were 18 cache loads from Redis with their decompress and unserialise (30 ms), three store selects (6), a MySQL and a Redis connection (4) and the object manager (10); the query itself walked every declared GraphQL type (7) and loaded the tax rates for the response cache id (4). Now a request sends one Redis command per two seconds and no SQL, the trivial query runs in 2 ms, and the listings' remaining time is the search engine (45 to 60 ms of the unfiltered one) and the resolvers.
 
-What each mechanism is worth alone, as the increase when only it is off, from the switch bench in `dev/bench` (medians of 15; under a millisecond is noise, and the sum exceeds the total because the MySQL connection only stays away when the store config, the tax factor and the deployment check are all cached):
+What each mechanism is worth alone, as the increase when only it is off, from the switch bench in `dev/bench` (medians of 15; preload from its own before and after; under a millisecond is noise, and the sum exceeds the total because the MySQL connection only stays away when the store config, the tax factor and the deployment check are all cached):
 
 | Switch | Module | What it remembers | Trivial | Listing |
 | --- | --- | --- | --- | --- |
+| `opcache.preload` (ini line) | Preload | the classes a request declares, linked once at php-fpm start | 10 ms | 1 ms |
 | `schema_scalars` | GraphQl | a built-in scalar without a walk over every declared type | 10 ms | 10 ms |
 | `schema_array` | GraphQl | the stitched schema as a PHP array, not 1.6 MB of JSON | 10 ms | 5 ms |
 | `guest_tax_factor` | GraphQl | the guest tax factor of the response cache id, four selects | 9 ms | 17 ms |
@@ -33,7 +34,7 @@ What each mechanism is worth alone, as the increase when only it is off, from th
 | `parsed_queries` | GraphQl | the parsed document from a file | 0 ms | 3 ms |
 | `view_config` | FastBoot | the theme's view.xml as a PHP array; only a request that asks an image size pays it | 0 ms | 0 ms |
 
-Outside the modules, each worth a few milliseconds: preload (10 ms on the trivial query), persistent MySQL and Redis connections, phpredis instead of Predis, `opcache.validate_timestamps=0` with `opcache.file_update_protection=0`, and `zend.assertions=-1` (webonyx's executor builds an assertion message per field otherwise; production's default). Tracing JIT was measured and made both requests slower.
+Outside the modules, each worth a few milliseconds: persistent MySQL and Redis connections, phpredis instead of Predis, `opcache.validate_timestamps=0` with `opcache.file_update_protection=0`, and `zend.assertions=-1` (webonyx's executor builds an assertion message per field otherwise; production's default). Tracing JIT was measured and made both requests slower.
 
 ## What the modules do
 

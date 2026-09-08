@@ -33,8 +33,14 @@ What each mechanism is worth alone, as the increase when only it is off, from th
 | `system_config_array` | FastBoot | the system configuration as one PHP array, no decrypt or unserialise | 2 ms | 1 ms |
 | `parsed_queries` | GraphQl | the parsed document from a file | 0 ms | 3 ms |
 | `view_config` | FastBoot | the theme's view.xml as a PHP array; only a request that asks an image size pays it | 0 ms | 0 ms |
+| `opcache.validate_timestamps=0`, `opcache.file_update_protection=0` | | no stat of every included file per request | 2 ms | ≈ 0 |
+| phpredis instead of Predis | | the Redis client in C | 2 ms | ≈ 0 |
+| `persistent` Redis connection (env.php) | | the connection kept between requests | 1 ms | ≈ 0 |
+| `zend.assertions=-1` | | webonyx's executor builds an assertion message per field otherwise; production's default | 1 ms | ≈ 0 |
+| `persistent` MySQL connection (env.php) | | the connection kept between requests; a request here runs no SQL | < 1 ms | ≈ 0 |
+| `opcache.jit=tracing` | | tracing JIT | −1 ms | slower in one run, faster in another |
 
-Outside the modules, each worth a few milliseconds: persistent MySQL and Redis connections, phpredis instead of Predis, `opcache.validate_timestamps=0` with `opcache.file_update_protection=0`, and `zend.assertions=-1` (webonyx's executor builds an assertion message per field otherwise; production's default). Tracing JIT was measured and made both requests slower.
+The rows without a module are host settings, measured with the modules on. On the listing their differences are inside the search engine's variance between runs, hence ≈ 0; the trivial query shows them, and it shows that a request which runs no SQL and one Redis command per two seconds has little left to gain from its connections.
 
 ## What the modules do
 

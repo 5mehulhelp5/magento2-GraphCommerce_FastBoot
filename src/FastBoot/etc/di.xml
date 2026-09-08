@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- With FASTBOOT_RECORD set, every request appends the classes it declared to var/fastboot/classes.txt. -->
+    <type name="Magento\Framework\AppInterface">
+        <plugin name="graphcommerce_fastboot_record_classes" type="GraphCommerce\FastBoot\Plugin\RecordClasses" sortOrder="1000"/>
+    </type>
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="fastboot_preload" xsi:type="object">GraphCommerce\FastBoot\Console\Command\Preload</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- The entries of this module in the default frontend layer. -->
+    <type name="GraphCommerce\FastBootCache\Plugin\OpcacheDefaultLayer">
+        <arguments>
+            <argument name="ids" xsi:type="array">
+                <item name="scopes" xsi:type="string">FASTBOOT_SCOPES</item>
+                <item name="config_unchanged" xsi:type="string">FASTBOOT_CONFIG_UNCHANGED_</item>
+                <item name="website_stores" xsi:type="string">FASTBOOT_WEBSITE_STORES_</item>
+                <item name="sort_by" xsi:type="string">PRODUCT_LISTING_SORT_BY_ATTRIBUTES</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- The theme's view.xml as an opcache file; core parses and validates it on every request that asks for an image size. -->
+    <preference for="Magento\Framework\Config\View" type="GraphCommerce\FastBoot\Model\Config\OpcacheView"/>
+    <preference for="Magento\Framework\Config\ViewFactory" type="GraphCommerce\FastBoot\Model\Config\OpcacheViewFactory"/>
+
+    <!-- The system configuration of every scope as one opcache PHP array: no decrypt and no unserialise per request. -->
+    <type name="Magento\Config\App\Config\Type\System">
+        <plugin name="graphcommerce_fastboot_system_from_file" type="GraphCommerce\FastBoot\Plugin\Config\SystemFromFile"/>
+    </type>
+
+    <!-- A value is quoted without a connection, so a request that serves its selects from the cache never connects. -->
+    <preference for="Magento\Framework\DB\Adapter\Pdo\Mysql" type="GraphCommerce\FastBoot\Model\Db\Mysql"/>
+
+    <!-- The deployment config check from the cache instead of a flag table read per request. -->
+    <type name="Magento\Deploy\Model\DeploymentConfig\ChangeDetector">
+        <plugin name="graphcommerce_fastboot_config_unchanged" type="GraphCommerce\FastBoot\Plugin\Deploy\ConfigUnchanged" sortOrder="5"/>
+    </type>
+
+    <!-- The object manager receives only the entries an area changes, not the whole configuration again. -->
+    <type name="Magento\Framework\App\Http">
+        <arguments>
+            <argument name="configLoader" xsi:type="object">GraphCommerce\FastBoot\Model\ObjectManager\AreaConfigLoader</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\App\Area">
+        <arguments>
+            <argument name="diConfigLoader" xsi:type="object">GraphCommerce\FastBoot\Model\ObjectManager\AreaConfigLoader</argument>
+        </arguments>
+    </type>
+
+    <!-- The websites, groups and stores from the cache instead of three selects per request. -->
+    <type name="Magento\Store\App\Config\Source\RuntimeConfigSource">
+        <plugin name="graphcommerce_fastboot_scopes_cache" type="GraphCommerce\FastBoot\Plugin\Store\ScopesCache"/>
+    </type>
+
+    <!-- The stores of a website and the default store of a group without a select per request. -->
+    <type name="Magento\Store\Model\ResourceModel\StoreWebsiteRelation">
+        <plugin name="graphcommerce_fastboot_website_stores" type="GraphCommerce\FastBoot\Plugin\Store\WebsiteStores"/>
+    </type>
+    <type name="Magento\Store\Model\Group">
+        <plugin name="graphcommerce_fastboot_default_store" type="GraphCommerce\FastBoot\Plugin\Store\DefaultStore"/>
+    </type>
+</config>

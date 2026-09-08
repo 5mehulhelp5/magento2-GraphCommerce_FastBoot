@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Opcache in front of the cache types that hold configuration, by their tag. -->
+    <type name="Magento\Framework\Cache\Frontend\Decorator\TagScope">
+        <plugin name="graphcommerce_fastboot_opcache_layer" type="GraphCommerce\FastBootCache\Plugin\OpcacheLayer"/>
+    </type>
+    <type name="GraphCommerce\FastBootCache\Plugin\OpcacheLayer">
+        <arguments>
+            <argument name="types" xsi:type="array">
+                <item name="config" xsi:type="const">Magento\Framework\App\Cache\Type\Config::CACHE_TAG</item>
+                <item name="eav" xsi:type="const">Magento\Eav\Model\Cache\Type::CACHE_TAG</item>
+                <item name="translate" xsi:type="const">Magento\Framework\App\Cache\Type\Translate::CACHE_TAG</item>
+                <item name="db_ddl" xsi:type="const">Magento\Framework\DB\Adapter\DdlCache::CACHE_TAG</item>
+                <item name="reflection" xsi:type="const">Magento\Framework\App\Cache\Type\Reflection::CACHE_TAG</item>
+                <item name="compiled_config" xsi:type="const">Magento\Framework\App\Interception\Cache\CompiledConfig::CACHE_TAG</item>
+                <item name="collections" xsi:type="const">Magento\Framework\App\Cache\Type\Collection::CACHE_TAG</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- The same, in front of the default frontend, for the configuration entries that use no cache type. Other modules add their ids and tags here. -->
+    <type name="Magento\Framework\App\Cache">
+        <plugin name="graphcommerce_fastboot_opcache_default_layer" type="GraphCommerce\FastBootCache\Plugin\OpcacheDefaultLayer"/>
+    </type>
+    <type name="GraphCommerce\FastBootCache\Plugin\OpcacheDefaultLayer">
+        <arguments>
+            <argument name="ids" xsi:type="array">
+                <item name="eav_types" xsi:type="string">EAV_ENTITY_TYPES</item>
+                <item name="eav_attributes" xsi:type="string">EAV_ENTITY_ATTRIBUTES</item>
+                <item name="resolved_stores" xsi:type="string">resolved_stores_</item>
+                <item name="app" xsi:type="string">app_</item>
+                <item name="ddl" xsi:type="string">DB_PDO_MYSQL_DDL_</item>
+                <item name="theme" xsi:type="string">THEME_BY_ID</item>
+            </argument>
+            <argument name="tags" xsi:type="array">
+                <item name="config" xsi:type="const">Magento\Framework\App\Cache\Type\Config::CACHE_TAG</item>
+                <item name="eav" xsi:type="const">Magento\Eav\Model\Cache\Type::CACHE_TAG</item>
+                <item name="eav_attribute" xsi:type="const">Magento\Eav\Model\Entity\Attribute::CACHE_TAG</item>
+                <item name="db_ddl" xsi:type="const">Magento\Framework\DB\Adapter\DdlCache::CACHE_TAG</item>
+                <item name="store" xsi:type="const">Magento\Store\Model\Store::CACHE_TAG</item>
+                <item name="website" xsi:type="const">Magento\Store\Model\Website::CACHE_TAG</item>
+                <item name="group" xsi:type="const">Magento\Store\Model\Group::CACHE_TAG</item>
+                <item name="store_relations" xsi:type="const">Magento\Store\Model\StoreResolver::CACHE_TAG</item>
+                <item name="theme" xsi:type="string">THEME</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

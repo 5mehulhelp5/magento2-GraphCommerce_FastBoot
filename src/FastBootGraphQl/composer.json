@@ -1,0 +1,26 @@
+{
+    "name": "graphcommerce/module-fast-boot-graph-ql",
+    "description": "A faster GraphQL request on php-fpm: the schema as a PHP array, built-in scalars without the type walk, queries parsed and validated once, the response cache id without selects",
+    "type": "magento2-module",
+    "license": "MIT",
+    "require": {
+        "php": "~8.1.0|~8.2.0|~8.3.0|~8.4.0",
+        "graphcommerce/module-fast-boot-cache": "*",
+        "magento/framework": "*",
+        "magento/module-graph-ql": "*",
+        "magento/module-graph-ql-cache": "*",
+        "magento/module-customer-graph-ql": "*",
+        "magento/module-catalog-graph-ql": "*",
+        "magento/module-tax": "*",
+        "magento/module-customer": "*",
+        "webonyx/graphql-php": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "GraphCommerce\\FastBootGraphQl\\": ""
+        }
+    }
+}

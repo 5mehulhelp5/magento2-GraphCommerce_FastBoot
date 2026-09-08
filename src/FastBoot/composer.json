@@ -1,0 +1,23 @@
+{
+    "name": "graphcommerce/module-fast-boot",
+    "description": "A faster php-fpm bootstrap of Magento: the per-request work of the framework remembered, and preload from recorded classes",
+    "type": "magento2-module",
+    "license": "MIT",
+    "require": {
+        "php": "~8.1.0|~8.2.0|~8.3.0|~8.4.0",
+        "graphcommerce/module-fast-boot-cache": "*",
+        "magento/framework": "*",
+        "magento/module-store": "*",
+        "magento/module-config": "*",
+        "magento/module-deploy": "*",
+        "magento/module-theme": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "GraphCommerce\\FastBoot\\": ""
+        }
+    }
+}

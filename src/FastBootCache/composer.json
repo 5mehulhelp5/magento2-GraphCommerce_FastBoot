@@ -1,0 +1,20 @@
+{
+    "name": "graphcommerce/module-fast-boot-cache",
+    "description": "Opcache PHP files in front of Magento's configuration caches: a cache load becomes an include of shared memory",
+    "type": "magento2-module",
+    "license": "MIT",
+    "require": {
+        "php": "~8.1.0|~8.2.0|~8.3.0|~8.4.0",
+        "magento/framework": "*",
+        "magento/module-eav": "*",
+        "magento/module-store": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "GraphCommerce\\FastBootCache\\": ""
+        }
+    }
+}

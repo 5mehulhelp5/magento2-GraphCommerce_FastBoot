@@ -1,21 +1,35 @@
 {
-    "name": "graphcommerce/module-fast-boot",
-    "description": "A faster php-fpm bootstrap of Magento: opcache in front of the configuration caches, and the per-request work of the framework remembered",
+    "name": "graphcommerce/magento-fast-boot",
+    "description": "A faster php-fpm bootstrap of Magento 2 / Mage-OS: opcache PHP files in front of the configuration caches, and the per-request work of the framework remembered. One package with every module; each module directory is a package of its own for a subtree split.",
     "type": "magento2-module",
     "license": "MIT",
     "require": {
         "php": "~8.1.0|~8.2.0|~8.3.0|~8.4.0",
         "magento/framework": "*",
-        "magento/module-graph-ql": "*",
         "magento/module-store": "*",
-        "magento/module-eav": "*"
+        "magento/module-eav": "*",
+        "magento/module-config": "*",
+        "magento/module-deploy": "*",
+        "magento/module-theme": "*"
+    },
+    "replace": {
+        "graphcommerce/module-fast-boot-cache": "self.version",
+        "graphcommerce/module-fast-boot": "self.version",
+        "graphcommerce/module-fast-boot-graph-ql": "self.version"
+    },
+    "suggest": {
+        "magento/module-graph-ql": "GraphCommerce_FastBootGraphQl serves the schema, the parsed and validated queries and the response cache id from opcache files"
     },
     "autoload": {
         "files": [
-            "registration.php"
+            "src/FastBootCache/registration.php",
+            "src/FastBoot/registration.php",
+            "src/FastBootGraphQl/registration.php"
         ],
         "psr-4": {
-            "GraphCommerce\\FastBoot\\": ""
+            "GraphCommerce\\FastBootCache\\": "src/FastBootCache/",
+            "GraphCommerce\\FastBoot\\": "src/FastBoot/",
+            "GraphCommerce\\FastBootGraphQl\\": "src/FastBootGraphQl/"
         }
     }
 }

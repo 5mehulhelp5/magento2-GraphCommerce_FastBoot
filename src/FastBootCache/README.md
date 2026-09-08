@@ -1,0 +1,3 @@
+# GraphCommerce_FastBootCache
+
+Opcache PHP files in front of Magento's configuration caches. A load of a covered cache type or default frontend entry answers from a file under `var/fastboot/<cache>/<version>/` that opcache holds in shared memory; the cache's own tags, lifetimes, cleans and flushes decide when the file is dropped, through a version token under the config tag. Other modules register their entries with `ids` and `tags` items on `Plugin\OpcacheDefaultLayer`, and read and write their own files through `Model\PhpFiles`. `Model\Feature` reads the `fastboot` switches of env.php for every module. The repository README holds the design, the numbers and the rollout.

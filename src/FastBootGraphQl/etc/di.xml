@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- The stitched GraphQL schema from an opcache PHP file, 1.6 MB of JSON per request otherwise. -->
+    <virtualType name="Magento\Framework\GraphQl\Config\Data" type="GraphCommerce\FastBootGraphQl\Model\Config\OpcacheData">
+        <arguments>
+            <argument name="reader" xsi:type="object">Magento\Framework\GraphQlSchemaStitching\Reader</argument>
+            <argument name="cacheId" xsi:type="string">Magento_Framework_GraphQlSchemaStitching_Config_Data</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- A built-in scalar is answered without a walk over every declared type. -->
+    <preference for="Magento\Framework\GraphQl\SchemaFactory" type="GraphCommerce\FastBootGraphQl\Model\SchemaFactory"/>
+
+    <!-- A query is parsed once and validated once per opcache version. -->
+    <type name="Magento\Framework\GraphQl\Query\QueryParser">
+        <plugin name="graphcommerce_fastboot_parsed_queries" type="GraphCommerce\FastBootGraphQl\Plugin\Query\ParsedQueries" sortOrder="200"/>
+    </type>
+    <type name="Magento\Framework\GraphQl\Query\QueryProcessor">
+        <plugin name="graphcommerce_fastboot_validated_queries" type="GraphCommerce\FastBootGraphQl\Plugin\Query\ValidatedQueries" sortOrder="200"/>
+    </type>
+
+    <!-- The entries of this module in the default frontend layer. -->
+    <type name="GraphCommerce\FastBootCache\Plugin\OpcacheDefaultLayer">
+        <arguments>
+            <argument name="ids" xsi:type="array">
+                <item name="tax_factor" xsi:type="string">FASTBOOT_TAX_FACTOR_</item>
+                <item name="placeholder" xsi:type="string">FASTBOOT_PLACEHOLDER_</item>
+            </argument>
+            <argument name="tags" xsi:type="array">
+                <item name="tax" xsi:type="const">GraphCommerce\FastBootGraphQl\Plugin\CacheId\GuestTaxFactor::TAG</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- The guest tax rate factor of the response cache id from the cache; a tax or customer group save drops it. -->
+    <type name="Magento\CustomerGraphQl\CacheIdFactorProviders\CustomerTaxRateProvider">
+        <plugin name="graphcommerce_fastboot_guest_tax_factor" type="GraphCommerce\FastBootGraphQl\Plugin\CacheId\GuestTaxFactor"/>
+    </type>
+    <type name="Magento\Tax\Model\ResourceModel\Calculation\Rate">
+        <plugin name="graphcommerce_fastboot_forget_tax_factors" type="GraphCommerce\FastBootGraphQl\Plugin\Tax\ForgetTaxFactors"/>
+    </type>
+    <type name="Magento\Tax\Model\ResourceModel\Calculation\Rule">
+        <plugin name="graphcommerce_fastboot_forget_tax_factors" type="GraphCommerce\FastBootGraphQl\Plugin\Tax\ForgetTaxFactors"/>
+    </type>
+    <type name="Magento\Tax\Model\ResourceModel\TaxClass">
+        <plugin name="graphcommerce_fastboot_forget_tax_factors" type="GraphCommerce\FastBootGraphQl\Plugin\Tax\ForgetTaxFactors"/>
+    </type>
+    <type name="Magento\Customer\Model\ResourceModel\Group">
+        <plugin name="graphcommerce_fastboot_forget_tax_factors" type="GraphCommerce\FastBootGraphQl\Plugin\Tax\ForgetTaxFactors"/>
+    </type>
+
+    <!-- The placeholder image URL per store and image type from the cache. -->
+    <type name="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Image\Placeholder">
+        <plugin name="graphcommerce_fastboot_placeholder_url" type="GraphCommerce\FastBootGraphQl\Plugin\Catalog\PlaceholderUrl"/>
+    </type>
+</config>

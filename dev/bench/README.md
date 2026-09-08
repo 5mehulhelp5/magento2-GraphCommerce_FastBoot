@@ -1,0 +1,3 @@
+# Bench
+
+`phpbench.sh <url> <query.json> <runs> <label>` prints the median PHP time of a request from the profiler's report (mage-os/module-profiler with the `X-Mage-Profiler: json` header) and the median of the point where the GraphQL query starts. `ablate.sh` measures every switch alone: all on, each one off, all off; it rewrites `app/etc/config.php` for every row and restores it, and restarts the php-fpm master it finds on port 9084. Both take the Magento root from `MAGENTO_ROOT` or four directories up; the requests carry the catalog storefront headers of the shop this was built on, with the key read from `var/fastboot/.key`.

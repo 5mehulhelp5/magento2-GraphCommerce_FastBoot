@@ -2,76 +2,52 @@
 
 A faster php-fpm bootstrap of Magento 2 and Mage-OS, for the deployments where every request starts from nothing.[^1] Four modules in one package: `FastBootCache` puts opcache PHP files in front of the configuration caches and is usable alone, `FastBoot` removes the work the framework repeats per request, `FastBootGraphQl` does the same for a GraphQL request, `FastBootPreload` keeps an opcache preload list that records itself. Install, enable, compile: an integration changes nothing. Every mechanism has a switch for the case where it must be off.
 
-## Where a php-fpm request spends its start
+## Numbers
 
-A trivial GraphQL query (`storeConfig { store_code }`) on the shop this was built on took 61 ms in PHP before these modules, and the query itself ran at 51 ms. Sampled with excimer, the 51 ms before the query were:
+PHP time from the profiler, medians, on a shop with 500 000 products; the trivial query is `storeConfig { store_code }`, the listings ask 24 products with facets.
 
-| Cost | ms | What it is |
-| --- | --- | --- |
-| Cache loads | 17 | 18 loads from Redis: system config, scopes, stores, event configs, translations, the stitched GraphQL schema |
-| Deserialise and decompress | 14 | `json_decode` of the 1.6 MB schema, `unserialize` of the rest, gzip |
-| Store tables | 6 | three selects, on every request, when the scopes are not dumped into config.php |
-| Connections | 4 | a MySQL and a Redis connection per request |
-| Object manager and interception | 10 | fixed, as it seemed |
+| | Trivial | Unfiltered listing | Category listing |
+| --- | --- | --- | --- |
+| Before | 61 ms | 148 ms | 109 ms |
+| With the modules | 8 ms | 95 ms | 50 ms |
 
-And the query itself, on every request: a walk over every declared GraphQL type (7 ms), the validation rules over the document (7 ms on a listing), the selects behind the response cache id (4) and the store config (1).
+Before, the 51 ms in front of the trivial query were 18 cache loads from Redis with their decompress and unserialise (30 ms), three store selects (6), a MySQL and a Redis connection (4) and the object manager (10); the query itself walked every declared GraphQL type (7) and loaded the tax rates for the response cache id (4). Now a request sends one Redis command per two seconds and no SQL, the trivial query runs in 2 ms, and the listings' remaining time is the search engine (45 to 60 ms of the unfiltered one) and the resolvers.
 
-## Measured
+What each mechanism is worth alone, as the increase when only it is off, from the switch bench in `dev/bench` (medians of 15; under a millisecond is noise, and the sum exceeds the total because the MySQL connection only stays away when the store config, the tax factor and the deployment check are all cached):
 
-The trivial query and the 24 item unfiltered listing on php-fpm, PHP time from the profiler (which adds a few milliseconds of its own) and time over the wire through nginx, medians of 21 and 41 requests, in the order the mechanisms were built:
+| Switch | Module | What it remembers | Trivial | Listing |
+| --- | --- | --- | --- | --- |
+| `schema_scalars` | GraphQl | a built-in scalar without a walk over every declared type | 10 ms | 10 ms |
+| `schema_array` | GraphQl | the stitched schema as a PHP array, not 1.6 MB of JSON | 10 ms | 5 ms |
+| `guest_tax_factor` | GraphQl | the guest tax factor of the response cache id, four selects | 9 ms | 17 ms |
+| `cache_files` | Cache | the configuration cache types and default frontend entries as opcache files | 5 ms | 15 ms |
+| `website_stores` | FastBoot | the stores of a website, a three-table select | 6 ms | 7 ms |
+| `deploy_config_unchanged` | FastBoot | the deployment config check, a flag table read | 4 ms | 13 ms |
+| `scopes_cache` | FastBoot | the websites, groups and stores, three selects | 4 ms | 13 ms |
+| `validated_queries` | GraphQl | the validation rules over the document, once per version | 2 ms | 12 ms |
+| `area_config_diff` | FastBoot | only the entries an area changes for the object manager, not 15 000 again | 2 ms | 12 ms |
+| `placeholder_url` | GraphQl | the placeholder image URL, theme and asset context | 2 ms | 12 ms |
+| `default_store` | FastBoot | the default store of a group, a collection load | 2 ms | 8 ms |
+| `quote_without_connection` | FastBoot | quoting without a database connection | 2 ms | 9 ms |
+| `system_config_array` | FastBoot | the system configuration as one PHP array, no decrypt or unserialise | 2 ms | 1 ms |
+| `parsed_queries` | GraphQl | the parsed document from a file | 0 ms | 3 ms |
+| `view_config` | FastBoot | the theme's view.xml as a PHP array; only a request that asks an image size pays it | 0 ms | 0 ms |
 
-| | Trivial, PHP | Trivial, before the query | Trivial, wire | Listing, PHP | Listing, wire |
-| --- | --- | --- | --- | --- | --- |
-| Before | 61 ms | 51 ms | 63 ms | 148 ms | 160 ms |
-| Preload, persistent connections, phpredis | 51 ms | 40 ms | 61 ms | 147 ms | 153 ms |
-| Opcache layers, schema array, scopes cache | 39 ms | 28 ms | 49 ms | 138 ms | 131 ms |
-| Timestamps off, no session, no token reads, compiled config and collections, view config | 28 ms | 20 ms | | 119 ms | |
-| System config array, lifetime entries, no type map walk, no MySQL connection | 22 ms | 5 ms | 33 ms | 113 ms | 119 ms |
-| Scalars without the type walk, area diff, validated queries, cache id and store config from the cache, assertions off | 9 ms | 6 ms | 19 ms | 109 ms | 111 ms |
-| Parsed queries from a file, the three modules | 8 ms | 6 ms | 18 ms | 95 ms | 107 ms |
-
-The trivial request's query itself runs in 2 ms; the 24 item category listing runs in 59 ms. A request sends one Redis command per grace period and no SQL at all. The listing's remaining time is the search engine (the unfiltered search with its 30 aggregations, 45 to 60 ms) and the resolvers; on the PHP side the executor, the schema objects of the types the query touches, the document decoding and core's search request build share the rest.
-
-Each switch alone, medians of 15 requests, PHP time: the row is what the request costs with that one mechanism off and every other one on. A difference under a millisecond is noise here.
-
-| Off | Trivial, PHP | Listing, PHP |
-| --- | --- | --- |
-| nothing | 6.0 ms | 90 ms |
-| `schema_scalars` | 15.6 ms | 100 ms |
-| `schema_array` | 15.5 ms | 96 ms |
-| `guest_tax_factor` | 14.5 ms | 107 ms |
-| `website_stores` | 11.6 ms | 98 ms |
-| `cache_files` | 11.0 ms | 105 ms |
-| `deploy_config_unchanged` | 10.4 ms | 104 ms |
-| `scopes_cache` | 9.5 ms | 103 ms |
-| `validated_queries` | 8.3 ms | 102 ms |
-| `system_config_array` | 7.8 ms | 91 ms |
-| `area_config_diff` | 7.8 ms | 103 ms |
-| `default_store` | 7.7 ms | 98 ms |
-| `placeholder_url` | 7.7 ms | 102 ms |
-| `quote_without_connection` | 7.5 ms | 99 ms |
-| `view_config` | 6.0 ms | 90 ms |
-| everything | 54.9 ms | 150 ms |
-
-Two mechanisms hide behind others: the MySQL connection stays away only when the store config, the tax factor and the deployment check are all served from the cache, and the view config only matters to a request that asks for an image size, which neither of these queries does.
+Outside the modules, each worth a few milliseconds: preload (10 ms on the trivial query), persistent MySQL and Redis connections, phpredis instead of Predis, `opcache.validate_timestamps=0` with `opcache.file_update_protection=0`, and `zend.assertions=-1` (webonyx's executor builds an assertion message per field otherwise; production's default). Tracing JIT was measured and made both requests slower.
 
 ## What the modules do
 
-**FastBootCache.** Every load of the `config`, `eav`, `translate`, `db_ddl`, `reflection`, `compiled_config` and `collections` cache types, and of the default frontend entries the other modules register (EAV types and attributes, resolved stores, the app config, DDL, the theme), answers from a PHP file under `var/fastboot/<cache>/<version>/` after the first request of a version. Opcache keeps the file in shared memory, so the load is an include of microseconds instead of a network read, a decompress and a deserialise. An entry saved with a lifetime is stored with its expiry; an entry the layer only loaded, whose lifetime the frontend does not tell, is read from the cache again after two hours. A version is a token in the shared cache under the config tag; a clean or a remove on a covered type bumps it on every server and sweeps the files, a flush removes the token and the next request past the grace starts a new version, and a server reads the token once per grace period (2 s) from a stamp file, so a request within the period opens no cache connection at all. The `Feature` switch reader lives here too.
+**FastBootCache.** A load of a covered cache type (`config`, `eav`, `translate`, `db_ddl`, `reflection`, `compiled_config`, `collections`) or default frontend entry (EAV, resolved stores, app config, DDL, theme; other modules register theirs) answers from a PHP file under `var/fastboot/<cache>/<version>/` after the first request of a version: an include of shared memory instead of a network read, a decompress and a deserialise. An entry saved with a lifetime keeps its expiry in the file; an entry only loaded, whose lifetime the frontend does not tell, is read from the cache again after two hours. The version is a token in the shared cache under the config tag: a clean or a remove on a covered type bumps it on every server and sweeps the files, a flush removes it and the next request past the grace starts a new version, and a server reads it once per two second grace from a stamp file, so a request within the grace opens no cache connection. A file holds scalars and arrays through `var_export`, never an object. `Model\Feature` reads the switches.
 
-**FastBoot.** The system configuration of every scope as one PHP array, so no scope entry is decrypted or unserialised per request. The theme's view.xml as a PHP array; core parses and validates it on every request that asks for an image or swatch size. The websites, groups and stores from one cache entry instead of three selects. No MySQL connection for a request that runs no query: Zend asks the PDO driver to quote a value, so a request that served every select from the cache still connected and ran the session statements; the deployment config check read a flag table per request. The object manager receives only the entries an area changes: the compiled metadata of an area holds the whole configuration again, and the object manager replaced its 15 000 arguments by themselves on every request. The stores of a website and the default store of a group without a collection load.
+**FastBoot.** The system configuration as one PHP array; the theme's view.xml as one; the scopes, the stores of a website and the default store of a group without selects; the deployment config check from the cache; quoting without a database connection (Zend asks the PDO driver, so a request that served every select from the cache still connected and ran the session statements); and only the entries an area changes for the object manager (the compiled area metadata holds the whole configuration again, and it was merged entry by entry on every request).
 
-**FastBootPreload.** A list of the classes real requests declare, in `var/fastboot/classes.txt`, and a `preload.php` that loads them at php-fpm start. The list records itself for fifteen minutes after every compile, so a deployment adds one ini line, `opcache.preload`, and nothing else. A static list cannot do this: a fifth of the 5 000 classes a request declares are the interceptors, proxies and factories generated for this shop's plugin configuration, and an eighth are its own and third party modules. The list only grows while preload is on, since a preloaded class is declared in every request; a class that no longer exists is skipped at start, a class no longer used stays preloaded until the list is deleted and recorded again with the ini line off for one restart.
+**FastBootGraphQl.** The stitched schema as a PHP array; a built-in scalar answered as such (webonyx looks for a scalar override in the schema's type list the first time a scalar value is completed, and Magento's type list is a closure that builds every declared type); a query parsed once, from the array form webonyx exports with the query as every node's source, and validated once per opcache version; the guest tax factor of the response cache id from the cache, dropped by a tax or customer group save; the placeholder image URL from the cache.
 
-What preload costs and saves: the php-fpm master runs the script once at start, before it forks a worker, and compiles and links every class in the list into opcache's shared memory, parent resolved, interfaces checked, method tables laid out. The workers share that segment; nothing runs between requests, and a worker that finishes a request keeps the classes declared. Without preload, opcache holds the compiled opcodes of each file, but a request still pays per class for the autoloader's lookup, the include and the linking into its own process, about 2 µs a class and 10 ms for the 5 000 classes a listing declares. That work is gone, not moved. The memory is paid once per master, 55 MB for this list, whatever the number of workers, and a worker holds less of its own than without preload, since a preloaded class is referenced in the shared segment and only its mutable state is copied on write. An unused preloaded class costs nothing per request; the costs sit at the edges: the master starts slower, seconds for a list this size, the segment must fit in `opcache.memory_consumption` next to the file cache, a class whose parent is missing warns at start, and a script error stops the master. Preloaded classes ignore `opcache.validate_timestamps`: after a deployment they stay as they were until php-fpm restarts, on every host.
-
-**FastBootGraphQl.** The stitched schema as a PHP array instead of 1.6 MB of JSON per request. A built-in scalar answered as such: webonyx looks for a scalar override in the schema's type list the first time a scalar value is completed, and Magento's type list is a closure that builds every declared type. A query parsed once, from the array form webonyx exports, and validated once per opcache version: the validation rules walk the document against the schema on every request otherwise. The guest tax rate factor of the response cache id, which loads the customer group, its tax class, its excluded websites and the tax rates on every response, from the cache, dropped by a tax or customer group save. The placeholder image URL from the cache.
-
-Outside the modules, in the deployment: persistent MySQL and Redis connections in env.php (`persistent`), the phpredis extension instead of Predis, `opcache.validate_timestamps=0` with `opcache.file_update_protection=0`, `zend.assertions=-1` (webonyx's executor builds an assertion message per field otherwise; production's default), and `opcache.preload` pointed at `FastBootPreload/preload.php`. Each is worth a few milliseconds; none is needed for the modules to work.
+**FastBootPreload.** A list of the classes real requests declare, in `var/fastboot/classes.txt`, that records itself for fifteen minutes after every compile, and a `preload.php` that loads it at php-fpm start. A shipped list cannot do this: a fifth of the 5 000 classes a request declares are the interceptors, proxies and factories generated for the shop's plugin configuration, an eighth its own and third party modules. What preload costs and saves: the master runs the script once before it forks a worker and compiles and links every class into opcache's shared memory; the workers share that segment and keep the classes between requests. Without preload a request pays per class for the autoloader, the include and the linking into its own process, about 2 µs a class and 10 ms for a listing. That work is gone, not moved; the memory is paid once per master (55 MB here) whatever the number of workers, and an unused preloaded class costs nothing per request. The costs sit at the edges: the master starts slower, the segment must fit `opcache.memory_consumption`, a class whose parent is missing warns, a script error stops the master, and preloaded classes ignore `opcache.validate_timestamps` until a restart. The list only grows while preload is on, since a preloaded class is declared in every request; a deleted class is skipped at start, one no longer used stays until the list is deleted and recorded again with the ini line off for one restart.
 
 ## Switches
 
-Every mechanism is on. A deployment turns one off in `app/etc/env.php`, since the reasons are per environment: a host whose `var/` is not shared the right way, a shop that must not have its configuration values on disk, a bench of one mechanism alone. The same array in `config.php` works as well, and is read together with env.php.
+Every mechanism is on. A deployment turns one off in `app/etc/env.php` (the same array in `config.php` is read too), since the reasons are per environment: a host whose `var/` is not shared the right way, a shop that must not have its configuration values on disk, a bench of one mechanism alone.
 
 ```php
 'fastboot' => [
@@ -79,58 +55,29 @@ Every mechanism is on. A deployment turns one off in `app/etc/env.php`, since th
 ],
 ```
 
-| Switch | Module | What it turns off |
-| --- | --- | --- |
-| `cache_files` | FastBootCache | the opcache files in front of the cache types and the default frontend |
-| `system_config_array` | FastBoot | the system configuration as one PHP array on disk |
-| `view_config` | FastBoot | the theme's view.xml as a PHP array |
-| `scopes_cache` | FastBoot | the websites, groups and stores from one cache entry |
-| `quote_without_connection` | FastBoot | quoting without a database connection |
-| `deploy_config_unchanged` | FastBoot | the deployment config check from the cache |
-| `area_config_diff` | FastBoot | the area diff for the object manager |
-| `website_stores` | FastBoot | the stores of a website from the cache |
-| `default_store` | FastBoot | the default store of a group from the store repository |
-| `schema_array` | FastBootGraphQl | the schema as a PHP array |
-| `schema_scalars` | FastBootGraphQl | built-in scalars without the type walk |
-| `parsed_queries` | FastBootGraphQl | the parsed document from a file |
-| `validated_queries` | FastBootGraphQl | validation once per version |
-| `guest_tax_factor` | FastBootGraphQl | the guest tax factor of the cache id from the cache |
-| `placeholder_url` | FastBootGraphQl | the placeholder image URL from the cache |
-
 ## How this was built
 
-The method was the same for every step: sample one request with excimer, take the largest block that is not the query's own work, read the core code behind it, and replace it with the smallest hook Magento offers. Then measure the medians again and run the parity gate of the catalog storefront package on both runtimes. Every block turned out to be one of four kinds:
-
-1. **A cache read that is a network round trip plus a deserialise.** Redis answers in microseconds, but a request made 18 of these reads and decompressed and unserialised each one, 30 ms in total. The fix keeps the same value as a PHP file that opcache holds in shared memory, in front of the cache, with the cache's own tags and lifetimes deciding when the file is dropped.
-2. **Work that core repeats per request because it has no cache of its own.** The theme's view.xml, the area configuration merge, the type walk for a scalar override, the validation rules, the tax rates behind the cache id. Each got a plugin, a preference or a replaced factory that remembers the result under the config tag or under the opcache version.
-3. **A connection made for nothing.** Quoting asked the PDO driver; the deployment check read a flag table.
-4. **php-fpm settings left at their development defaults.**
-
-Most hooks are ordinary plugins on public methods. Three are not: the GraphQL schema factory constructs its class with `new`, so the factory is replaced rather than the class; the object manager's config loader is a shared instance created before DI exists, so it is wired as a constructor argument of `Http` and `Area`; the stitched schema's config data is a virtual type, replaced by its type attribute. Nothing in `vendor/` is patched.
-
-The hard part was finding the blocks, not writing the hooks. None of these costs had a span in the profiler's timeline; they hid inside the object manager, the cache frontend and the executor, and only a sampled trace with a window on the bootstrap shows them.
+Sample one request with excimer, take the largest block that is not the query's own work, read the core code behind it, replace it with the smallest hook Magento offers, measure the medians again, run the parity gate of the catalog storefront package on both runtimes. Every block was one of four kinds: a cache read that is a network round trip plus a deserialise; work core repeats per request because it has no cache of its own; a connection made for nothing; a php-fpm setting left at its development default. Most hooks are plugins on public methods. Three are not: the GraphQL schema factory constructs its class with `new`, so the factory is replaced; the object manager's config loader is a shared instance created before DI exists, so it is a constructor argument of `Http` and `Area`; the stitched schema's config data is a virtual type, replaced by its type attribute. Nothing in `vendor/` is patched. The hard part was finding the blocks: none had a span in the profiler's timeline, and only a sampled trace with a window on the bootstrap shows them.
 
 ## Rolling this out
 
-Install, enable, `setup:di:compile`. `var/fastboot/` must be writable by php-fpm and shared by nothing else than the servers that share the cache; two installations that share `var/` but not their cache keep their trees apart by the cache backend's identity. What a deployment may add, in the order of value:
+Install, enable, `setup:di:compile`. `var/fastboot/` must be writable by php-fpm and shared by nothing else than the servers that share the cache; two installations that share `var/` but not their cache keep their trees apart by the cache backend's identity. Then, in the order of value:
 
 | Part | What to do | Risk |
 | --- | --- | --- |
-| The modules | Nothing. | Low. The files follow the cache's tags and lifetimes; a config clean on any server drops them on every server within the grace period. |
-| System config as a PHP array | Decide whether the values may be on disk. They are the values `app:config:dump` would write to config.php, decrypted, under `var/`, readable by the php-fpm user like `env.php` and the crypt key in it. | Low. Set `system_config_array` to false where they may not. |
-| php-fpm ini | `opcache.validate_timestamps=0`, `opcache.file_update_protection=0`, `zend.assertions=-1`, and a php-fpm restart in the deployment after the code changed. | Medium. Without the restart php-fpm runs the old code. Most deployments already do this. |
+| The modules | Nothing. | Low. The files follow the cache's tags and lifetimes; a clean on any server reaches every server within the grace. |
+| System config as a PHP array | Decide whether the values may be on disk: they are the values `app:config:dump` writes, decrypted, under `var/`, readable by the php-fpm user like `env.php` and the crypt key in it. | Low. Set `system_config_array` to false where they may not. |
+| php-fpm ini | `opcache.validate_timestamps=0`, `opcache.file_update_protection=0`, `zend.assertions=-1`, and a php-fpm restart in the deployment. | Medium. Without the restart php-fpm runs the old code. |
 | Persistent connections, phpredis | `persistent` in env.php for the database and the Redis backend; the phpredis extension. | Low. |
-| Opcache preload | `opcache.preload=<root>/app/code/GraphCommerce/FastBootPreload/preload.php` (or its vendor path), `opcache.preload_user` where php-fpm runs as root, restart php-fpm. The list fills itself. | Medium. One preload serves one code base per php-fpm master, so two installations on one master need two masters. The script loads nothing when the list is missing, so a master always starts. Worth 10 ms. |
+| Preload | `opcache.preload=<root>/app/code/GraphCommerce/FastBootPreload/preload.php` (or its vendor path), `opcache.preload_user` where php-fpm runs as root, restart. The list fills itself; the script loads nothing without one. | Medium. One preload serves one code base per master. |
 
-What to watch after the rollout: opcache memory. Every config invalidation leaves one version of about a thousand files behind as wasted memory until opcache restarts itself; `opcache.max_wasted_percentage` and `opcache.memory_consumption` set how many invalidations a master lives through. A shop that cleans its config cache every minute needs a larger opcache; a shop that cleans it on deployments notices nothing.
-
-What this does not do: it makes no request faster than its own work. A listing still waits for the search engine, and a request that runs SQL still connects. It removes the 50 ms every php-fpm request paid before its work began.
+What to watch: opcache memory. Every config invalidation leaves one version of about a thousand files as wasted memory until opcache restarts itself; `opcache.max_wasted_percentage` and `opcache.memory_consumption` set how many invalidations a master lives through. A shop that cleans its config cache every minute needs a larger opcache; one that cleans it on deployments notices nothing. And what this does not do: it makes no request faster than its own work; it removes the 50 ms every php-fpm request paid before its work began.
 
 ## Open work
 
-- **Magento's own test suites.** The claim that a bootstrap this much faster breaks nothing needs the proof a developer will ask for: the unit, integration and API functional suites of Magento run with the three modules enabled, on a clean installation, and a report of every test that behaves differently. Until then the evidence is the catalog storefront package's parity gate (26 queries, both paths, both runtimes) and the shop this was built on.
-- Symfony's `PhpArrayAdapter` is the deploy-time form of what `FastBootCache` does at runtime: one PHP file of warmed values, read-only, with a fallback pool. The schema, the system configuration and the view configuration could be written at deploy that way, so production never writes an executable file; the per-entry layer stays for what only a request knows. `PhpFilesAdapter` is the per-item form, with the expiry in the file and `opcache_invalidate` on write, and could carry `Model\PhpFiles`'s file format; neither answers the cross-server invalidation that the version token does.
-- The parsed document from a file loses nothing for error messages, since every node gets the query as its source; a check that webonyx's `AST::toArray` covers every node kind Magento's schema uses belongs to the test suite above.
-- What is left is in the framework: the object manager's factory reflects every class it creates (about 3 ms on a listing; Symfony's compiled container generates one method per service and caches its reflectors), the GraphQL config elements of the types a query touches are rebuilt per request (about 5 ms), and the EAV config creates its attribute objects per request (about 2.5 ms).
+- **Magento's own test suites.** The proof a developer asks for: the unit, integration and API functional suites run with the modules enabled on a clean installation, and a report of every test that behaves differently. Until then the evidence is the catalog storefront package's parity gate (26 queries, both paths, both runtimes) and the shop this was built on.
+- **Symfony's cache adapters.** `PhpArrayAdapter` is the deploy-time form of the file layer: one warmed, read-only file with a fallback pool, right for the schema, the system and the view configuration, so production never writes an executable file. `PhpFilesAdapter` is the per-item form and could carry the file format. Neither answers the cross-server invalidation the version token does.
+- **The framework.** The object manager's factory reflects every class it creates (about 3 ms on a listing; Symfony's compiled container generates a method per service and caches its reflectors), the GraphQL config elements of the types a query touches are rebuilt per request (5 ms), the EAV config creates its attribute objects per request (2.5 ms).
+- **The placeholder URL** has one caller, the product fields prefill of the catalog storefront package, and belongs there.
 
 [^1]: A process that keeps everything between requests, such as [mage-os-lab/module-worker-mode](https://github.com/mage-os-lab/module-worker-mode), pays the start once; these modules are for php-fpm, where it is paid per request.

@@ -14,10 +14,12 @@ use Magento\Framework\Filesystem;
  * a deserialise on every request. A write goes to a temporary file and
  * renames, so a request never includes a half file, and invalidates the
  * path in opcache, so a rewritten entry is read anew whatever the timestamp
- * validation says. A bump of the version
- * sweeps the directories; opcache keeps the compiled copies of dropped files
- * as wasted memory until its own restart, so opcache.max_wasted_percentage
- * sets how many config invalidations a php-fpm master lives through.
+ * validation says. A bump of the version sweeps the directories, so a
+ * writer or reader of the old version can find its directory gone under it:
+ * every file operation fails soft, as a cache miss. Opcache keeps the
+ * compiled copies of dropped files as wasted memory until its own restart,
+ * so opcache.max_wasted_percentage sets how many config invalidations a
+ * php-fpm master lives through.
  */
 class PhpFiles
 {
@@ -62,7 +64,10 @@ class PhpFiles
         if (!is_file($file)) {
             return null;
         }
-        $value = include $file;
+        $value = @include $file;
+        if ($value === false) {
+            return null;
+        }
         if (is_array($value) && isset($value[self::EXPIRES])) {
             return $value[self::EXPIRES] > time() ? $value['value'] : null;
         }
@@ -88,11 +93,16 @@ class PhpFiles
             @mkdir($dir, 0775, true);
         }
         $temporary = $file . '.' . getmypid() . '.tmp';
-        if (file_put_contents($temporary, "<?php\nreturn " . var_export($value, true) . ";\n") !== false) {
-            rename($temporary, $file);
-            if (function_exists('opcache_invalidate')) {
-                opcache_invalidate($file, true);
-            }
+        if (@file_put_contents($temporary, "<?php\nreturn " . var_export($value, true) . ";\n") === false) {
+            return;
+        }
+        if (!@rename($temporary, $file)) {
+            @unlink($temporary);
+
+            return;
+        }
+        if (function_exists('opcache_invalidate')) {
+            opcache_invalidate($file, true);
         }
     }
 
@@ -126,10 +136,7 @@ class PhpFiles
 
     public function remove(string $group, string $id): void
     {
-        $file = $this->path($group, $id);
-        if (is_file($file)) {
-            unlink($file);
-        }
+        @unlink($this->path($group, $id));
     }
 
     private function path(string $group, string $id): string
@@ -163,7 +170,7 @@ class PhpFiles
     private function removeDirectory(string $dir): void
     {
         foreach (glob($dir . '/*') ?: [] as $file) {
-            is_dir($file) ? $this->removeDirectory($file) : unlink($file);
+            is_dir($file) ? $this->removeDirectory($file) : @unlink($file);
         }
         @rmdir($dir);
     }

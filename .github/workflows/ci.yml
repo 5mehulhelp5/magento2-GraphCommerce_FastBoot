@@ -2,7 +2,7 @@ name: FastBoot CI
 
 on:
   push:
-    branches: [main, 'codex/**']
+    branches: [main]
     tags: ['v*']
   pull_request:
   workflow_dispatch:
@@ -32,6 +32,8 @@ jobs:
           tools: composer:v2
       - name: Validate Composer metadata
         run: composer validate --strict --no-check-publish --no-plugins
+      - name: Validate Python tooling
+        run: python3 -m compileall -q dev
       - name: Lint PHP source and fixtures
         run: find src dev -name '*.php' -print0 | xargs -0 -n1 php -l
 

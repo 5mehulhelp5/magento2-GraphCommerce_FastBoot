@@ -15,7 +15,7 @@ python3 compare.py \
   --base-url https://codex-fastboot-online-ba18c2.m2gc.deployyy.app \
   --store en_CA \
   --category /men/70s \
-  --blocks 3 --warmups 10 --runs 30 --profile \
+  --blocks 12 --warmups 10 --runs 50 --profile \
   --output /tmp/fastboot-results
 ```
 
@@ -28,6 +28,16 @@ It requires HTTP 200, disabled FPC and identical GraphQL data or canonical Luma 
 `results.json` contains aggregate timings and memory, `samples.json` contains individual requests, and `*-smaps.txt` records Linux process memory. PHP time stops before measurement serialization. PHP allocated memory, shared OPcache usage and preload statistics are recorded separately. Preload memory is part of OPcache usage, not an additional allocation to sum with it. FPM processes stop on completion or failure; remove the private copies and the runtime-storage directory printed by `prepare.py` after retrieving results.
 
 `--profile` captures a Magento CSV profile for each mode/workload after all measured traffic. Use `--workload products` (repeatable) to restrict a diagnostic run.
+
+The expanded comparison uses 600 measured requests per workload/mode. To calculate uncertainty from its published CSV:
+
+```sh
+python3 dev/bench/online/uncertainty.py \
+  dev/bench/online/data/expanded/samples.csv \
+  --resamples 10000 --seed 20260915 --output /tmp/fastboot-uncertainty.json
+```
+
+The 95% percentile intervals resample complete blocks, preserving the native/FastBoot/preload pairing and correlation within each block. They describe uncertainty in the difference of pooled medians, not variation between individual requests.
 
 For measurements through the public endpoint, run from the client machine:
 

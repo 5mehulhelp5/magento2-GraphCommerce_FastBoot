@@ -1,0 +1,134 @@
+{
+  "method": "Paired block bootstrap of differences of pooled medians",
+  "resamples": 10000,
+  "seed": 20260915,
+  "confidence": 0.95,
+  "workloads": {
+    "storeConfig": {
+      "blocks": 12,
+      "measured_per_mode": 600,
+      "comparisons": {
+        "native_minus_fastboot": {
+          "saving_ms": 13.561238499999998,
+          "ci95_ms": [
+            12.432746375,
+            14.427368174999998
+          ],
+          "block_saving_range_ms": [
+            9.5660615,
+            16.128631999999996
+          ],
+          "positive_blocks": 12
+        },
+        "native_minus_preload": {
+          "saving_ms": 18.431149499999997,
+          "ci95_ms": [
+            17.803537762500003,
+            19.045576462499998
+          ],
+          "block_saving_range_ms": [
+            14.5805005,
+            20.0330375
+          ],
+          "positive_blocks": 12
+        },
+        "fastboot_minus_preload": {
+          "saving_ms": 4.869911,
+          "ci95_ms": [
+            4.143274087499998,
+            5.810480925
+          ],
+          "block_saving_range_ms": [
+            -0.1822440000000043,
+            7.5299555
+          ],
+          "positive_blocks": 11
+        }
+      }
+    },
+    "products": {
+      "blocks": 12,
+      "measured_per_mode": 600,
+      "comparisons": {
+        "native_minus_fastboot": {
+          "saving_ms": 12.760965499999998,
+          "ci95_ms": [
+            4.464095499999985,
+            21.941349099999993
+          ],
+          "block_saving_range_ms": [
+            -11.30728350000004,
+            38.42596900000001
+          ],
+          "positive_blocks": 11
+        },
+        "native_minus_preload": {
+          "saving_ms": 35.60652850000008,
+          "ci95_ms": [
+            29.006555975000023,
+            39.921815837499985
+          ],
+          "block_saving_range_ms": [
+            1.7595920000001115,
+            44.74272599999995
+          ],
+          "positive_blocks": 12
+        },
+        "fastboot_minus_preload": {
+          "saving_ms": 22.845563000000084,
+          "ci95_ms": [
+            12.716267025000047,
+            31.411543912499962
+          ],
+          "block_saving_range_ms": [
+            -16.611194500000124,
+            39.66123249999998
+          ],
+          "positive_blocks": 10
+        }
+      }
+    },
+    "luma": {
+      "blocks": 12,
+      "measured_per_mode": 600,
+      "comparisons": {
+        "native_minus_fastboot": {
+          "saving_ms": 15.152393500000017,
+          "ci95_ms": [
+            11.439337025000002,
+            20.115838450000005
+          ],
+          "block_saving_range_ms": [
+            4.378803500000004,
+            32.73834150000002
+          ],
+          "positive_blocks": 12
+        },
+        "native_minus_preload": {
+          "saving_ms": 32.12779649999999,
+          "ci95_ms": [
+            26.912058199999997,
+            37.38590433749999
+          ],
+          "block_saving_range_ms": [
+            19.929396499999996,
+            49.40193199999999
+          ],
+          "positive_blocks": 12
+        },
+        "fastboot_minus_preload": {
+          "saving_ms": 16.97540299999997,
+          "ci95_ms": [
+            12.483768137499995,
+            19.84677632500001
+          ],
+          "block_saving_range_ms": [
+            4.44037400000002,
+            26.707325999999995
+          ],
+          "positive_blocks": 12
+        }
+      }
+    }
+  }
+}

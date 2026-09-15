@@ -1,0 +1,192 @@
+{
+  "arguments": {
+    "root": [
+      "native=/tmp/fastboot-expanded-comparison/native",
+      "fastboot=/tmp/fastboot-expanded-comparison/fastboot",
+      "preload=/tmp/fastboot-expanded-comparison/preload"
+    ],
+    "base_url": "https://codex-fastboot-online-ba18c2.m2gc.deployyy.app",
+    "category": "/men/70s",
+    "store": "en_CA",
+    "php_fpm": "/usr/sbin/php-fpm8.4",
+    "output": "/tmp/fastboot-expanded-results",
+    "blocks": 12,
+    "warmups": 10,
+    "runs": 50,
+    "workload": null,
+    "profile": true,
+    "preload": [
+      "preload"
+    ]
+  },
+  "summary": {
+    "storeConfig": {
+      "native": {
+        "n": 600,
+        "median_ms": 32.877556,
+        "p95_ms": 43.384701,
+        "peak_mib": 14,
+        "opcache": {
+          "used_memory": 152826552,
+          "free_memory": 115608904,
+          "wasted_memory": 0,
+          "current_wasted_percentage": 0
+        },
+        "preload": {
+          "classes": 0,
+          "scripts": 0,
+          "memory_consumption": 0
+        },
+        "content_sha256": "68199e58f42cea23c46f990cfad29c76a89a45f596043795097d062bed629534"
+      },
+      "fastboot": {
+        "n": 600,
+        "median_ms": 19.3163175,
+        "p95_ms": 29.495334,
+        "peak_mib": 6,
+        "opcache": {
+          "used_memory": 118191944,
+          "free_memory": 150243512,
+          "wasted_memory": 0,
+          "current_wasted_percentage": 0
+        },
+        "preload": {
+          "classes": 0,
+          "scripts": 0,
+          "memory_consumption": 0
+        },
+        "content_sha256": "68199e58f42cea23c46f990cfad29c76a89a45f596043795097d062bed629534"
+      },
+      "preload": {
+        "n": 600,
+        "median_ms": 14.4464065,
+        "p95_ms": 24.299794,
+        "peak_mib": 6,
+        "opcache": {
+          "used_memory": 117712568,
+          "free_memory": 150722888,
+          "wasted_memory": 0,
+          "current_wasted_percentage": 0
+        },
+        "preload": {
+          "classes": 4427,
+          "scripts": 5070,
+          "memory_consumption": 67103712
+        },
+        "content_sha256": "68199e58f42cea23c46f990cfad29c76a89a45f596043795097d062bed629534"
+      }
+    },
+    "products": {
+      "native": {
+        "n": 600,
+        "median_ms": 535.223278,
+        "p95_ms": 690.263598,
+        "peak_mib": 20,
+        "opcache": {
+          "used_memory": 152826552,
+          "free_memory": 115608904,
+          "wasted_memory": 0,
+          "current_wasted_percentage": 0
+        },
+        "preload": {
+          "classes": 0,
+          "scripts": 0,
+          "memory_consumption": 0
+        },
+        "content_sha256": "3f3b38ade2d635f26f03b5cc0b4a0e4e64d2e97b0d0b74b4a9657e087d6bc98e"
+      },
+      "fastboot": {
+        "n": 600,
+        "median_ms": 522.4623125,
+        "p95_ms": 660.755155,
+        "peak_mib": 10,
+        "opcache": {
+          "used_memory": 118191944,
+          "free_memory": 150243512,
+          "wasted_memory": 0,
+          "current_wasted_percentage": 0
+        },
+        "preload": {
+          "classes": 0,
+          "scripts": 0,
+          "memory_consumption": 0
+        },
+        "content_sha256": "3f3b38ade2d635f26f03b5cc0b4a0e4e64d2e97b0d0b74b4a9657e087d6bc98e"
+      },
+      "preload": {
+        "n": 600,
+        "median_ms": 499.61674949999997,
+        "p95_ms": 641.586992,
+        "peak_mib": 10,
+        "opcache": {
+          "used_memory": 117712568,
+          "free_memory": 150722888,
+          "wasted_memory": 0,
+          "current_wasted_percentage": 0
+        },
+        "preload": {
+          "classes": 4427,
+          "scripts": 5070,
+          "memory_consumption": 67103712
+        },
+        "content_sha256": "3f3b38ade2d635f26f03b5cc0b4a0e4e64d2e97b0d0b74b4a9657e087d6bc98e"
+      }
+    },
+    "luma": {
+      "native": {
+        "n": 600,
+        "median_ms": 160.8910275,
+        "p95_ms": 205.818782,
+        "peak_mib": 22,
+        "opcache": {
+          "used_memory": 152826552,
+          "free_memory": 115608904,
+          "wasted_memory": 0,
+          "current_wasted_percentage": 0
+        },
+        "preload": {
+          "classes": 0,
+          "scripts": 0,
+          "memory_consumption": 0
+        },
+        "content_sha256": "e8bd403ff639b664a18d78ca817bf678d5ccc3ef10a650e20de28687c978906a"
+      },
+      "fastboot": {
+        "n": 600,
+        "median_ms": 145.738634,
+        "p95_ms": 190.617677,
+        "peak_mib": 14,
+        "opcache": {
+          "used_memory": 118191944,
+          "free_memory": 150243512,
+          "wasted_memory": 0,
+          "current_wasted_percentage": 0
+        },
+        "preload": {
+          "classes": 0,
+          "scripts": 0,
+          "memory_consumption": 0
+        },
+        "content_sha256": "e8bd403ff639b664a18d78ca817bf678d5ccc3ef10a650e20de28687c978906a"
+      },
+      "preload": {
+        "n": 600,
+        "median_ms": 128.76323100000002,
+        "p95_ms": 170.262234,
+        "peak_mib": 14,
+        "opcache": {
+          "used_memory": 117712568,
+          "free_memory": 150722888,
+          "wasted_memory": 0,
+          "current_wasted_percentage": 0
+        },
+        "preload": {
+          "classes": 4427,
+          "scripts": 5070,
+          "memory_consumption": 67103712
+        },
+        "content_sha256": "e8bd403ff639b664a18d78ca817bf678d5ccc3ef10a650e20de28687c978906a"
+      }
+    }
+  }
+}

@@ -1,0 +1,2879 @@
+{
+  "arguments": {
+    "base_url": "https://codex-fastboot-online-ba18c2.m2gc.deployyy.app",
+    "store": "en_CA",
+    "category": "/men/70s",
+    "output": "public.json",
+    "warmups": 5,
+    "runs": 100
+  },
+  "connection": "new curl process and TLS connection per request",
+  "compression": "negotiated with curl --compressed",
+  "workloads": {
+    "storeConfig": {
+      "n": 100,
+      "median_ttfb_ms": 80.24249999999999,
+      "p95_ttfb_ms": 108.041,
+      "median_total_ms": 80.7435,
+      "content_sha256": "68199e58f42cea23c46f990cfad29c76a89a45f596043795097d062bed629534",
+      "samples": [
+        {
+          "status": 200,
+          "ttfb_s": 0.114424,
+          "total_s": 0.114685,
+          "connect_s": 0.030809,
+          "tls_s": 0.048219,
+          "cache": "UNCACHEABLE",
+          "measured": false
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.081313,
+          "total_s": 0.081562,
+          "connect_s": 0.015825,
+          "tls_s": 0.033293,
+          "cache": "UNCACHEABLE",
+          "measured": false
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.068598,
+          "total_s": 0.06879,
+          "connect_s": 0.016148,
+          "tls_s": 0.033157,
+          "cache": "UNCACHEABLE",
+          "measured": false
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.08568,
+          "total_s": 0.086233,
+          "connect_s": 0.016255,
+          "tls_s": 0.033445,
+          "cache": "UNCACHEABLE",
+          "measured": false
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.09467,
+          "total_s": 0.095255,
+          "connect_s": 0.016736,
+          "tls_s": 0.038783,
+          "cache": "UNCACHEABLE",
+          "measured": false
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.071587,
+          "total_s": 0.071961,
+          "connect_s": 0.016852,
+          "tls_s": 0.033234,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.078172,
+          "total_s": 0.07855,
+          "connect_s": 0.015795,
+          "tls_s": 0.033639,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.068581,
+          "total_s": 0.068978,
+          "connect_s": 0.015182,
+          "tls_s": 0.032257,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.083273,
+          "total_s": 0.083516,
+          "connect_s": 0.014976,
+          "tls_s": 0.031047,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.114036,
+          "total_s": 0.114381,
+          "connect_s": 0.015358,
+          "tls_s": 0.036712,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.100518,
+          "total_s": 0.100872,
+          "connect_s": 0.015982,
+          "tls_s": 0.034452,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.071535,
+          "total_s": 0.071925,
+          "connect_s": 0.015675,
+          "tls_s": 0.033983,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.070398,
+          "total_s": 0.070858,
+          "connect_s": 0.016486,
+          "tls_s": 0.034062,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.102607,
+          "total_s": 0.103113,
+          "connect_s": 0.01934,
+          "tls_s": 0.038058,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.074245,
+          "total_s": 0.074705,
+          "connect_s": 0.018043,
+          "tls_s": 0.035165,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.074577,
+          "total_s": 0.075008,
+          "connect_s": 0.016052,
+          "tls_s": 0.034162,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.079975,
+          "total_s": 0.080385,
+          "connect_s": 0.015352,
+          "tls_s": 0.033708,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.073767,
+          "total_s": 0.074025,
+          "connect_s": 0.015687,
+          "tls_s": 0.035036,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.090469,
+          "total_s": 0.091003,
+          "connect_s": 0.016562,
+          "tls_s": 0.035932,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.073458,
+          "total_s": 0.0739,
+          "connect_s": 0.016121,
+          "tls_s": 0.0348,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.073826,
+          "total_s": 0.074038,
+          "connect_s": 0.015872,
+          "tls_s": 0.03378,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.093286,
+          "total_s": 0.093803,
+          "connect_s": 0.015092,
+          "tls_s": 0.032102,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.07252,
+          "total_s": 0.072946,
+          "connect_s": 0.018902,
+          "tls_s": 0.036324,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.112703,
+          "total_s": 0.113095,
+          "connect_s": 0.027014,
+          "tls_s": 0.056728,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.077899,
+          "total_s": 0.078328,
+          "connect_s": 0.014935,
+          "tls_s": 0.033119,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.0917,
+          "total_s": 0.091946,
+          "connect_s": 0.015053,
+          "tls_s": 0.038608,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.080294,
+          "total_s": 0.080823,
+          "connect_s": 0.015119,
+          "tls_s": 0.034995,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.085839,
+          "total_s": 0.086397,
+          "connect_s": 0.016228,
+          "tls_s": 0.03471,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.074906,
+          "total_s": 0.07534,
+          "connect_s": 0.018037,
+          "tls_s": 0.03759,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.072455,
+          "total_s": 0.072724,
+          "connect_s": 0.015362,
+          "tls_s": 0.032836,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.087042,
+          "total_s": 0.087639,
+          "connect_s": 0.016516,
+          "tls_s": 0.03383,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.082401,
+          "total_s": 0.082623,
+          "connect_s": 0.015542,
+          "tls_s": 0.035472,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.084337,
+          "total_s": 0.084612,
+          "connect_s": 0.015159,
+          "tls_s": 0.031777,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.085935,
+          "total_s": 0.0863,
+          "connect_s": 0.015131,
+          "tls_s": 0.033204,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.083745,
+          "total_s": 0.084243,
+          "connect_s": 0.016011,
+          "tls_s": 0.03406,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.083424,
+          "total_s": 0.08395,
+          "connect_s": 0.016301,
+          "tls_s": 0.033588,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.081037,
+          "total_s": 0.081494,
+          "connect_s": 0.016309,
+          "tls_s": 0.038967,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.084539,
+          "total_s": 0.08491,
+          "connect_s": 0.017248,
+          "tls_s": 0.034,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.08125,
+          "total_s": 0.081561,
+          "connect_s": 0.01594,
+          "tls_s": 0.034691,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.079716,
+          "total_s": 0.080166,
+          "connect_s": 0.017016,
+          "tls_s": 0.034797,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.080807,
+          "total_s": 0.08129,
+          "connect_s": 0.015845,
+          "tls_s": 0.038504,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.079422,
+          "total_s": 0.079735,
+          "connect_s": 0.016996,
+          "tls_s": 0.035007,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.074884,
+          "total_s": 0.075138,
+          "connect_s": 0.016942,
+          "tls_s": 0.036533,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.08102,
+          "total_s": 0.081585,
+          "connect_s": 0.021153,
+          "tls_s": 0.040257,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.082646,
+          "total_s": 0.083215,
+          "connect_s": 0.015466,
+          "tls_s": 0.038151,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.071178,
+          "total_s": 0.071608,
+          "connect_s": 0.015852,
+          "tls_s": 0.032966,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.082598,
+          "total_s": 0.082958,
+          "connect_s": 0.015777,
+          "tls_s": 0.035998,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.095718,
+          "total_s": 0.09609,
+          "connect_s": 0.016729,
+          "tls_s": 0.034783,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.090229,
+          "total_s": 0.090606,
+          "connect_s": 0.015511,
+          "tls_s": 0.037669,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.075898,
+          "total_s": 0.076195,
+          "connect_s": 0.016136,
+          "tls_s": 0.037446,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.071822,
+          "total_s": 0.072204,
+          "connect_s": 0.015612,
+          "tls_s": 0.033306,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.079643,
+          "total_s": 0.079896,
+          "connect_s": 0.015541,
+          "tls_s": 0.033808,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.070585,
+          "total_s": 0.071,
+          "connect_s": 0.015508,
+          "tls_s": 0.034007,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.079636,
+          "total_s": 0.079913,
+          "connect_s": 0.018414,
+          "tls_s": 0.036239,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.079918,
+          "total_s": 0.080405,
+          "connect_s": 0.017126,
+          "tls_s": 0.039232,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.087215,
+          "total_s": 0.087649,
+          "connect_s": 0.017943,
+          "tls_s": 0.034851,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.071191,
+          "total_s": 0.071466,
+          "connect_s": 0.015442,
+          "tls_s": 0.034552,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.07523,
+          "total_s": 0.075677,
+          "connect_s": 0.015717,
+          "tls_s": 0.037019,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.069828,
+          "total_s": 0.070324,
+          "connect_s": 0.015661,
+          "tls_s": 0.032799,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.099793,
+          "total_s": 0.100375,
+          "connect_s": 0.016446,
+          "tls_s": 0.033975,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.12296,
+          "total_s": 0.123227,
+          "connect_s": 0.051414,
+          "tls_s": 0.069271,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.081116,
+          "total_s": 0.081583,
+          "connect_s": 0.014398,
+          "tls_s": 0.037525,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.084327,
+          "total_s": 0.084701,
+          "connect_s": 0.015006,
+          "tls_s": 0.034132,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.108041,
+          "total_s": 0.108583,
+          "connect_s": 0.015205,
+          "tls_s": 0.068209,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.072524,
+          "total_s": 0.072939,
+          "connect_s": 0.017013,
+          "tls_s": 0.034693,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.070817,
+          "total_s": 0.071053,
+          "connect_s": 0.016413,
+          "tls_s": 0.033937,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.070917,
+          "total_s": 0.071393,
+          "connect_s": 0.015329,
+          "tls_s": 0.032967,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.075654,
+          "total_s": 0.076089,
+          "connect_s": 0.015186,
+          "tls_s": 0.037439,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.080529,
+          "total_s": 0.081022,
+          "connect_s": 0.015298,
+          "tls_s": 0.033167,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.080155,
+          "total_s": 0.080522,
+          "connect_s": 0.016713,
+          "tls_s": 0.033961,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.074948,
+          "total_s": 0.075195,
+          "connect_s": 0.016528,
+          "tls_s": 0.034949,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.089257,
+          "total_s": 0.089509,
+          "connect_s": 0.015811,
+          "tls_s": 0.03656,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.078141,
+          "total_s": 0.078392,
+          "connect_s": 0.016435,
+          "tls_s": 0.035287,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.071662,
+          "total_s": 0.072605,
+          "connect_s": 0.015297,
+          "tls_s": 0.032702,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.079698,
+          "total_s": 0.080114,
+          "connect_s": 0.015726,
+          "tls_s": 0.032494,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.071594,
+          "total_s": 0.072062,
+          "connect_s": 0.015739,
+          "tls_s": 0.034771,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.082465,
+          "total_s": 0.082866,
+          "connect_s": 0.016413,
+          "tls_s": 0.034013,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.083181,
+          "total_s": 0.083712,
+          "connect_s": 0.015453,
+          "tls_s": 0.034423,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.308135,
+          "total_s": 0.308612,
+          "connect_s": 0.017494,
+          "tls_s": 0.037332,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.086173,
+          "total_s": 0.086751,
+          "connect_s": 0.01614,
+          "tls_s": 0.035643,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.069928,
+          "total_s": 0.07027,
+          "connect_s": 0.015511,
+          "tls_s": 0.033437,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.071818,
+          "total_s": 0.07224,
+          "connect_s": 0.015802,
+          "tls_s": 0.032002,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.083772,
+          "total_s": 0.084122,
+          "connect_s": 0.016102,
+          "tls_s": 0.033823,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.078009,
+          "total_s": 0.078353,
+          "connect_s": 0.017321,
+          "tls_s": 0.034674,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.092208,
+          "total_s": 0.092709,
+          "connect_s": 0.015752,
+          "tls_s": 0.037203,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.095254,
+          "total_s": 0.095721,
+          "connect_s": 0.01845,
+          "tls_s": 0.036087,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.085654,
+          "total_s": 0.08603,
+          "connect_s": 0.019528,
+          "tls_s": 0.038469,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.071154,
+          "total_s": 0.071523,
+          "connect_s": 0.018112,
+          "tls_s": 0.035694,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.08247,
+          "total_s": 0.082956,
+          "connect_s": 0.016432,
+          "tls_s": 0.034434,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.073401,
+          "total_s": 0.07383,
+          "connect_s": 0.0165,
+          "tls_s": 0.038234,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.134898,
+          "total_s": 0.135419,
+          "connect_s": 0.016604,
+          "tls_s": 0.052372,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.08663,
+          "total_s": 0.087161,
+          "connect_s": 0.016691,
+          "tls_s": 0.036227,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.084188,
+          "total_s": 0.084498,
+          "connect_s": 0.019173,
+          "tls_s": 0.037911,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.085414,
+          "total_s": 0.085681,
+          "connect_s": 0.016933,
+          "tls_s": 0.034256,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.087887,
+          "total_s": 0.088235,
+          "connect_s": 0.017662,
+          "tls_s": 0.035055,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.080191,
+          "total_s": 0.080664,
+          "connect_s": 0.017258,
+          "tls_s": 0.034957,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.07568,
+          "total_s": 0.076137,
+          "connect_s": 0.016299,
+          "tls_s": 0.038319,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.08408,
+          "total_s": 0.084379,
+          "connect_s": 0.016541,
+          "tls_s": 0.03453,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.070114,
+          "total_s": 0.070596,
+          "connect_s": 0.016298,
+          "tls_s": 0.03405,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.081029,
+          "total_s": 0.081317,
+          "connect_s": 0.017304,
+          "tls_s": 0.034138,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.077674,
+          "total_s": 0.078125,
+          "connect_s": 0.015634,
+          "tls_s": 0.033234,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.082426,
+          "total_s": 0.082816,
+          "connect_s": 0.016585,
+          "tls_s": 0.033461,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.080123,
+          "total_s": 0.080558,
+          "connect_s": 0.018961,
+          "tls_s": 0.037387,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.079774,
+          "total_s": 0.080345,
+          "connect_s": 0.016288,
+          "tls_s": 0.0336,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.079516,
+          "total_s": 0.079921,
+          "connect_s": 0.017541,
+          "tls_s": 0.037628,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        }
+      ]
+    },
+    "products": {
+      "n": 100,
+      "median_ttfb_ms": 594.4415,
+      "p95_ttfb_ms": 728.502,
+      "median_total_ms": 594.9105,
+      "content_sha256": "3f3b38ade2d635f26f03b5cc0b4a0e4e64d2e97b0d0b74b4a9657e087d6bc98e",
+      "samples": [
+        {
+          "status": 200,
+          "ttfb_s": 0.558276,
+          "total_s": 0.558833,
+          "connect_s": 0.015449,
+          "tls_s": 0.033475,
+          "cache": "UNCACHEABLE",
+          "measured": false
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.623205,
+          "total_s": 0.623775,
+          "connect_s": 0.016257,
+          "tls_s": 0.03373,
+          "cache": "UNCACHEABLE",
+          "measured": false
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.671721,
+          "total_s": 0.672425,
+          "connect_s": 0.016795,
+          "tls_s": 0.035048,
+          "cache": "UNCACHEABLE",
+          "measured": false
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.574327,
+          "total_s": 0.57498,
+          "connect_s": 0.029565,
+          "tls_s": 0.047,
+          "cache": "UNCACHEABLE",
+          "measured": false
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.655342,
+          "total_s": 0.655895,
+          "connect_s": 0.018197,
+          "tls_s": 0.034682,
+          "cache": "UNCACHEABLE",
+          "measured": false
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.587635,
+          "total_s": 0.588166,
+          "connect_s": 0.016426,
+          "tls_s": 0.033333,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.556268,
+          "total_s": 0.556931,
+          "connect_s": 0.01731,
+          "tls_s": 0.034547,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.61283,
+          "total_s": 0.613328,
+          "connect_s": 0.030192,
+          "tls_s": 0.047462,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.547263,
+          "total_s": 0.547783,
+          "connect_s": 0.017342,
+          "tls_s": 0.037585,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.591855,
+          "total_s": 0.59247,
+          "connect_s": 0.016442,
+          "tls_s": 0.034321,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.639012,
+          "total_s": 0.639709,
+          "connect_s": 0.016369,
+          "tls_s": 0.034156,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.641593,
+          "total_s": 0.642244,
+          "connect_s": 0.017427,
+          "tls_s": 0.036762,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.601283,
+          "total_s": 0.602022,
+          "connect_s": 0.018228,
+          "tls_s": 0.034876,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.593168,
+          "total_s": 0.593441,
+          "connect_s": 0.019243,
+          "tls_s": 0.037197,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.553998,
+          "total_s": 0.554501,
+          "connect_s": 0.015921,
+          "tls_s": 0.037261,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.627943,
+          "total_s": 0.628465,
+          "connect_s": 0.015396,
+          "tls_s": 0.035049,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.583152,
+          "total_s": 0.58378,
+          "connect_s": 0.017107,
+          "tls_s": 0.03451,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.556045,
+          "total_s": 0.556757,
+          "connect_s": 0.016761,
+          "tls_s": 0.033799,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.57016,
+          "total_s": 0.57081,
+          "connect_s": 0.015753,
+          "tls_s": 0.033083,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.795303,
+          "total_s": 0.795958,
+          "connect_s": 0.016606,
+          "tls_s": 0.034914,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.710842,
+          "total_s": 0.711663,
+          "connect_s": 0.015726,
+          "tls_s": 0.03323,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.671117,
+          "total_s": 0.671477,
+          "connect_s": 0.017107,
+          "tls_s": 0.034453,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.528476,
+          "total_s": 0.52911,
+          "connect_s": 0.029807,
+          "tls_s": 0.047049,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.744158,
+          "total_s": 0.744764,
+          "connect_s": 0.016551,
+          "tls_s": 0.037527,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.587768,
+          "total_s": 0.58832,
+          "connect_s": 0.016924,
+          "tls_s": 0.036238,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.562285,
+          "total_s": 0.562498,
+          "connect_s": 0.016407,
+          "tls_s": 0.035665,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.539793,
+          "total_s": 0.540028,
+          "connect_s": 0.014478,
+          "tls_s": 0.033001,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.479055,
+          "total_s": 0.479363,
+          "connect_s": 0.01476,
+          "tls_s": 0.032181,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.596,
+          "total_s": 0.596321,
+          "connect_s": 0.017016,
+          "tls_s": 0.034575,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.593121,
+          "total_s": 0.593535,
+          "connect_s": 0.014801,
+          "tls_s": 0.032342,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.542203,
+          "total_s": 0.54275,
+          "connect_s": 0.015806,
+          "tls_s": 0.034793,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.606232,
+          "total_s": 0.606601,
+          "connect_s": 0.020573,
+          "tls_s": 0.037733,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.669909,
+          "total_s": 0.67056,
+          "connect_s": 0.01629,
+          "tls_s": 0.033653,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.717796,
+          "total_s": 0.718267,
+          "connect_s": 0.016503,
+          "tls_s": 0.033903,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.643468,
+          "total_s": 0.644143,
+          "connect_s": 0.014764,
+          "tls_s": 0.03469,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.531593,
+          "total_s": 0.532121,
+          "connect_s": 0.016646,
+          "tls_s": 0.034837,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.605018,
+          "total_s": 0.605601,
+          "connect_s": 0.015968,
+          "tls_s": 0.036447,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.48669,
+          "total_s": 0.48727,
+          "connect_s": 0.016727,
+          "tls_s": 0.034558,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.582767,
+          "total_s": 0.583276,
+          "connect_s": 0.017202,
+          "tls_s": 0.037595,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.572392,
+          "total_s": 0.57255,
+          "connect_s": 0.016377,
+          "tls_s": 0.035083,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.637307,
+          "total_s": 0.638025,
+          "connect_s": 0.014765,
+          "tls_s": 0.033029,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.498774,
+          "total_s": 0.49931,
+          "connect_s": 0.016466,
+          "tls_s": 0.034033,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.491809,
+          "total_s": 0.492333,
+          "connect_s": 0.017057,
+          "tls_s": 0.037291,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.719028,
+          "total_s": 0.719478,
+          "connect_s": 0.01793,
+          "tls_s": 0.035642,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.54892,
+          "total_s": 0.549334,
+          "connect_s": 0.038811,
+          "tls_s": 0.063269,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.571392,
+          "total_s": 0.572083,
+          "connect_s": 0.016178,
+          "tls_s": 0.033505,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.712666,
+          "total_s": 0.713379,
+          "connect_s": 0.016654,
+          "tls_s": 0.035677,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.687873,
+          "total_s": 0.690259,
+          "connect_s": 0.034595,
+          "tls_s": 0.054763,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.592259,
+          "total_s": 0.592613,
+          "connect_s": 0.017275,
+          "tls_s": 0.034688,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.728502,
+          "total_s": 0.729102,
+          "connect_s": 0.017626,
+          "tls_s": 0.035241,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.651744,
+          "total_s": 0.652252,
+          "connect_s": 0.018005,
+          "tls_s": 0.035276,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.593751,
+          "total_s": 0.594215,
+          "connect_s": 0.016356,
+          "tls_s": 0.034199,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.549242,
+          "total_s": 0.549901,
+          "connect_s": 0.015094,
+          "tls_s": 0.032146,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.538484,
+          "total_s": 0.541,
+          "connect_s": 0.01624,
+          "tls_s": 0.038156,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.617286,
+          "total_s": 0.617609,
+          "connect_s": 0.017063,
+          "tls_s": 0.035289,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.557883,
+          "total_s": 0.558219,
+          "connect_s": 0.018835,
+          "tls_s": 0.039632,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.565029,
+          "total_s": 0.565662,
+          "connect_s": 0.015579,
+          "tls_s": 0.033755,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.710182,
+          "total_s": 0.71065,
+          "connect_s": 0.015927,
+          "tls_s": 0.035561,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.562984,
+          "total_s": 0.56362,
+          "connect_s": 0.015859,
+          "tls_s": 0.032455,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.582095,
+          "total_s": 0.582746,
+          "connect_s": 0.015808,
+          "tls_s": 0.033487,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.554423,
+          "total_s": 0.554805,
+          "connect_s": 0.015905,
+          "tls_s": 0.03289,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.701117,
+          "total_s": 0.701343,
+          "connect_s": 0.017242,
+          "tls_s": 0.037864,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.559779,
+          "total_s": 0.560805,
+          "connect_s": 0.015243,
+          "tls_s": 0.032326,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.651724,
+          "total_s": 0.652413,
+          "connect_s": 0.016041,
+          "tls_s": 0.033231,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.589283,
+          "total_s": 0.589892,
+          "connect_s": 0.016538,
+          "tls_s": 0.034684,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.560798,
+          "total_s": 0.561347,
+          "connect_s": 0.016292,
+          "tls_s": 0.035863,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.493359,
+          "total_s": 0.493947,
+          "connect_s": 0.015268,
+          "tls_s": 0.032841,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.68927,
+          "total_s": 0.689909,
+          "connect_s": 0.017864,
+          "tls_s": 0.034809,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.598635,
+          "total_s": 0.599295,
+          "connect_s": 0.015758,
+          "tls_s": 0.032653,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.61074,
+          "total_s": 0.610996,
+          "connect_s": 0.016206,
+          "tls_s": 0.033203,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.537873,
+          "total_s": 0.538511,
+          "connect_s": 0.014721,
+          "tls_s": 0.032165,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.595132,
+          "total_s": 0.595606,
+          "connect_s": 0.017631,
+          "tls_s": 0.03525,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.580213,
+          "total_s": 0.580954,
+          "connect_s": 0.027333,
+          "tls_s": 0.046281,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.607765,
+          "total_s": 0.608543,
+          "connect_s": 0.01611,
+          "tls_s": 0.033352,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.574795,
+          "total_s": 0.57538,
+          "connect_s": 0.016697,
+          "tls_s": 0.034098,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.691366,
+          "total_s": 0.691816,
+          "connect_s": 0.016821,
+          "tls_s": 0.034642,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.678622,
+          "total_s": 0.679257,
+          "connect_s": 0.015652,
+          "tls_s": 0.034262,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.8009,
+          "total_s": 0.80127,
+          "connect_s": 0.016927,
+          "tls_s": 0.034765,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.589194,
+          "total_s": 0.589529,
+          "connect_s": 0.017511,
+          "tls_s": 0.034876,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.78947,
+          "total_s": 0.789786,
+          "connect_s": 0.01632,
+          "tls_s": 0.04778,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.679843,
+          "total_s": 0.680127,
+          "connect_s": 0.014632,
+          "tls_s": 0.031535,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.6162,
+          "total_s": 0.616899,
+          "connect_s": 0.014592,
+          "tls_s": 0.032197,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.614565,
+          "total_s": 0.615024,
+          "connect_s": 0.016654,
+          "tls_s": 0.034407,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.692972,
+          "total_s": 0.693447,
+          "connect_s": 0.015145,
+          "tls_s": 0.03254,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.56758,
+          "total_s": 0.568202,
+          "connect_s": 0.015376,
+          "tls_s": 0.034748,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.646974,
+          "total_s": 0.64758,
+          "connect_s": 0.017058,
+          "tls_s": 0.034422,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.544157,
+          "total_s": 0.544853,
+          "connect_s": 0.017402,
+          "tls_s": 0.034051,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.607196,
+          "total_s": 0.607611,
+          "connect_s": 0.016195,
+          "tls_s": 0.033524,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.615503,
+          "total_s": 0.616153,
+          "connect_s": 0.01574,
+          "tls_s": 0.035189,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.595416,
+          "total_s": 0.596015,
+          "connect_s": 0.0168,
+          "tls_s": 0.034136,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.526139,
+          "total_s": 0.526574,
+          "connect_s": 0.015864,
+          "tls_s": 0.0356,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.5877,
+          "total_s": 0.587988,
+          "connect_s": 0.015878,
+          "tls_s": 0.034071,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.679695,
+          "total_s": 0.680063,
+          "connect_s": 0.027487,
+          "tls_s": 0.060537,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.604132,
+          "total_s": 0.604807,
+          "connect_s": 0.016232,
+          "tls_s": 0.033671,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.51407,
+          "total_s": 0.514702,
+          "connect_s": 0.016994,
+          "tls_s": 0.036738,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.625987,
+          "total_s": 0.626433,
+          "connect_s": 0.017631,
+          "tls_s": 0.036649,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.611925,
+          "total_s": 0.612452,
+          "connect_s": 0.034916,
+          "tls_s": 0.065155,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.619606,
+          "total_s": 0.620163,
+          "connect_s": 0.015747,
+          "tls_s": 0.033703,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.564375,
+          "total_s": 0.564985,
+          "connect_s": 0.018409,
+          "tls_s": 0.036693,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.5623,
+          "total_s": 0.5628,
+          "connect_s": 0.016374,
+          "tls_s": 0.042362,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.734773,
+          "total_s": 0.735285,
+          "connect_s": 0.016354,
+          "tls_s": 0.033765,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.601301,
+          "total_s": 0.601866,
+          "connect_s": 0.016825,
+          "tls_s": 0.03539,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.552187,
+          "total_s": 0.552753,
+          "connect_s": 0.01629,
+          "tls_s": 0.034157,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.613908,
+          "total_s": 0.614405,
+          "connect_s": 0.016326,
+          "tls_s": 0.035235,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.589992,
+          "total_s": 0.590506,
+          "connect_s": 0.019008,
+          "tls_s": 0.036629,
+          "cache": "UNCACHEABLE",
+          "measured": true
+        }
+      ]
+    },
+    "luma": {
+      "n": 100,
+      "median_ttfb_ms": 225.69650000000001,
+      "p95_ttfb_ms": 284.976,
+      "median_total_ms": 236.292,
+      "content_sha256": null,
+      "samples": [
+        {
+          "status": 200,
+          "ttfb_s": 0.624804,
+          "total_s": 0.687254,
+          "connect_s": 0.015828,
+          "tls_s": 0.033169,
+          "cache": "MISS",
+          "measured": false
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.263793,
+          "total_s": 0.266378,
+          "connect_s": 0.016666,
+          "tls_s": 0.036999,
+          "cache": "MISS",
+          "measured": false
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.311854,
+          "total_s": 0.315453,
+          "connect_s": 0.016116,
+          "tls_s": 0.033917,
+          "cache": "MISS",
+          "measured": false
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.237763,
+          "total_s": 0.252474,
+          "connect_s": 0.016977,
+          "tls_s": 0.034357,
+          "cache": "MISS",
+          "measured": false
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.248107,
+          "total_s": 0.249713,
+          "connect_s": 0.017025,
+          "tls_s": 0.040864,
+          "cache": "MISS",
+          "measured": false
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.205019,
+          "total_s": 0.219693,
+          "connect_s": 0.016595,
+          "tls_s": 0.034611,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.237946,
+          "total_s": 0.252161,
+          "connect_s": 0.016153,
+          "tls_s": 0.035513,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.220569,
+          "total_s": 0.234563,
+          "connect_s": 0.016805,
+          "tls_s": 0.035023,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.295491,
+          "total_s": 0.297962,
+          "connect_s": 0.016345,
+          "tls_s": 0.033219,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.247379,
+          "total_s": 0.249955,
+          "connect_s": 0.017378,
+          "tls_s": 0.033545,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.253347,
+          "total_s": 0.259864,
+          "connect_s": 0.015453,
+          "tls_s": 0.03458,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.262419,
+          "total_s": 0.278483,
+          "connect_s": 0.015375,
+          "tls_s": 0.038124,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.204498,
+          "total_s": 0.221241,
+          "connect_s": 0.015604,
+          "tls_s": 0.042117,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.276733,
+          "total_s": 0.294821,
+          "connect_s": 0.015732,
+          "tls_s": 0.034314,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.316711,
+          "total_s": 0.321261,
+          "connect_s": 0.016022,
+          "tls_s": 0.033951,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.255416,
+          "total_s": 0.262308,
+          "connect_s": 0.017509,
+          "tls_s": 0.036461,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.256585,
+          "total_s": 0.259077,
+          "connect_s": 0.0174,
+          "tls_s": 0.035465,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.211667,
+          "total_s": 0.216625,
+          "connect_s": 0.01641,
+          "tls_s": 0.034066,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.232605,
+          "total_s": 0.23623,
+          "connect_s": 0.015459,
+          "tls_s": 0.033739,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.203261,
+          "total_s": 0.217611,
+          "connect_s": 0.017727,
+          "tls_s": 0.045437,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.252514,
+          "total_s": 0.260008,
+          "connect_s": 0.016825,
+          "tls_s": 0.036753,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.22065,
+          "total_s": 0.223021,
+          "connect_s": 0.016637,
+          "tls_s": 0.032901,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.225246,
+          "total_s": 0.241719,
+          "connect_s": 0.029242,
+          "tls_s": 0.048801,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.225697,
+          "total_s": 0.240423,
+          "connect_s": 0.016025,
+          "tls_s": 0.035218,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.175046,
+          "total_s": 0.189121,
+          "connect_s": 0.016359,
+          "tls_s": 0.034529,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.197283,
+          "total_s": 0.209986,
+          "connect_s": 0.015869,
+          "tls_s": 0.035441,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.216548,
+          "total_s": 0.22824,
+          "connect_s": 0.016533,
+          "tls_s": 0.033131,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.232731,
+          "total_s": 0.235407,
+          "connect_s": 0.016431,
+          "tls_s": 0.034575,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.260913,
+          "total_s": 0.27595,
+          "connect_s": 0.016756,
+          "tls_s": 0.034199,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.222406,
+          "total_s": 0.224909,
+          "connect_s": 0.016533,
+          "tls_s": 0.033096,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.266227,
+          "total_s": 0.281546,
+          "connect_s": 0.025382,
+          "tls_s": 0.043028,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.225088,
+          "total_s": 0.239901,
+          "connect_s": 0.030293,
+          "tls_s": 0.048223,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.240977,
+          "total_s": 0.256523,
+          "connect_s": 0.016669,
+          "tls_s": 0.034774,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.279668,
+          "total_s": 0.282271,
+          "connect_s": 0.016662,
+          "tls_s": 0.034385,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.22745,
+          "total_s": 0.240848,
+          "connect_s": 0.017586,
+          "tls_s": 0.035489,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.289129,
+          "total_s": 0.291897,
+          "connect_s": 0.016975,
+          "tls_s": 0.036355,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.216789,
+          "total_s": 0.217371,
+          "connect_s": 0.016102,
+          "tls_s": 0.033966,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.206557,
+          "total_s": 0.208848,
+          "connect_s": 0.016164,
+          "tls_s": 0.033476,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.220736,
+          "total_s": 0.221899,
+          "connect_s": 0.015905,
+          "tls_s": 0.033435,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.245843,
+          "total_s": 0.248074,
+          "connect_s": 0.01505,
+          "tls_s": 0.032998,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.208747,
+          "total_s": 0.211555,
+          "connect_s": 0.015931,
+          "tls_s": 0.034633,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.227523,
+          "total_s": 0.230262,
+          "connect_s": 0.016748,
+          "tls_s": 0.033839,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.187238,
+          "total_s": 0.202809,
+          "connect_s": 0.016453,
+          "tls_s": 0.033365,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.225696,
+          "total_s": 0.228247,
+          "connect_s": 0.02319,
+          "tls_s": 0.04216,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.20424,
+          "total_s": 0.206741,
+          "connect_s": 0.014714,
+          "tls_s": 0.032533,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.213105,
+          "total_s": 0.22567,
+          "connect_s": 0.016006,
+          "tls_s": 0.034923,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.210135,
+          "total_s": 0.212476,
+          "connect_s": 0.014806,
+          "tls_s": 0.031889,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.212343,
+          "total_s": 0.225907,
+          "connect_s": 0.015392,
+          "tls_s": 0.033075,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.252339,
+          "total_s": 0.257326,
+          "connect_s": 0.01515,
+          "tls_s": 0.036655,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.24239,
+          "total_s": 0.253323,
+          "connect_s": 0.015448,
+          "tls_s": 0.03209,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.293626,
+          "total_s": 0.309061,
+          "connect_s": 0.016597,
+          "tls_s": 0.033463,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.284976,
+          "total_s": 0.287252,
+          "connect_s": 0.016251,
+          "tls_s": 0.033142,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.20451,
+          "total_s": 0.207182,
+          "connect_s": 0.01625,
+          "tls_s": 0.033396,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.270051,
+          "total_s": 0.275553,
+          "connect_s": 0.015481,
+          "tls_s": 0.033277,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.249638,
+          "total_s": 0.251849,
+          "connect_s": 0.015491,
+          "tls_s": 0.032007,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.204268,
+          "total_s": 0.220327,
+          "connect_s": 0.015548,
+          "tls_s": 0.033636,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.206323,
+          "total_s": 0.208795,
+          "connect_s": 0.015165,
+          "tls_s": 0.033782,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.231812,
+          "total_s": 0.234567,
+          "connect_s": 0.015351,
+          "tls_s": 0.032244,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.198013,
+          "total_s": 0.211804,
+          "connect_s": 0.015972,
+          "tls_s": 0.033243,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.204289,
+          "total_s": 0.216739,
+          "connect_s": 0.016753,
+          "tls_s": 0.034915,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.205278,
+          "total_s": 0.208007,
+          "connect_s": 0.01548,
+          "tls_s": 0.033305,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.185216,
+          "total_s": 0.198103,
+          "connect_s": 0.015365,
+          "tls_s": 0.033133,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.243704,
+          "total_s": 0.256382,
+          "connect_s": 0.016358,
+          "tls_s": 0.035655,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.235376,
+          "total_s": 0.248175,
+          "connect_s": 0.015845,
+          "tls_s": 0.033241,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.220422,
+          "total_s": 0.225723,
+          "connect_s": 0.017894,
+          "tls_s": 0.034292,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.251244,
+          "total_s": 0.266161,
+          "connect_s": 0.015775,
+          "tls_s": 0.033453,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.270352,
+          "total_s": 0.276319,
+          "connect_s": 0.017197,
+          "tls_s": 0.037418,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.279446,
+          "total_s": 0.281991,
+          "connect_s": 0.015805,
+          "tls_s": 0.032838,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.22322,
+          "total_s": 0.226541,
+          "connect_s": 0.01558,
+          "tls_s": 0.032852,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.237844,
+          "total_s": 0.240695,
+          "connect_s": 0.017998,
+          "tls_s": 0.035128,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.19736,
+          "total_s": 0.199208,
+          "connect_s": 0.015414,
+          "tls_s": 0.035087,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.198376,
+          "total_s": 0.210495,
+          "connect_s": 0.016541,
+          "tls_s": 0.033419,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.205419,
+          "total_s": 0.208054,
+          "connect_s": 0.016873,
+          "tls_s": 0.033909,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.230099,
+          "total_s": 0.236354,
+          "connect_s": 0.01736,
+          "tls_s": 0.034345,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.243983,
+          "total_s": 0.258169,
+          "connect_s": 0.016092,
+          "tls_s": 0.035424,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.260394,
+          "total_s": 0.261678,
+          "connect_s": 0.016757,
+          "tls_s": 0.033924,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.262062,
+          "total_s": 0.26544,
+          "connect_s": 0.01752,
+          "tls_s": 0.034303,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.201651,
+          "total_s": 0.215485,
+          "connect_s": 0.015172,
+          "tls_s": 0.032237,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.213431,
+          "total_s": 0.226534,
+          "connect_s": 0.018351,
+          "tls_s": 0.036698,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.236727,
+          "total_s": 0.239127,
+          "connect_s": 0.01441,
+          "tls_s": 0.032512,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.205668,
+          "total_s": 0.206576,
+          "connect_s": 0.016931,
+          "tls_s": 0.039075,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.241087,
+          "total_s": 0.256416,
+          "connect_s": 0.028182,
+          "tls_s": 0.047685,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.2477,
+          "total_s": 0.250182,
+          "connect_s": 0.014432,
+          "tls_s": 0.033194,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.254332,
+          "total_s": 0.269951,
+          "connect_s": 0.014601,
+          "tls_s": 0.043764,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.210271,
+          "total_s": 0.212923,
+          "connect_s": 0.016441,
+          "tls_s": 0.033516,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.237558,
+          "total_s": 0.238571,
+          "connect_s": 0.016677,
+          "tls_s": 0.034144,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.205008,
+          "total_s": 0.217198,
+          "connect_s": 0.016201,
+          "tls_s": 0.034538,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.240951,
+          "total_s": 0.246465,
+          "connect_s": 0.016377,
+          "tls_s": 0.032909,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.286946,
+          "total_s": 0.29185,
+          "connect_s": 0.016533,
+          "tls_s": 0.111932,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.21924,
+          "total_s": 0.221596,
+          "connect_s": 0.017228,
+          "tls_s": 0.035299,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.215649,
+          "total_s": 0.227631,
+          "connect_s": 0.016635,
+          "tls_s": 0.034966,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.223921,
+          "total_s": 0.240427,
+          "connect_s": 0.017364,
+          "tls_s": 0.034644,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.204748,
+          "total_s": 0.217949,
+          "connect_s": 0.015771,
+          "tls_s": 0.033211,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.246157,
+          "total_s": 0.25123,
+          "connect_s": 0.017515,
+          "tls_s": 0.035184,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.207287,
+          "total_s": 0.222024,
+          "connect_s": 0.015752,
+          "tls_s": 0.032214,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.219686,
+          "total_s": 0.235591,
+          "connect_s": 0.014615,
+          "tls_s": 0.032917,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.257368,
+          "total_s": 0.271903,
+          "connect_s": 0.014999,
+          "tls_s": 0.034051,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.224259,
+          "total_s": 0.227207,
+          "connect_s": 0.015302,
+          "tls_s": 0.032779,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.243277,
+          "total_s": 0.245629,
+          "connect_s": 0.015152,
+          "tls_s": 0.032015,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.217159,
+          "total_s": 0.220346,
+          "connect_s": 0.015845,
+          "tls_s": 0.033889,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.211039,
+          "total_s": 0.225425,
+          "connect_s": 0.015858,
+          "tls_s": 0.033306,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.24884,
+          "total_s": 0.253753,
+          "connect_s": 0.015034,
+          "tls_s": 0.033679,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.228655,
+          "total_s": 0.244743,
+          "connect_s": 0.015258,
+          "tls_s": 0.034934,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.194535,
+          "total_s": 0.206657,
+          "connect_s": 0.016677,
+          "tls_s": 0.034019,
+          "cache": "MISS",
+          "measured": true
+        },
+        {
+          "status": 200,
+          "ttfb_s": 0.220572,
+          "total_s": 0.237637,
+          "connect_s": 0.015559,
+          "tls_s": 0.033072,
+          "cache": "MISS",
+          "measured": true
+        }
+      ]
+    }
+  },
+  "client": "M5 Mac laptop, external HTTPS client",
+  "services_on_separate_node": false,
+  "fastboot_preload": true
+}

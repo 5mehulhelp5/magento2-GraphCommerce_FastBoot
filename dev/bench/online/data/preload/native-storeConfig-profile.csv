@@ -1,0 +1,18 @@
+magento,0.049203,0.049203,1,"10,231,960",0
+magento->cache_frontend_create,0.000611,0.000306,2,"11,568",0
+magento->store.resolve,0.007148,0.007148,1,"1,129,656",0
+"magento->store.resolve->FILESYSTEM:load (SYSTEM_DEFAULT)",0.000133,0.000133,1,"238,752",0
+"magento->store.resolve->SQL:SELECT (store_website)",0.002709,0.002709,1,"72,104",0
+"magento->store.resolve->SQL:SELECT (store_group)",0.000167,0.000167,1,"18,792",0
+"magento->store.resolve->SQL:SELECT (store)",0.000128,0.000128,1,"18,840",0
+"magento->FILESYSTEM:load (SYSTEM_WEBSITES_GC)",0.000156,0.000156,1,"238,744",0
+"magento->FILESYSTEM:load (SYSTEM_STORES_EN)",0.000114,0.000114,1,"238,752",0
+magento->EVENT:core_collection_abstract_load_before,0.000462,0.000462,1,"298,904",0
+"magento->EVENT:core_collection_abstract_load_before->FILESYSTEM:load (GLOBAL_EVENT_CONFIG)",0.000074,0.000074,1,"42,200",0
+"magento->SQL:SELECT (directory_currency_rate)",0.000522,0.000522,1,"19,816",0
+"magento->SQL:SELECT (flag)",0.000228,0.000228,1,"18,696",0
+magento->load_area:graphql.translate,0.000445,0.000445,1,"10,208",0
+"magento->FILESYSTEM:load (MAGENTO_FRAMEWORK_GRAPHQLSCHEMASTITCHING)",0.000295,0.000295,1,"689,416",0
+"magento->GRAPHQL:query (anonymous)",0.009547,0.009547,1,"1,416,112",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\StoreConfigResolver (storeConfig)",0.001420,0.001420,1,"89,424",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\StoreConfigResolver (storeConfig)->SQL:SELECT (store +2)",0.000359,0.000359,1,"20,384",0

@@ -2,14 +2,16 @@
 
 Run these scripts inside the deployed PHP container, as its application user. They use the installed code, database, Redis and OpenSearch connections. Python 3 and the matching PHP-FPM binary are required.
 
-`prepare.py` creates two private application copies with separate Redis cache prefixes and fresh compiled DI. Their `var` directories use private subdirectories of the serving application's mounted `var`, so local-cache I/O uses the same filesystem. The native copy disables all four FastBoot modules. The FastBoot copy retains the deployed configuration. Both disable full-page caching; other Magento cache settings remain identical to the deployment. The serving application's configuration is unchanged.
+`prepare.py` creates private application copies with separate Redis cache prefixes and fresh compiled DI. Their `var` directories use private subdirectories of the serving application's mounted `var`, so local-cache I/O uses the same filesystem. The native copy disables all four FastBoot modules. FastBoot copies retain the deployed configuration. All copies disable full-page caching; other Magento cache settings remain identical to the deployment. The serving application's configuration is unchanged.
 
 ```sh
-python3 prepare.py --source /var/www/html --output /tmp/fastboot-benchmark
+python3 prepare.py --source /var/www/html --output /tmp/fastboot-benchmark \
+  --preload-list /opt/fastboot/preload-classes.txt
 
 python3 compare.py \
   --root native=/tmp/fastboot-benchmark/native \
   --root fastboot=/tmp/fastboot-benchmark/fastboot \
+  --root preload=/tmp/fastboot-benchmark/preload --preload preload \
   --base-url https://codex-fastboot-online-ba18c2.m2gc.deployyy.app \
   --store en_CA \
   --category /men/70s \
@@ -17,11 +19,13 @@ python3 compare.py \
   --output /tmp/fastboot-results
 ```
 
-The runner starts one private, single-worker FPM master per mode, inheriting the container's PHP configuration and disabling class preload. Requests use loopback FastCGI; `--base-url` supplies the Magento host and scheme. Each workload alternates native/FastBoot order between blocks. A three-second pause before the last warmup allows newly generated PHP files through the default OPcache file-update protection window.
+The runner starts one private, single-worker FPM master per mode, inheriting the container's PHP configuration. Only labels selected with `--preload` load classes at startup; the master resolves code and local cache paths inside that label's application copy. FPM preload statistics must confirm the requested state on every response. Both FastBoot copies receive the same class-list seed after compilation, leaving the recorder inactive in both.
+
+Requests use loopback FastCGI; `--base-url` supplies the Magento host and scheme. Mode order rotates each block: native/FastBoot/preload, FastBoot/preload/native, preload/native/FastBoot. A three-second pause before the last warmup allows newly generated PHP files through the default OPcache file-update protection window. Omit `--preload-list`, the preload root and `--preload` for the two-mode comparison.
 
 It requires HTTP 200, disabled FPC and identical GraphQL data or canonical Luma main content. Only whitespace and form keys are normalized in HTML. Empty product listings, response differences and exhausted OPcache abort the run.
 
-`results.json` contains aggregate timings and memory, `samples.json` contains individual requests, and `*-smaps.txt` records Linux process memory. PHP time stops before measurement serialization. PHP allocated memory and shared OPcache usage are recorded separately. FPM processes stop on completion or failure; remove the private copies and the runtime-storage directory printed by `prepare.py` after retrieving results.
+`results.json` contains aggregate timings and memory, `samples.json` contains individual requests, and `*-smaps.txt` records Linux process memory. PHP time stops before measurement serialization. PHP allocated memory, shared OPcache usage and preload statistics are recorded separately. Preload memory is part of OPcache usage, not an additional allocation to sum with it. FPM processes stop on completion or failure; remove the private copies and the runtime-storage directory printed by `prepare.py` after retrieving results.
 
 `--profile` captures a Magento CSV profile for each mode/workload after all measured traffic. Use `--workload products` (repeatable) to restrict a diagnostic run.
 

@@ -92,8 +92,14 @@ def main():
     parser.add_argument('--runs', type=int, default=30)
     parser.add_argument('--workload', action='append', choices=['storeConfig', 'products', 'luma'])
     parser.add_argument('--profile', action='store_true', help='Capture one Magento CSV profile after measured traffic')
+    parser.add_argument('--preload', action='append', default=[], help='Enable class preload for this root label; repeatable')
     args = parser.parse_args()
     roots = {label: Path(root).resolve() for label, root in (s.split('=', 1) for s in args.root)}
+    if set(args.preload) - roots.keys():
+        parser.error('Preload labels must match a root')
+    for label in args.preload:
+        if not (roots[label] / 'var/cache/preload/classes.txt').is_file():
+            parser.error(f'{label}: record or seed the preload class list before running')
     if any(not re.fullmatch(r'[a-z][a-z0-9_-]*', label) for label in roots):
         parser.error('Mode labels must contain lowercase letters, digits, underscores or hyphens')
     if any(not (root / 'pub/index.php').is_file() for root in roots.values()):
@@ -135,6 +141,11 @@ register_shutdown_function(function () use ($start) {
         'opcache' => $opcache['memory_usage'] ?? null,
         'opcache_statistics' => $opcache['opcache_statistics'] ?? null,
         'opcache_full' => $opcache['cache_full'] ?? null,
+        'preload' => [
+            'classes' => count($opcache['preload_statistics']['classes'] ?? []),
+            'scripts' => count($opcache['preload_statistics']['scripts'] ?? []),
+            'memory_consumption' => $opcache['preload_statistics']['memory_consumption'] ?? 0,
+        ],
         'opcache_ini' => array_combine(
             ['memory_consumption','max_accelerated_files','validate_timestamps','revalidate_freq','preload'],
             array_map(fn($key) => ini_get('opcache.'.$key),
@@ -159,9 +170,12 @@ clear_env = no
 catch_workers_output = yes
 php_admin_value[memory_limit] = 2G
 ''')
-            command = [args.php_fpm, '-F', '-y', str(config), '-d', 'opcache.preload=']
+            preload = root / 'vendor/graphcommerce/magento-fast-boot/src/FastBootPreload/preload.php'
+            command = [args.php_fpm, '-F', '-y', str(config), '-d',
+                       'opcache.preload=' + (str(preload) if label in args.preload else '')]
+            environment = dict(os.environ, FASTBOOT_MAGENTO_ROOT=str(root), FASTBOOT_CACHE_DIR=str(root / 'var/cache'))
             with (directory / 'fpm-output.log').open('w') as log:
-                process = subprocess.Popen(command, cwd=root, stdout=log, stderr=log)
+                process = subprocess.Popen(command, cwd=root, env=environment, stdout=log, stderr=log)
             processes.append(process)
             for _ in range(150):
                 if process.poll() is not None:
@@ -176,8 +190,8 @@ php_admin_value[memory_limit] = 2G
             workers[label] = (port, root, wrapper, metrics)
         for block in range(args.blocks):
             labels = list(roots)
-            if block % 2:
-                labels.reverse()
+            offset = block % len(labels)
+            labels = labels[offset:] + labels[:offset]
             for workload, query in queries.items():
                 for label in labels:
                     port, root, wrapper, metrics = workers[label]
@@ -206,6 +220,8 @@ php_admin_value[memory_limit] = 2G
                             raise RuntimeError(f'Expected status 200 and FPC disabled: {row}')
                         if iteration >= args.warmups and row['opcache_full']:
                             raise RuntimeError(f'{label}: OPcache is full; size the serving pool before comparing')
+                        if (row['preload']['classes'] > 0) != (label in args.preload):
+                            raise RuntimeError(f'{label}: unexpected FPM preload state: {row["preload"]}')
                         digest = fingerprint(response, query is not None)
                         if workload in hashes and digest != hashes[workload]:
                             (out / 'failed-response.txt').write_text(response)
@@ -231,6 +247,7 @@ php_admin_value[memory_limit] = 2G
                 summary[workload][label] = {'n': len(samples), 'median_ms': statistics.median(r['ms'] for r in samples),
                     'p95_ms': sorted(r['ms'] for r in samples)[math.ceil(.95 * len(samples)) - 1],
                     'peak_mib': max(r['peak_mib'] for r in samples), 'opcache': samples[-1]['opcache'],
+                    'preload': samples[-1]['preload'],
                     'content_sha256': hashes[workload]}
         (out / 'results.json').write_text(json.dumps({'arguments': vars(args), 'summary': summary}, indent=2) + '\n')
         print(json.dumps(summary, indent=2))

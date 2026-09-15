@@ -18,7 +18,8 @@ class ReleaseTest extends TestCase
         mkdir($root.'/static', 0700, true);
         $config = $this->createStub(DeploymentConfig::class);
         $config->method('get')->willReturnCallback(static fn ($key, $default = null) => match ($key) {
-            'fastboot/schema_l1' => ['enabled' => true, 'installation' => 'release-test'],
+            'fastboot/release' => 'ignored-legacy-build',
+            'fastboot/schema_l1' => ['enabled' => true, 'installation' => 'release-test', 'release' => 'ignored-schema-build'],
             'cache/frontend/default' => ['backend_options' => ['server' => '127.0.0.1']],
             default => $default,
         });
@@ -39,18 +40,18 @@ class ReleaseTest extends TestCase
         $files = fn ($release) => new PhpFiles($fs, $version, $config, $release);
         $settings = fn ($release) => new Settings($config, $state, $feature, $dirs, $release);
         try {
-            $missing = new Release($config, $dirs);
+            $missing = new Release($dirs);
             self::assertNull($missing->id());
             $files($missing)->write('CONFIG', 'example', 'must-not-be-published');
             self::assertNull($files($missing)->read('CONFIG', 'example'));
             file_put_contents($root.'/static/deployed_version.txt', "build-one\n");
-            $first = new Release($config, $dirs);
+            $first = new Release($dirs);
             self::assertSame('build-one', $first->id());
             $files($first)->write('CONFIG', 'example', 'old-build');
             self::assertSame('old-build', $files($first)->read('CONFIG', 'example'));
             self::assertStringStartsWith($root.'/private-cache/fastboot/', $files($first)->namespaceDirectory());
             file_put_contents($root.'/static/deployed_version.txt', 'build-two');
-            $second = new Release($config, $dirs);
+            $second = new Release($dirs);
             self::assertSame('build-one', $first->id()); // In-flight request keeps its build snapshot.
             self::assertSame('build-two', $second->id());
             self::assertNull($files($second)->read('CONFIG', 'example'));
@@ -69,14 +70,5 @@ class ReleaseTest extends TestCase
             }
             rmdir($root);
         }
-    }
-
-    public function testExplicitDeploymentIdentityRemainsCompatible(): void
-    {
-        $config = $this->createStub(DeploymentConfig::class);
-        $config->method('get')->willReturnCallback(static fn ($key, $default = null) => $key === 'fastboot/release' ? 'explicit-build' : $default);
-        $dirs = $this->createMock(DirectoryList::class);
-        $dirs->expects(self::never())->method('getPath');
-        self::assertSame('explicit-build', (new Release($config, $dirs))->id());
     }
 }

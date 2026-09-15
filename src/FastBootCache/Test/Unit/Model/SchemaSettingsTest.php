@@ -50,6 +50,6 @@ class SchemaSettingsTest extends TestCase
         $feature->method('on')->willReturn($featureEnabled);
         $directories = $this->createStub(DirectoryList::class);
         $directories->method('getPath')->willReturn('/missing-fastboot-test-static');
-        return new Settings($config, $state, $feature, $directories, new Release($config, $directories));
+        return new Settings($config, $state, $feature, $directories, new Release($directories));
     }
 }

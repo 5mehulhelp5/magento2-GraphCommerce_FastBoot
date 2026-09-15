@@ -25,4 +25,4 @@ The output directory must be empty and outside the public document root. It rece
 
 The harness refuses a successful-looking measurement if full-page cache is enabled, the response is not HTTP 200 or the page has no product grid. It compares server-rendered HTML, not browser appearance or JavaScript. Keep full-page cache enabled in production.
 
-See [measured results](RESULTS.md) and the independent [Magento performance tips](../../docs/PERFORMANCE.md). CI coverage is described in the [CI guide](../ci/README.md).
+See [measured results](RESULTS.md) and the independent [Magento performance tips](../../README.md#magento-performance-tips). CI coverage is described in the [CI guide](../ci/README.md).

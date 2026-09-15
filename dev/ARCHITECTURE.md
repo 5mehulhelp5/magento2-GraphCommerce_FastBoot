@@ -1,4 +1,4 @@
-# How the schema cache works
+# FastBoot implementation notes
 
 FastBoot stores Magento's assembled GraphQL schema in two places:
 
@@ -9,7 +9,7 @@ The Redis transport uses phpredis when available and Credis otherwise, with iden
 
 Servers never share the L1 directory. A server that needs a schema version it does not have reads it from Redis and creates its own local copy. If Redis has no current schema, Magento rebuilds it from the source configuration.
 
-Use the [FastBoot guide](FASTBOOT.md) to enable this cache and the [configuration reference](CONFIGURATION.md#redis-connection) to change its connection or limits.
+Customer setup and operating instructions belong in the [module READMEs](../README.md). This document records implementation behavior and constraints for future development.
 
 ## A warm read
 
@@ -38,7 +38,7 @@ The Redis record publishes the payload, content hash, revision, invalidation gen
 
 FastBoot integrates with Magento's config-cache clean/remove operations, application cache clean, manager flush and direct schema-data reset. The installation has a shared invalidation generation, so a configuration change reaches both old and new release records during a rolling deployment.
 
-Use one installation ID for the shop/environment and Magento's static-content deployment version for each application build. Keep these hooks active on every web, admin and CLI node while any node uses schema L1. Diagnostic bypasses are described in the [developer guide](https://github.com/graphcommerce-org/magento2-GraphCommerce_FastBoot/blob/main/dev/README.md#feature-switches).
+Use one installation ID for the shop/environment and Magento's static-content deployment version for each application build. Keep these hooks active on every web, admin and CLI node while any node uses schema L1. Diagnostic bypasses are described in the [developer guide](README.md#feature-switches).
 
 Deleting only legacy Magento cache keys through external tooling does not necessarily invalidate FastBoot's schema record. Integrate external writers with the supported cache APIs. A failed invalidation is an error and must be retried; it is not reported as a successful clean.
 
@@ -72,3 +72,18 @@ These files are **not preloaded**. PHP class preload is a separate optimization 
 Schema L1 admits at most 16 files and 32 MiB of PHP source per local namespace by default. Source size is not compiled-memory usage. Include shared OPcache, worker allocations and the preload master's footprint in capacity planning. Deleting files alone does not reclaim compiled memory; retire cache namespaces with the release/FPM lifecycle.
 
 Whole-object serialization is not used here. It would require reconstructing object graphs in each request; the cache instead stores the reusable data from which Magento operates.
+
+## Deployment identity
+
+`FastBootCache/Model/Release` reads Magento's static-content deployment version once per request. There is no manual FastBoot release override. Missing or empty versions prevent generic cache publication and fail schema setup; area DI differences can fall back to hashing their compiled source files. Local paths follow Magento's configured cache directory.
+
+Generic local namespaces and shared schema keys include this build identity. The shared schema invalidation epoch belongs to the installation, so invalidation reaches both builds during rolling deployment. Preserve this distinction when changing key formats.
+
+## Module responsibilities
+
+- `FastBootCache` owns value-file storage, shared generations, schema transport and invalidation hooks. Both Redis clients must use identical Lua scripts and discard failed sockets without replaying uncertain writes.
+- `FastBoot` owns compiled area DI differences, system/scope configuration and storefront helper optimizations. Capture the generation before deriving values and fence publication afterward.
+- `FastBootGraphQl` owns parsed-document and structural-validation reuse. Never bypass Magento's query processor, custom validation, request limits or scalar coercion. Schema invalidation must retire cached validation proofs.
+- `FastBootPreload` records class definitions during a bounded window and loads them at master startup. It never preloads runtime cache values. Recording paths follow Magento's cache directory; the startup entry point remains in the package.
+
+Avoid cache interception on broad bootstrap decorators such as TagScope: compiled plugin-list loading uses those decorators before interceptors can be resolved. Test changes in fresh compiled Magento, including cache-disabled paths and cross-node invalidation.

@@ -7,7 +7,6 @@ namespace GraphCommerce\FastBoot\Test\Unit\Model;
 use GraphCommerce\FastBoot\Model\ObjectManager\AreaConfigLoader;
 use GraphCommerce\FastBootCache\Model\Feature;
 use GraphCommerce\FastBootCache\Model\Release;
-use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -33,9 +32,8 @@ class AreaConfigLoaderTest extends TestCase
         });
         $feature = $this->createStub(Feature::class);
         $feature->method('on')->willReturn(true);
-        $deployment = $this->createStub(DeploymentConfig::class);
-        $deployment->method('get')->willReturn('release');
-        $release = new Release($deployment, $directory);
+        $release = $this->createStub(Release::class);
+        $release->method('id')->willReturn('deployed-build');
         $loader = fn () => new AreaConfigLoader($directory, $feature, $release);
         $expected = ['arguments' => ['changed' => ['x' => 2]]];
         try {

@@ -1,5 +1,6 @@
 # Developing FastBoot
 
+- [Architecture and design constraints](ARCHITECTURE.md)
 - [Tests and package builds](tests/README.md)
 - [Continuous integration](ci/README.md)
 - [Benchmarks and reproduction](bench/README.md)
@@ -30,8 +31,3 @@ Production installs use the default-enabled optimizations. These switches suppor
 These switches do not enable PHP class preload; that requires `opcache.preload` at FPM startup.
 
 `validated_queries` retains Magento's query processor, request-specific security checks, custom validation rules and scalar literal coercion. Extensions that change schema definitions without configuration invalidation must disable this switch or integrate their schema changes with invalidation.
-
-
-## Deployment identity overrides
-
-Normal deployments use Magento's static-content version. Existing `fastboot.release` or `fastboot.schema_l1.release` settings override that automatic identity; the top-level value takes precedence. Remove both to follow Magento's deployment version. Override values must identify the same build on all nodes and change whenever its code, DI or deployment configuration changes.

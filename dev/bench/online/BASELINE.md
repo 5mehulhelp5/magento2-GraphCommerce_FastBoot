@@ -1,10 +1,10 @@
 # Earlier online comparison without preload
 
-Measured on 2026-09-15 against [project-backend at `7e6cedd`](https://github.com/ho-nl/project-backend/commit/7e6ceddda627cde7385d093498b5676c4c6dc7c6), deployed from [`codex/fastboot-online`](https://github.com/ho-nl/project-backend/tree/codex/fastboot-online). The [image build passed](https://github.com/ho-nl/project-backend/actions/runs/34957175055), and the environment completed its schema upgrade and indexing.
+Measured on 2026-09-15 against the deployed Magento environment without class preloading.
 
 Frontend: [Luma “70s” category](https://codex-fastboot-online-ba18c2.m2gc.deployyy.app/men/70s). This branch environment sleeps after 30 minutes of inactivity and wakes on access.
 
-The live preview enables class preloading from [project commit `530fc4f`](https://github.com/ho-nl/project-backend/commit/530fc4ff5bd33ea32e70c3c36a33ac7740e22d24). The measurements below remain the **non-preloaded baseline** at `7e6cedd`.
+The live preview now enables class preloading. The measurements below remain the **non-preloaded baseline**.
 
 ## PHP execution
 

@@ -4,6 +4,8 @@ These tools are for contributors working from the source repository. They are ex
 
 The [validation report](../../docs/VALIDATION.md) records completed checks and supported-target limits.
 
+The [CI guide](../ci/README.md) describes the GitHub Actions matrix and its coverage limits.
+
 ## Unit tests
 
 Run from the package repository root:

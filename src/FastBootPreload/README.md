@@ -1,58 +1,13 @@
 # FastBoot class preload
 
-## Record a release
-
-Recording runs automatically at the end of Magento HTTP requests. There is no separate recorder command. Enable the module before compiling the release:
+## Enable
 
 ```sh
 bin/magento module:enable GraphCommerce_FastBootPreload
 bin/magento setup:di:compile
 ```
 
-Run the compiled release in a staging or CI environment with its database, Redis and search services, initially without class preloading. The first completed request starts a 15-minute recording window if `var/cache/preload/classes.txt` is missing or older than the compiled DI metadata. Requests during that window append their declared class names to the file.
-
-To start a fresh recording on that environment, remove the list and recording marker, then run the application's HTTP smoke tests:
-
-```sh
-rm -f var/cache/preload/classes.txt var/cache/preload/classes.recording
-
-curl --fail --silent --show-error "$BASE_URL/" -o /dev/null
-curl --fail --silent --show-error "$BASE_URL/graphql" \
-  -H 'Content-Type: application/json' \
-  --data '{"query":"{ storeConfig { store_code } }"}' -o /dev/null
-```
-
-Set `BASE_URL` to the recording environment. Include the category, product, cart, checkout and GraphQL requests the application actually serves. Route these requests to Magento; responses served entirely by a CDN or Varnish do not record classes. Compilation alone does not populate the list. Record without an existing class preload so it does not contribute classes from an earlier release.
-
-After the requests finish, close the recording window and export the list:
-
-```sh
-test -s var/cache/preload/classes.txt
-rm -f var/cache/preload/classes.recording
-mkdir -p build
-cp var/cache/preload/classes.txt build/preload-classes.txt
-```
-
-## Build and deployment
-
-Keep the generated list out of Git. Store `preload-classes.txt` with the compiled release as a CI artifact or in the application image, outside the runtime cache mount. Generate it after compilation and HTTP smoke tests; a build without a running Magento environment cannot record request classes.
-
-On each node, restore that release's list after mounting runtime storage and before starting FPM. Run as the application user, from the Magento root:
-
-```sh
-mkdir -p var/cache/preload
-install -m 0600 /opt/fastboot/preload-classes.txt var/cache/preload/classes.txt
-touch var/cache/preload/classes.txt
-rm -f var/cache/preload/classes.recording
-```
-
-Here `/opt/fastboot/preload-classes.txt` is the artifact bundled with the release. Its restored timestamp must be at least as recent as the compiled DI metadata; otherwise the recorder replaces it on the next request. Do not deploy the recording marker. The FPM preload user must be able to read the list.
-
-Use the same artifact on every node running that release. Each node keeps its own runtime copy. Re-record after code, dependency or module changes, and restart the FPM master with the new release and list.
-
-## Configure
-
-FPM startup configuration:
+Configure the FPM master:
 
 ```ini
 opcache.preload=/absolute/magento/root/vendor/graphcommerce/magento-fast-boot/src/FastBootPreload/preload.php
@@ -60,11 +15,52 @@ opcache.preload=/absolute/magento/root/vendor/graphcommerce/magento-fast-boot/sr
 ; opcache.preload_user=magento
 ```
 
-Start the FPM master after restoring the list. Updating the file does not change classes already preloaded in a running master. Pools within one master share preloaded definitions; each application needs its own master.
+Restart FPM. With no recorded class list yet, it starts without preloaded classes and Magento works normally.
 
-For path/symlink installations, set `FASTBOOT_MAGENTO_ROOT` in the master's environment. Set `FASTBOOT_CACHE_DIR` when Magento uses a custom cache directory. Pool environment settings are applied after preloading.
+## Automatic recording
 
-The startup script remains in the installed package. A missing class list results in an empty preload.
+Normal Magento HTTP requests populate `var/cache/preload/classes.txt`. No recorder command, test script or CI job is required. The first completed request that detects a missing list, or a list older than the compiled DI metadata, starts a 15-minute recording window. Each request during that window adds the classes it loaded.
+
+Use the storefront or let normal traffic reach Magento during that window. Requests served entirely by a CDN or Varnish do not reach the recorder. After recording, restart the FPM master to load the collected classes. The restart does not compile the application again.
+
+Keep the list available across that restart. A container replacement that discards `var/cache` also discards the recording; use a persistent cache volume or a committed seed as described below. Updating the list does not change definitions already preloaded in a running master.
+
+To record a fresh list, remove these two files and let requests populate it again:
+
+```sh
+rm -f var/cache/preload/classes.txt var/cache/preload/classes.recording
+```
+
+## Commit a seed for deployment
+
+You can commit a recorded list to the project's Git repository. It contains class names, not serialized objects, customer data or absolute source paths. This lets every node preload from its first FPM start, without recording during installation or running Magento in the build pipeline.
+
+Copy a recording from the same project's local, staging or production installation into a tracked file, for example at the project root:
+
+```sh
+cp var/cache/preload/classes.txt preload-classes.txt
+```
+
+Commit `preload-classes.txt`. Keep the runtime list and recording marker under `var/cache` untracked. During deployment, after DI compilation and mounting runtime storage, restore the seed before starting FPM. Run as the application user:
+
+```sh
+mkdir -p var/cache/preload
+install -m 0600 preload-classes.txt var/cache/preload/classes.txt
+touch var/cache/preload/classes.txt
+rm -f var/cache/preload/classes.recording
+```
+
+The fresh timestamp prevents the recorder from replacing the seed because compiled metadata is newer. The FPM preload user must be able to read the restored file. For containers, perform this copy at startup if a runtime volume covers `var/cache`.
+
+Refresh the committed seed when the application's class usage changes, particularly after adding modules. Missing entries still autoload normally; the seed determines preload coverage. CI only needs to package the committed file. Keeping it as a release artifact instead is also supported.
+
+## FPM configuration
+
+Restart the master after deploying code changes. Pools within one master share preloaded definitions; each application needs its own master.
+
+For path/symlink installations, set `FASTBOOT_MAGENTO_ROOT` in the master's environment. Set `FASTBOOT_CACHE_DIR` when Magento uses a custom cache directory and adjust the recording/deployment paths accordingly. Pool environment settings are applied after preloading.
+
+The startup script remains in the installed package.
 
 ## Disable
 

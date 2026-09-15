@@ -4,6 +4,8 @@ Measured on 2026-09-15 against [project-backend at `7e6cedd`](https://github.com
 
 Frontend: [Luma “70s” category](https://codex-fastboot-online-ba18c2.m2gc.deployyy.app/men/70s). This branch environment sleeps after 30 minutes of inactivity and wakes on access.
 
+The live preview enables class preloading from [project commit `530fc4f`](https://github.com/ho-nl/project-backend/commit/530fc4ff5bd33ea32e70c3c36a33ac7740e22d24). The measurements below remain the **non-preloaded baseline** at `7e6cedd`.
+
 ## PHP execution
 
 | Workload | Native median | FastBoot median | Change | Native p95 | FastBoot p95 |

@@ -6,29 +6,35 @@ Frontend: [Luma “70s” category](https://codex-fastboot-online-ba18c2.m2gc.de
 
 ## PHP execution
 
-All three modes use the same image, catalog, node and service placement in this comparison. Each figure is the median of 90 measured requests.
+All three modes use the same image, catalog, node and service placement in this comparison. Each figure is the median of 90 measured requests. “Saved vs native” is Native − (FastBoot + preload), in milliseconds.
 
-| Workload | Native Magento | FastBoot | FastBoot + preload | Preload saving vs FastBoot |
+| Workload | Native Magento | FastBoot | FastBoot + preload | Saved vs native |
 |---|---:|---:|---:|---:|
-| Store configuration | 34.61 ms | 19.42 ms | 14.63 ms | 24.7% |
-| 24 products, including price ranges | 540.22 ms | 516.74 ms | 486.68 ms | 5.8% |
-| Luma category, 8 products | 157.03 ms | 140.07 ms | 128.51 ms | 8.3% |
+| Store configuration | 34.61 ms | 19.42 ms | 14.63 ms | 19.98 ms |
+| 24 products, including price ranges | 540.22 ms | 516.74 ms | 486.68 ms | 53.54 ms |
+| Luma category, 8 products | 157.03 ms | 140.07 ms | 128.51 ms | 28.52 ms |
 
 Preload improved every workload's median in all three blocks. Relative to native Magento, FastBoot with preload reduced the pooled medians by **57.7% for store configuration, 9.9% for priced products and 18.2% for Luma**.
 
-| Workload | Native p95 | FastBoot p95 | FastBoot + preload p95 |
-|---|---:|---:|---:|
-| Store configuration | 44.41 ms | 28.04 ms | 22.62 ms |
-| 24 products, including price ranges | 682.86 ms | 608.53 ms | 588.39 ms |
-| Luma category, 8 products | 203.71 ms | 192.47 ms | 169.28 ms |
+| Workload | Native p95 | FastBoot p95 | FastBoot + preload p95 | Saved vs native |
+|---|---:|---:|---:|---:|
+| Store configuration | 44.41 ms | 28.04 ms | 22.62 ms | 21.79 ms |
+| 24 products, including price ranges | 682.86 ms | 608.53 ms | 588.39 ms | 94.47 ms |
+| Luma category, 8 products | 203.71 ms | 192.47 ms | 169.28 ms | 34.43 ms |
 
-Per-block medians, shown as native / FastBoot / FastBoot + preload:
+Per-block medians:
 
-| Workload | Block 1 | Block 2 | Block 3 |
-|---|---:|---:|---:|
-| Store configuration | 34.43 / 19.47 / 15.10 ms | 35.12 / 19.84 / 14.49 ms | 33.55 / 19.12 / 14.48 ms |
-| 24 products, including price ranges | 522.61 / 517.94 / 490.38 ms | 548.39 / 505.55 / 483.08 ms | 546.38 / 525.22 / 485.17 ms |
-| Luma category, 8 products | 156.52 / 132.61 / 125.06 ms | 159.15 / 147.23 / 130.36 ms | 157.91 / 145.02 / 128.98 ms |
+| Workload | Block | Native | FastBoot | FastBoot + preload | Saved vs native |
+|---|---:|---:|---:|---:|---:|
+| Store configuration | 1 | 34.43 ms | 19.47 ms | 15.10 ms | 19.33 ms |
+| Store configuration | 2 | 35.12 ms | 19.84 ms | 14.49 ms | 20.63 ms |
+| Store configuration | 3 | 33.55 ms | 19.12 ms | 14.48 ms | 19.07 ms |
+| 24 products, including price ranges | 1 | 522.61 ms | 517.94 ms | 490.38 ms | 32.23 ms |
+| 24 products, including price ranges | 2 | 548.39 ms | 505.55 ms | 483.08 ms | 65.31 ms |
+| 24 products, including price ranges | 3 | 546.38 ms | 525.22 ms | 485.17 ms | 61.21 ms |
+| Luma category, 8 products | 1 | 156.52 ms | 132.61 ms | 125.06 ms | 31.46 ms |
+| Luma category, 8 products | 2 | 159.15 ms | 147.23 ms | 130.36 ms | 28.79 ms |
+| Luma category, 8 products | 3 | 157.91 ms | 145.02 ms | 128.98 ms | 28.93 ms |
 
 The post-run product profiles spent **85–94%** of Magento's profiled time in `Product\PriceRange`, across 24 resolver calls. Native issued 812 SQL calls; both FastBoot modes issued 808. Preloading reduces PHP work while leaving the price-resolution query workload largely intact. These are single instrumented requests, excluded from the timing tables.
 

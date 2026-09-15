@@ -19,13 +19,21 @@ Values are medians of three block medians. The FastBoot listing blocks ranged fr
 
 Magento 2.4.8 with a copied sample catalog, FPC disabled, other Magento caches enabled. Each mode used a fresh single-worker FPM master. Three rounds per mode/page, each with 10 warmups and 20 measured requests: 900 measured requests and 450 warmups. Native rounds preceded FastBoot rounds; FastBoot mode order rotated. Canonical main content matched across all renders, with whitespace and form keys normalized.
 
-| Mode | Bags | Fitness Equipment | Bags page 2 |
+| Page | Native Magento | FastBoot | FastBoot + class preload | Saved vs native |
+|---|---:|---:|---:|---:|
+| Bags | 77.64 ms | 68.82 ms | 64.21 ms | 13.43 ms |
+| Fitness Equipment | 81.06 ms | 71.89 ms | 64.67 ms | 16.39 ms |
+| Bags page 2 | 72.80 ms | 66.18 ms | 57.08 ms | 15.72 ms |
+
+With attribute metadata caching enabled in both modes:
+
+| Page | Native Magento | FastBoot + preload | Saved vs native |
 |---|---:|---:|---:|
-| Native Magento | 77.64 ms | 81.06 ms | 72.80 ms |
-| Native + attribute metadata cache | 73.50 ms | 75.17 ms | 67.14 ms |
-| FastBoot | 68.82 ms | 71.89 ms | 66.18 ms |
-| FastBoot + class preload | 64.21 ms | 64.67 ms | 57.08 ms |
-| FastBoot + preload + attribute metadata cache | 54.74 ms | 56.00 ms | 50.64 ms |
+| Bags | 73.50 ms | 54.74 ms | 18.76 ms |
+| Fitness Equipment | 75.17 ms | 56.00 ms | 19.17 ms |
+| Bags page 2 | 67.14 ms | 50.64 ms | 16.50 ms |
+
+“Saved vs native” is Native − (FastBoot + preload), in milliseconds.
 
 These figures combine different mechanisms; the attribute-cache setting is built into Magento. A real attribute-model save changed and restored the Activity filter label in the same FPM worker without manual cache cleaning. Browser JavaScript/layout behavior and production capacity were not established by these response comparisons.
 

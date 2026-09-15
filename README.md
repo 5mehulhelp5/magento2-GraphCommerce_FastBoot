@@ -142,6 +142,9 @@ To remove FastBoot entirely, remove the `opcache.preload` setting before removin
 - [Configuration reference](docs/CONFIGURATION.md): switches, Redis settings and local-cache limits.
 - [Schema L1/L2 design](SCHEMA-L1.md): reads, writes, invalidation, TTL and failures.
 - [Validation report](docs/VALIDATION.md): measured performance, memory and tested scope.
+- [Luma category-page findings](docs/LUMA.md): regular HTML listings and Magento attribute caching.
 - [Changelog](CHANGELOG.md): release changes.
+
+GitHub Actions checks PHP 8.2–8.5 syntax and runs Magento 2.4.8 unit, Redis, DI and package-installation checks on PHP 8.3/8.4. It does not provision a customer storefront database or replace application staging.
 
 For source contributors, the repository also contains `dev/tests/README.md` and `dev/bench/README.md`. Development tools and tests are excluded from the runtime ZIP.

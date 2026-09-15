@@ -38,15 +38,3 @@ With attribute metadata caching enabled in both modes:
 These figures combine different mechanisms; the attribute-cache setting is built into Magento. A real attribute-model save changed and restored the Activity filter label in the same FPM worker without manual cache cleaning. Browser JavaScript/layout behavior and production capacity were not established by these response comparisons.
 
 Use [the Luma runner](README.md) for an installed fixture with real products. Warm request memory was 8–10 MiB of PHP allocations; this excludes master/preload costs and is insufficient to size workers. Customer performance and memory require measurements on the target stack.
-
-## Installable package check
-
-The 0.2.0-rc4 artifact was installed through Composer on Magento 2.4.8, compiled with fresh DI, and configured using the existing static-content deployment version without a FastBoot release override. With attribute metadata caching enabled and FPC disabled, a temporary HTTP-to-FPM preview measured:
-
-| Page | FastBoot PHP | FastBoot + preload PHP | With preload HTTP TTFB |
-|---|---:|---:|---:|
-| Bags | 71.93 ms | 58.80 ms | 60.10 ms |
-| Bags page 2 | 62.61 ms | 47.44 ms | 48.57 ms |
-| Fitness Equipment | 71.74 ms | 55.93 ms | 57.10 ms |
-
-Each cell is a median of 20 requests after 10 warmups. All 180 renders matched their corresponding canonical main content across both modes. FPM used OPcache with 256 MiB, 65,407 script slots and timestamp validation disabled; preload loaded 2,904 classes. These sequential checks verify installation and rendering, not a controlled estimate of preload's isolated contribution.

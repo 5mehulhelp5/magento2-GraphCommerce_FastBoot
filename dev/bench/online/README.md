@@ -29,11 +29,11 @@ It requires HTTP 200, disabled FPC and identical GraphQL data or canonical Luma 
 
 `--profile` captures a Magento CSV profile for each mode/workload after all measured traffic. Use `--workload products` (repeatable) to restrict a diagnostic run.
 
-The expanded comparison uses 600 measured requests per workload/mode. To calculate uncertainty from its published CSV:
+The comparison uses 600 measured requests per workload/mode. To calculate uncertainty from its published CSV:
 
 ```sh
 python3 dev/bench/online/uncertainty.py \
-  dev/bench/online/data/expanded/samples.csv \
+  dev/bench/online/data/samples.csv \
   --resamples 10000 --seed 20260915 --output /tmp/fastboot-uncertainty.json
 ```
 

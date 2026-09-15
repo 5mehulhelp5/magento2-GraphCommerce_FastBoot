@@ -1,8 +1,8 @@
 {
   "date": "2026-09-15",
-  "project_revision": "7e6ceddda627cde7385d093498b5676c4c6dc7c6",
-  "image": "ghcr.io/ho-nl/project-backend:php-fpm-7e6cedd",
-  "image_id": "ghcr.io/ho-nl/project-backend@sha256:47da51df3ccbd97f459addee57d7737b0d60ba5bc1bb90c6f7c288376f4bd753",
+  "project_revision": "530fc4ff5bd33ea32e70c3c36a33ac7740e22d24",
+  "image": "ghcr.io/ho-nl/project-backend:php-fpm-530fc4f",
+  "image_id": "ghcr.io/ho-nl/project-backend@sha256:cc4e355c0a0e65d3009f7f3174741a4840a7e8eee42c38a7b755fe4e7a7b5fc9",
   "resources": {
     "limits": {
       "cpu": "2",
@@ -27,20 +27,97 @@
   "store": "en_CA",
   "luma_category": "/men/70s",
   "opcache_memory_mib": 256,
-  "opcache_preload": false,
+  "opcache_preload": {
+    "native": false,
+    "fastboot": false,
+    "preload": true
+  },
   "opcache_validate_timestamps": true,
   "opcache_revalidate_freq": 2,
   "redis_extension": true,
-  "services_on_separate_node": true,
+  "services_on_separate_node": false,
   "runtime_storage": "mounted ext4, same volume as serving var",
   "cpu_throttled_usec_delta": 0,
-  "static_content_version": "1789467563",
+  "static_content_version": "1789471785",
   "cache_user_defined_attributes": false,
   "preview_link_configuration": {
     "scope": "branch database only",
     "updated_rows": 14,
     "web/secure/base_link_url": "{{secure_base_url}}",
     "web/unsecure/base_link_url": "{{unsecure_base_url}}",
-    "timing": "after private PHP comparison, before public HTTP measurements"
-  }
+    "timing": "before all measurements in this comparison"
+  },
+  "pod_uid": "5c19fbcf-f5ef-400f-aed8-8776ca35c838",
+  "node": "pool3-node-b77d11",
+  "mode_order": [
+    [
+      "native",
+      "fastboot",
+      "preload"
+    ],
+    [
+      "fastboot",
+      "preload",
+      "native"
+    ],
+    [
+      "preload",
+      "native",
+      "fastboot"
+    ],
+    [
+      "native",
+      "fastboot",
+      "preload"
+    ],
+    [
+      "fastboot",
+      "preload",
+      "native"
+    ],
+    [
+      "preload",
+      "native",
+      "fastboot"
+    ],
+    [
+      "native",
+      "fastboot",
+      "preload"
+    ],
+    [
+      "fastboot",
+      "preload",
+      "native"
+    ],
+    [
+      "preload",
+      "native",
+      "fastboot"
+    ],
+    [
+      "native",
+      "fastboot",
+      "preload"
+    ],
+    [
+      "fastboot",
+      "preload",
+      "native"
+    ],
+    [
+      "preload",
+      "native",
+      "fastboot"
+    ]
+  ],
+  "preload_seed_sha256": "06de1e32d93c4ab9cec7ad68e8efcb993400a2b9a34377b79d76f7e3a95b109a",
+  "preload_seed_classes": 4415,
+  "recorder_active": false,
+  "started_utc": "2026-09-15T12:16:30.673033+00:00",
+  "finished_utc": "2026-09-15T12:48:52.393238+00:00",
+  "blocks": 12,
+  "measured_per_block": 50,
+  "warmups_per_block": 10,
+  "measured_per_mode_workload": 600
 }

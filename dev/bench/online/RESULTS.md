@@ -1,12 +1,12 @@
 # Online AMD EPYC measurements
 
-Expanded comparison on 2026-09-15 against the deployed Magento environment. The image, catalog and server placement are unchanged from the earlier three-mode run.
+Measured on 2026-09-15 against the deployed Magento environment.
 
 Frontend: [Luma “70s” category](https://codex-fastboot-online-ba18c2.m2gc.deployyy.app/men/70s), with FastBoot and class preload enabled. The environment sleeps after 30 minutes of inactivity and wakes on access.
 
 ## PHP execution
 
-**600 measured requests per workload/mode**, up from 90: 12 rotating blocks, each with 10 warmups and 50 measured requests. “Saved vs native” is Native − (FastBoot + preload), using the displayed timings.
+**600 measured requests per workload/mode**: 12 rotating blocks, each with 10 warmups and 50 measured requests. “Saved vs native” is Native − (FastBoot + preload), using the displayed timings.
 
 | Workload | Native median | FastBoot median | FastBoot + preload median | Saved vs native | 95% interval for saving |
 |---|---:|---:|---:|---:|---:|
@@ -14,7 +14,7 @@ Frontend: [Luma “70s” category](https://codex-fastboot-online-ba18c2.m2gc.de
 | 24 products, including price ranges | 535.22 ms | 522.46 ms | 499.62 ms | 35.60 ms | 29.01–39.92 ms |
 | Luma category, 8 products | 160.89 ms | 145.74 ms | 128.76 ms | 32.13 ms | 26.91–37.39 ms |
 
-The FastBoot-only median savings are now close to a flat 13–15 ms. The additional preload saving is larger for products and Luma. These are differences of whole-request medians, including execution work after bootstrap.
+The FastBoot-only median savings are close to a flat 13–15 ms. The additional preload saving is larger for products and Luma. These are differences of whole-request medians, including execution work after bootstrap.
 
 | Workload | Native − FastBoot | 95% interval | FastBoot − preload | 95% interval |
 |---|---:|---:|---:|---:|
@@ -122,6 +122,6 @@ These timings include the serving FPM pool, network and Varnish processing. They
 - No CPU throttling, OPcache exhaustion or OPcache restart occurred during the run.
 - The private FPM processes and temporary application copies were removed afterward. The serving deployment retains FastBoot and preload.
 
-The [earlier 90-sample three-mode run](data/preload/results.json) and [earlier comparison without preload](BASELINE.md) are separate datasets. The [local M5 Mac measurements](../RESULTS.md) use a different catalog and configuration.
+The [local M5 Mac measurements](../RESULTS.md) use a different catalog and configuration.
 
-[Reproduction commands](README.md), [environment and image digest](data/expanded/environment.json), [aggregate results](data/expanded/results.json), [request samples](data/expanded/samples.csv), [uncertainty calculations](data/expanded/uncertainty.json), [public HTTP samples](data/expanded/public.json), [native product profile](data/expanded/native-products-profile.csv), [FastBoot product profile](data/expanded/fastboot-products-profile.csv), [preloaded product profile](data/expanded/preload-products-profile.csv).
+[Reproduction commands](README.md), [environment and image digest](data/environment.json), [aggregate results](data/results.json), [request samples](data/samples.csv), [uncertainty calculations](data/uncertainty.json), [public HTTP samples](data/public.json), [native product profile](data/native-products-profile.csv), [FastBoot product profile](data/fastboot-products-profile.csv), [preloaded product profile](data/preload-products-profile.csv).

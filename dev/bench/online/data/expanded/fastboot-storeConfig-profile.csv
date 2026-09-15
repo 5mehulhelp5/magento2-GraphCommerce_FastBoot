@@ -1,8 +1,0 @@
-magento,0.026559,0.026559,1,"1,572,280",0
-magento->cache_frontend_create,0.000205,0.000103,2,"11,648",0
-magento->store.resolve,0.000843,0.000843,1,"112,184",0
-"magento->SQL:SELECT (directory_currency_rate)",0.003589,0.003589,1,"73,176",0
-magento->EVENT:customer_session_init,0.000501,0.000501,1,"289,104",0
-"magento->EVENT:customer_session_init->FILESYSTEM:load (GLOBAL_EVENT_CONFIG)",0.000094,0.000094,1,"41,928",0
-"magento->GRAPHQL:query (anonymous)",0.005829,0.005829,1,"151,552",0
-"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\StoreConfigResolver (storeConfig)",0.001430,0.001430,1,"87,424",0

@@ -1,5 +1,7 @@
 # Measured results
 
+The [online AMD EPYC results](online/RESULTS.md) cover the deployed `project-backend` branch, including a reproducible frontend URL and public HTTP measurements.
+
 Local measurements on an M5 with PHP 8.4.23. These are PHP execution times, not browser load times or production latency targets. Timings vary with the database/search workload and application extensions.
 
 ## GraphQL

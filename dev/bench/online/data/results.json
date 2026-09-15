@@ -1,0 +1,104 @@
+{
+  "arguments": {
+    "root": [
+      "native=/tmp/fastboot-online-compiled/native",
+      "fastboot=/tmp/fastboot-online-compiled/fastboot"
+    ],
+    "base_url": "https://codex-fastboot-online-ba18c2.m2gc.deployyy.app",
+    "category": "/men/70s",
+    "store": "en_CA",
+    "php_fpm": "/usr/sbin/php-fpm8.4",
+    "output": "/tmp/fastboot-online-mounted-results",
+    "blocks": 3,
+    "warmups": 10,
+    "runs": 30,
+    "workload": null,
+    "profile": true
+  },
+  "summary": {
+    "storeConfig": {
+      "native": {
+        "n": 90,
+        "median_ms": 34.7769125,
+        "p95_ms": 63.302659,
+        "peak_mib": 14,
+        "opcache": {
+          "used_memory": 148971920,
+          "free_memory": 119463536,
+          "wasted_memory": 0,
+          "current_wasted_percentage": 0
+        },
+        "content_sha256": "68199e58f42cea23c46f990cfad29c76a89a45f596043795097d062bed629534"
+      },
+      "fastboot": {
+        "n": 90,
+        "median_ms": 21.723253999999997,
+        "p95_ms": 32.425003,
+        "peak_mib": 6,
+        "opcache": {
+          "used_memory": 114807456,
+          "free_memory": 153628000,
+          "wasted_memory": 0,
+          "current_wasted_percentage": 0
+        },
+        "content_sha256": "68199e58f42cea23c46f990cfad29c76a89a45f596043795097d062bed629534"
+      }
+    },
+    "products": {
+      "native": {
+        "n": 90,
+        "median_ms": 963.2233835,
+        "p95_ms": 1121.931456,
+        "peak_mib": 20,
+        "opcache": {
+          "used_memory": 148971920,
+          "free_memory": 119463536,
+          "wasted_memory": 0,
+          "current_wasted_percentage": 0
+        },
+        "content_sha256": "3f3b38ade2d635f26f03b5cc0b4a0e4e64d2e97b0d0b74b4a9657e087d6bc98e"
+      },
+      "fastboot": {
+        "n": 90,
+        "median_ms": 1015.3291135,
+        "p95_ms": 1210.194805,
+        "peak_mib": 12,
+        "opcache": {
+          "used_memory": 114807456,
+          "free_memory": 153628000,
+          "wasted_memory": 0,
+          "current_wasted_percentage": 0
+        },
+        "content_sha256": "3f3b38ade2d635f26f03b5cc0b4a0e4e64d2e97b0d0b74b4a9657e087d6bc98e"
+      }
+    },
+    "luma": {
+      "native": {
+        "n": 90,
+        "median_ms": 198.2247185,
+        "p95_ms": 265.198499,
+        "peak_mib": 22,
+        "opcache": {
+          "used_memory": 148971920,
+          "free_memory": 119463536,
+          "wasted_memory": 0,
+          "current_wasted_percentage": 0
+        },
+        "content_sha256": "7d6a3db102a888ff9637634e3538e8efb8bd178782a204d36a7e4541c11a06bb"
+      },
+      "fastboot": {
+        "n": 90,
+        "median_ms": 184.6347165,
+        "p95_ms": 259.913995,
+        "peak_mib": 14,
+        "opcache": {
+          "used_memory": 114807456,
+          "free_memory": 153628000,
+          "wasted_memory": 0,
+          "current_wasted_percentage": 0
+        },
+        "content_sha256": "7d6a3db102a888ff9637634e3538e8efb8bd178782a204d36a7e4541c11a06bb"
+      }
+    }
+  }
+}

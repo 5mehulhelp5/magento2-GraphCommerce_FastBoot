@@ -1,5 +1,9 @@
 # Benchmark FastBoot
 
+## Deployed PHP-FPM
+
+[Online comparison runner](online/README.md) and [server results](online/RESULTS.md), using the installed application and its database, Redis and OpenSearch services.
+
 ## Luma category HTML
 
 `luma.py` measures real category-page rendering in a dedicated local FPM master. Use an installed, disposable Magento instance with Luma, category products and full-page cache disabled for the benchmark. Prepare configuration, compiled metadata and preload recording for the mode you want to measure first.

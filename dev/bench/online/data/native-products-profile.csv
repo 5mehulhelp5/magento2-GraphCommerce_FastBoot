@@ -1,0 +1,88 @@
+magento,1.044446,1.044446,1,"16,502,120","2,097,152"
+magento->cache_frontend_create,0.000195,0.000098,2,"11,456",0
+magento->store.resolve,0.008435,0.008435,1,"1,064,392",0
+"magento->store.resolve->FILESYSTEM:load (SYSTEM_DEFAULT)",0.000103,0.000103,1,"238,752",0
+"magento->store.resolve->SQL:SELECT (store_website)",0.005665,0.005665,1,"72,104",0
+"magento->store.resolve->SQL:SELECT (store_group)",0.000476,0.000476,1,"18,792",0
+"magento->store.resolve->SQL:SELECT (store)",0.000451,0.000451,1,"18,840",0
+"magento->FILESYSTEM:load (SYSTEM_WEBSITES_GC)",0.000103,0.000103,1,"238,744",0
+"magento->FILESYSTEM:load (SYSTEM_STORES_EN)",0.000092,0.000092,1,"238,752",0
+magento->EVENT:core_collection_abstract_load_before,0.000353,0.000353,1,"298,904",0
+"magento->EVENT:core_collection_abstract_load_before->FILESYSTEM:load (GLOBAL_EVENT_CONFIG)",0.000050,0.000050,1,"42,200",0
+"magento->SQL:SELECT (directory_currency_rate)",0.000781,0.000781,1,"19,816",0
+"magento->SQL:SELECT (flag)",0.000576,0.000576,1,"18,696",0
+magento->load_area:graphql.translate,0.000188,0.000188,1,"10,208",0
+"magento->FILESYSTEM:load (MAGENTO_FRAMEWORK_GRAPHQLSCHEMASTITCHING)",0.000231,0.000231,1,"689,416",0
+"magento->GRAPHQL:query (anonymous)",1.017566,1.017566,1,"7,699,808","2,097,152"
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)",0.029302,0.029302,1,"1,969,608",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->FILESYSTEM:load (REQUEST_DECLARATION)",0.000083,0.000083,1,"62,704",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->SEARCH:SearchAdapter\Adapter (graphql_product_search)",0.011942,0.011942,1,"808,168",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->SEARCH:SearchAdapter\Adapter (graphql_product_search)->EAV: Magento\Eav\Model\Config::_initEntityTypes",0.000114,0.000114,1,"27,056",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->SEARCH:SearchAdapter\Adapter (graphql_product_search)->EAV: Magento\Eav\Model\Config::getAttribute",0.001638,0.000409,4,"526,936",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->SEARCH:SearchAdapter\Adapter (graphql_product_search)->EAV: Magento\Eav\Model\Config::getAttribute->FILESYSTEM:load (EAV_ENTITY_ATTRIBUTES)",0.000116,0.000058,2,"68,960",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->SEARCH:SearchAdapter\Adapter (graphql_product_search)->OPENSEARCH:query (magento2_product_1)",0.007997,0.007997,1,"150,112",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->EAV: Magento\Eav\Model\Config::getAttribute",0.000375,0.000025,15,"7,288",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->EAV: Magento\Eav\Model\Config::getAttribute->EAV: Magento\Eav\Model\Config::getEntityType",0.000016,0.000001,15,"1,288",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->FILESYSTEM:load (EXTENSION_ATTRIBUTES_CONFIG)",0.000040,0.000040,1,"13,568",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->SQL:SELECT (inventory_stock_sales_channel)",0.001673,0.000836,2,"36,488",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->SQL:SELECT (inventory_stock)",0.000620,0.000620,1,"18,600",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->EAV:load_collection",0.008538,0.008538,1,"200,344",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->EAV:load_collection->load_entities",0.003801,0.003801,1,"166,760",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->EAV:load_collection->load_entities->SQL:SELECT (catalog_product_entity +7)",0.003237,0.003237,1,"22,320",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->EAV:load_collection->load_attributes",0.004666,0.004666,1,"11,984",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->EAV:load_collection->load_attributes->EAV: Magento\Eav\Model\Config::getAttribute",0.000056,0.000003,19,"6,832",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->EAV:load_collection->load_attributes->EAV: Magento\Eav\Model\Config::getAttribute->EAV: Magento\Eav\Model\Config::getEntityType",0.000019,0.000001,19,"7,176",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->EAV:load_collection->load_attributes->SQL:SELECT (catalog_product_entity_varchar +8)",0.004142,0.004142,1,"22,976",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Resolver\Products (products)->EAV:load_collection->after_load",0.000040,0.000040,1,"18,384",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\EntityIdToUid (uid)",0.000771,0.000032,24,"2,848",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)",0.970315,0.040430,24,"4,101,344","2,097,152"
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->FILESYSTEM:load (<hash>)",0.004132,0.000172,24,"311,608",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EAV: Magento\Eav\Model\Config::getEntityType",0.000337,0.000003,111,"5,864",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EAV: Magento\Eav\Model\Config::getAttribute",0.000213,0.000004,49,"1,104",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (catalog_product_entity +6)",0.028643,0.001193,24,"469,840",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:catalog_product_is_salable_before",0.000404,0.000004,96,"-29,168",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:catalog_product_is_salable_after",0.000282,0.000003,96,"-23,536",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (customer_group)",0.001307,0.000653,2,"36,672",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (tax_class)",0.001214,0.000607,2,"36,576",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (customer_group_excluded_website)",0.001229,0.000615,2,"38,624",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (tax_calculation +3)",0.002715,0.001357,2,"41,712",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (eav_attribute)",0.000650,0.000650,1,"19,600",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (eav_attribute +2)",0.155121,0.000808,192,"3,661,072",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (catalog_product_super_link +1)",0.113239,0.000590,192,"3,440,656",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (catalog_product_entity)",0.026533,0.000553,48,"876,688",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->FILESYSTEM:load (EAV_ENTITY_ATTRIBUTES)",0.000241,0.000080,3,"206,768",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:entity_manager_load_before",0.000250,0.000010,24,"-6,704",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:magento_catalog_api_data_productinterface_load_before",0.000258,0.000011,24,"-5,904",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (u)",0.053397,0.002225,24,"493,168",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:core_collection_abstract_load_before",0.000366,0.000008,48,"-13,672",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (catalog_product_option +5)",0.027369,0.001140,24,"517,456",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:core_collection_abstract_load_after",0.000354,0.000007,48,"-13,672",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (catalog_product_entity_media_gallery +5)",0.033485,0.001395,24,"540,688",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (catalog_category_product)",0.014179,0.000591,24,"431,456",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (catalog_product_website)",0.013075,0.000545,24,"428,368",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (catalog_product_super_link +2)",0.014744,0.000614,24,"439,312",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->SQL:SELECT (catalog_product_super_attribute)",0.015135,0.000631,24,"433,744",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->TTT1:Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Attribute\Collection::_afterLoad",0.000867,0.000036,24,"11,312",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->TTT1:Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Attribute\Collection::_afterLoad->EAV: Magento\Eav\Model\Config::getAttribute",0.000363,0.000015,24,"1,392",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->TTT1:Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Attribute\Collection::_afterLoad->EAV: Magento\Eav\Model\Config::getAttribute->EAV: Magento\Eav\Model\Config::getEntityType",0.000108,0.000005,24,"1,848",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->TTT3:Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Attribute\Collection::_afterLoad",0.022226,0.000926,24,"2,680",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->TTT3:Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Attribute\Collection::_afterLoad->SQL:SELECT (catalog_product_super_attribute_label +1)",0.019879,0.000828,24,"454,064",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->TTT4:Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Attribute\Collection::_afterLoad",0.041055,0.001711,24,"79,032",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->TTT4:Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Attribute\Collection::_afterLoad->EAV: Magento\Eav\Model\Config::getAttribute",0.000369,0.000015,24,"1,392",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->TTT4:Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Attribute\Collection::_afterLoad->EAV: Magento\Eav\Model\Config::getAttribute->EAV: Magento\Eav\Model\Config::getEntityType",0.000108,0.000005,24,"1,848",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->TTT4:Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Attribute\Collection::_afterLoad->SQL:SELECT (catalog_product_super_attribute +10)",0.031567,0.001315,24,"511,088",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->TTT4:Magento\ConfigurableProduct\Model\ResourceModel\Product\Type\Configurable\Attribute\Collection::_afterLoad->SQL:SELECT (eav_attribute_option +2)",0.000866,0.000866,1,"19,872",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:magento_catalog_api_data_productinterface_load_after",0.105460,0.004394,24,"169,008",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:magento_catalog_api_data_productinterface_load_after->OBSERVER:legacy_model_load",0.105065,0.004378,24,"152,584",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:magento_catalog_api_data_productinterface_load_after->OBSERVER:legacy_model_load->after_load",0.070578,0.002941,24,"136,184",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:magento_catalog_api_data_productinterface_load_after->OBSERVER:legacy_model_load->after_load->SQL:SELECT (weee_tax)",0.015061,0.000628,24,"435,344",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:magento_catalog_api_data_productinterface_load_after->OBSERVER:legacy_model_load->after_load->EVENT:abstract_search_result_load_before",0.000174,0.000007,24,"-6,224",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:magento_catalog_api_data_productinterface_load_after->OBSERVER:legacy_model_load->after_load->SQL:SELECT (cataloginventory_stock_item +1)",0.021413,0.000892,24,"479,344",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:magento_catalog_api_data_productinterface_load_after->OBSERVER:legacy_model_load->after_load->EVENT:abstract_search_result_load_after",0.000163,0.000007,24,"-6,608",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:magento_catalog_api_data_productinterface_load_after->OBSERVER:legacy_model_load->after_load->SQL:SELECT (catalog_category_product)",0.013935,0.000581,24,"435,400",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:magento_catalog_api_data_productinterface_load_after->OBSERVER:legacy_model_load->EVENT:model_load_after",0.000161,0.000007,24,"-7,272",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:magento_catalog_api_data_productinterface_load_after->OBSERVER:legacy_model_load->EVENT:catalog_product_load_after",0.033437,0.001393,24,"40,232",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:magento_catalog_api_data_productinterface_load_after->OBSERVER:legacy_model_load->EVENT:catalog_product_load_after->OBSERVER:inventory",0.033129,0.001380,24,"23,592",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:magento_catalog_api_data_productinterface_load_after->OBSERVER:legacy_model_load->EVENT:catalog_product_load_after->OBSERVER:inventory->SQL:SELECT (catalog_product_entity)",0.013749,0.000573,24,"430,680",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:magento_catalog_api_data_productinterface_load_after->OBSERVER:legacy_model_load->EVENT:catalog_product_load_after->OBSERVER:inventory->SQL:SELECT (inventory_stock_2)",0.013146,0.000548,24,"432,752",0
+"magento->GRAPHQL:query (anonymous)->GRAPHQL:Product\PriceRange (price_range)->EVENT:entity_manager_load_after",0.000148,0.000006,24,"-6,896",0

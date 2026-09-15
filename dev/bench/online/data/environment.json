@@ -1,0 +1,46 @@
+{
+  "date": "2026-09-15",
+  "project_revision": "7e6ceddda627cde7385d093498b5676c4c6dc7c6",
+  "image": "ghcr.io/ho-nl/project-backend:php-fpm-7e6cedd",
+  "image_id": "ghcr.io/ho-nl/project-backend@sha256:47da51df3ccbd97f459addee57d7737b0d60ba5bc1bb90c6f7c288376f4bd753",
+  "resources": {
+    "limits": {
+      "cpu": "2",
+      "memory": "2560Mi"
+    },
+    "requests": {
+      "cpu": "500m",
+      "memory": "1Gi"
+    }
+  },
+  "base_url": "https://codex-fastboot-online-ba18c2.m2gc.deployyy.app",
+  "php": "8.4.25",
+  "mage_os": "3.5.0",
+  "fastboot": "0.2.0-rc5",
+  "cpu": "AMD EPYC-Milan Processor",
+  "node_vcpus": 8,
+  "architecture": "amd64",
+  "database": "Percona 8.4.6",
+  "redis": "7.0",
+  "opensearch": "3.5",
+  "catalog_products": 6304,
+  "store": "en_CA",
+  "luma_category": "/men/70s",
+  "opcache_memory_mib": 256,
+  "opcache_preload": false,
+  "opcache_validate_timestamps": true,
+  "opcache_revalidate_freq": 2,
+  "redis_extension": true,
+  "services_on_separate_node": true,
+  "runtime_storage": "mounted ext4, same volume as serving var",
+  "cpu_throttled_usec_delta": 0,
+  "static_content_version": "1789467563",
+  "cache_user_defined_attributes": false,
+  "preview_link_configuration": {
+    "scope": "branch database only",
+    "updated_rows": 14,
+    "web/secure/base_link_url": "{{secure_base_url}}",
+    "web/unsecure/base_link_url": "{{unsecure_base_url}}",
+    "timing": "after private PHP comparison, before public HTTP measurements"
+  }
+}

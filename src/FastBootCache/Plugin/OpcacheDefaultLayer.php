@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace GraphCommerce\FastBootCache\Plugin;
@@ -29,6 +30,8 @@ class OpcacheDefaultLayer
         private readonly PhpFiles $files,
         private readonly Version $version,
         private readonly Feature $feature,
+        private readonly \GraphCommerce\FastBootCache\Model\EntryLifetime $lifetime,
+        private readonly \Magento\Framework\App\Cache\StateInterface $cacheState,
         private readonly array $ids = [],
         private readonly array $tags = [],
     ) {
@@ -36,16 +39,18 @@ class OpcacheDefaultLayer
 
     public function aroundLoad(Cache $subject, callable $proceed, $identifier)
     {
-        if (!$this->covered((string)$identifier) || !$this->feature->on(self::SWITCH)) {
+        if (!$this->covered((string)$identifier) || !$this->feature->on(self::SWITCH) || !$this->cacheState->isEnabled('config')) {
             return $proceed($identifier);
         }
         $value = $this->files->read(self::GROUP, (string)$identifier);
         if ($value !== null) {
             return $value;
         }
+        $generation = $this->version->current();
         $value = $proceed($identifier);
-        if ($value !== false) {
-            $this->files->write(self::GROUP, (string)$identifier, $value, PhpFiles::LOADED_LIFETIME);
+        $ttl = $value === false ? false : $this->lifetime->remaining($subject->getFrontend(), (string)$identifier, $value);
+        if ($ttl !== false) {
+            $this->files->write(self::GROUP, (string)$identifier, $value, $ttl, $generation);
         }
 
         return $value;
@@ -53,8 +58,14 @@ class OpcacheDefaultLayer
 
     public function afterSave(Cache $subject, $result, $data, $identifier, $tags = [], $lifeTime = null)
     {
-        if ($this->covered((string)$identifier) && $this->feature->on(self::SWITCH)) {
-            $this->files->write(self::GROUP, (string)$identifier, $data, PhpFiles::lifetime($lifeTime));
+        if ($result && $this->covered((string)$identifier)) {
+            $this->version->bump();
+            if ($this->feature->on(self::SWITCH) && $this->cacheState->isEnabled('config')) {
+                $ttl = $this->lifetime->remaining($subject->getFrontend(), (string)$identifier, $data);
+                if ($ttl !== false) {
+                    $this->files->write(self::GROUP, (string)$identifier, $data, $ttl);
+                }
+            }
         }
 
         return $result;

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace GraphCommerce\FastBoot\Model\ObjectManager;
@@ -15,7 +16,7 @@ use Magento\Framework\ObjectManager\ConfigLoaderInterface;
  * global one it already holds: 15 000 arguments replaced by themselves on
  * every request. This loader hands the object manager only the entries the
  * area changes, from a file under var/fastboot/metadata that follows the
- * metadata files' modification times.
+ * an immutable release identity (or the source hashes without one).
  */
 class AreaConfigLoader implements ConfigLoaderInterface
 {
@@ -27,12 +28,13 @@ class AreaConfigLoader implements ConfigLoaderInterface
     public function __construct(
         private readonly DirectoryList $directoryList,
         private readonly Feature $feature,
+        private readonly \Magento\Framework\App\DeploymentConfig $deploymentConfig,
     ) {
     }
 
-    public function load($area)
+    public function load($area, bool $rebuild = false)
     {
-        if (isset($this->loaded[$area])) {
+        if (!$rebuild && isset($this->loaded[$area])) {
             return $this->loaded[$area];
         }
         $areaFile = Compiled::getFilePath($area);
@@ -42,11 +44,18 @@ class AreaConfigLoader implements ConfigLoaderInterface
         ) {
             return $this->loaded[$area] = include $areaFile;
         }
-        $stamp = filemtime($areaFile) . ':' . filemtime($globalFile);
-        $diffFile = $this->directoryList->getPath(DirectoryList::VAR_DIR) . '/fastboot/metadata/' . $area . '.php';
-        if (is_file($diffFile)) {
-            $diff = include $diffFile;
-            if (($diff['stamp'] ?? null) === $stamp) {
+        $release = $this->deploymentConfig->get('fastboot/release', $this->deploymentConfig->get('fastboot/schema_l1/release'));
+        // Immutable releases avoid hashing large compiled files on every request. Without a release use content hashes.
+        $stamp = hash('sha256', serialize([$release, realpath($areaFile), realpath($globalFile),
+            $release ? null : hash_file('sha256', $areaFile), $release ? null : hash_file('sha256', $globalFile)]));
+        $diffFile = $this->directoryList->getPath(DirectoryList::VAR_DIR) . '/fastboot/metadata/' . $stamp . '.php';
+        if (!$rebuild && is_file($diffFile)) {
+            try {
+                $diff = @include $diffFile;
+            } catch (\ParseError) {
+                $diff = null;
+            }
+            if (is_array($diff) && ($diff['stamp'] ?? null) === $stamp && is_array($diff['config'] ?? null)) {
                 return $this->loaded[$area] = $diff['config'];
             }
         }
@@ -66,16 +75,18 @@ class AreaConfigLoader implements ConfigLoaderInterface
             }
         }
 
-        @mkdir(dirname($diffFile), 0775, true);
-        $temporary = $diffFile . '.' . getmypid() . '.tmp';
+        @mkdir(dirname($diffFile), 0700, true);
+        $temporary = $diffFile . '.' . bin2hex(random_bytes(8)) . '.tmp';
         $content = "<?php\nreturn " . var_export(['stamp' => $stamp, 'config' => $config], true) . ";\n";
-        if (file_put_contents($temporary, $content) !== false) {
-            rename($temporary, $diffFile);
+        if (@file_put_contents($temporary, $content) === strlen($content)) {
+            @chmod($temporary, 0600);
+            @rename($temporary, $diffFile);
             if (function_exists('opcache_invalidate')) {
                 opcache_invalidate($diffFile, true);
             }
         }
 
+        @unlink($temporary);
         return $this->loaded[$area] = $config;
     }
 }

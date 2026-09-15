@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace GraphCommerce\FastBootPreload\Model;
@@ -55,14 +56,52 @@ class ClassList
     public function append(array $classes): int
     {
         $var = $this->filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
-        $known = $var->isFile(self::FILE)
-            ? array_filter(array_map('trim', explode("\n", $var->readFile(self::FILE))))
-            : [];
-        $new = array_diff($classes, $known);
-        if ($new) {
-            $var->writeFile(self::FILE, implode("\n", $new) . "\n", 'a');
+        $path = $var->getAbsolutePath(self::FILE);
+        if (!is_dir(dirname($path)) && !@mkdir(dirname($path), 0700, true) && !is_dir(dirname($path))) {
+            return 0;
         }
-
-        return count($new);
+        $classes = array_values(array_filter($classes, static function (string $class): bool {
+            if (str_contains($class, '@') || str_contains($class, "\0") || str_starts_with($class, 'PhpParser\\')) {
+                return false;
+            }
+            $reflection = new \ReflectionClass($class);
+            return !$reflection->isInternal() && strcasecmp($reflection->getName(), $class) === 0;
+        }));
+        $previous = is_file($path) ? array_filter(explode("\n", (string)file_get_contents($path))) : [];
+        if (!array_diff($classes, $previous)) {
+            return 0;
+        }
+        // Discover anonymous-class dependencies while recording, never run the parser in the preload master.
+        Dependencies::load();
+        $classes = array_unique(array_merge($classes, get_declared_classes(), get_declared_interfaces(), get_declared_traits()));
+        $handle = @fopen($path, 'c+');
+        if (!$handle) {
+            return 0;
+        }
+        try {
+            if (!flock($handle, LOCK_EX)) {
+                return 0;
+            }
+            $known = array_fill_keys(array_filter(explode("\n", stream_get_contents($handle))), true);
+            $added = 0;
+            foreach ($classes as $class) {
+                if (count($known) >= 20000) {
+                    break;
+                }
+                if (isset($known[$class]) || str_starts_with($class, 'PhpParser\\') || str_contains($class, '@') || str_contains($class, "\0") || (new \ReflectionClass($class))->isInternal() || strcasecmp((new \ReflectionClass($class))->getName(), $class) !== 0) {
+                    continue;
+                }
+                if (fwrite($handle, $class."\n") === false) {
+                    break;
+                }
+                $known[$class] = true;
+                $added++;
+            }
+            @chmod($path, 0600);
+            return $added;
+        } finally {
+            flock($handle, LOCK_UN);
+            fclose($handle);
+        }
     }
 }

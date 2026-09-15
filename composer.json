@@ -1,16 +1,24 @@
 {
     "name": "graphcommerce/magento-fast-boot",
-    "description": "A faster php-fpm bootstrap of Magento 2 / Mage-OS: opcache PHP files in front of the configuration caches, and the per-request work of the framework remembered. One package with every module; each module directory is a package of its own for a subtree split.",
+    "description": "Magento PHP-FPM bootstrap optimizations with bounded local PHP caches, authoritative shared-cache invalidation and optional class preloading.",
     "type": "magento2-module",
     "license": "MIT",
     "require": {
-        "php": "~8.1.0|~8.2.0|~8.3.0|~8.4.0",
-        "magento/framework": "*",
-        "magento/module-store": "*",
-        "magento/module-eav": "*",
-        "magento/module-config": "*",
-        "magento/module-deploy": "*",
-        "magento/module-theme": "*"
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
+        "magento/framework": "^103.0.8",
+        "magento/module-store": "^101.1.8",
+        "magento/module-eav": "^102.1.8",
+        "magento/module-config": "^101.2.8",
+        "magento/module-deploy": "^100.4.8",
+        "magento/module-theme": "^101.1.8",
+        "nikic/php-parser": "^5.0",
+        "magento/module-graph-ql": "^100.4.8",
+        "magento/module-graph-ql-cache": "^100.4.5",
+        "magento/module-customer-graph-ql": "^100.4.8",
+        "magento/module-catalog-graph-ql": "^100.4.8",
+        "magento/module-tax": "^100.4.8",
+        "magento/module-customer": "^103.0.8",
+        "webonyx/graphql-php": "^15.0"
     },
     "replace": {
         "graphcommerce/module-fast-boot-cache": "self.version",
@@ -19,7 +27,7 @@
         "graphcommerce/module-fast-boot-graph-ql": "self.version"
     },
     "suggest": {
-        "magento/module-graph-ql": "GraphCommerce_FastBootGraphQl serves the schema, the parsed and validated queries and the response cache id from opcache files"
+        "ext-redis": "Required when the optional schema_l1 Redis transport is enabled"
     },
     "autoload": {
         "files": [
@@ -34,5 +42,13 @@
             "GraphCommerce\\FastBootPreload\\": "src/FastBootPreload/",
             "GraphCommerce\\FastBootGraphQl\\": "src/FastBootGraphQl/"
         }
+    },
+    "archive": {
+        "exclude": [
+            "/dev",
+            "/**/Test",
+            "/.git",
+            "/dist"
+        ]
     }
 }

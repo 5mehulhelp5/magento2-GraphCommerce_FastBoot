@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace GraphCommerce\FastBoot\Model\Config;
@@ -55,12 +56,13 @@ class OpcacheView extends View
             return parent::read($scope);
         }
         $key = ($this->cacheKey ?: 'global') . '|' . ($scope ?: $this->_defaultScope) . '|' . $this->_fileName;
+        $generation = $this->files->generation();
         $data = $this->files->read('VIEW', $key);
         if (is_array($data)) {
             return $data;
         }
         $data = parent::read($scope);
-        $this->files->write('VIEW', $key, $data);
+        $this->files->write('VIEW', $key, $data, null, $generation);
 
         return $data;
     }

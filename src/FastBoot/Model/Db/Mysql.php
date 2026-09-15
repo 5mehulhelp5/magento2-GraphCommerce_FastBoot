@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace GraphCommerce\FastBoot\Model\Db;
@@ -37,7 +38,10 @@ class Mysql extends \Magento\Framework\DB\Adapter\Pdo\Mysql
         ?Feature $feature = null
     ) {
         parent::__construct($string, $dateTime, $logger, $selectFactory, $config, $serializer, $dtoFactoriesTable);
-        $this->withoutConnection = $feature === null || $feature->on(self::SWITCH);
+        $init = (string)($config['initStatements'] ?? 'SET NAMES utf8mb4');
+        // Multibyte legacy encodings and NO_BACKSLASH_ESCAPES require the connected driver's rules.
+        $safeSession = preg_match('/^\s*SET\s+NAMES\s+[\"\']?utf8(?:mb4)?[\"\']?(?:\s+COLLATE\s+[a-zA-Z0-9_]+)?\s*;?\s*$/i', $init) === 1;
+        $this->withoutConnection = $safeSession && ($feature === null || $feature->on(self::SWITCH));
     }
 
     public function quote($value, $type = null)
@@ -67,10 +71,13 @@ class Mysql extends \Magento\Framework\DB\Adapter\Pdo\Mysql
 
     protected function _quote($value)
     {
-        if ($this->_connection || !$this->withoutConnection || is_int($value) || is_float($value)) {
+        if ($this->_connection || !$this->withoutConnection || is_int($value) || is_float($value) || preg_match('//u', (string)$value) !== 1) {
             return parent::_quote($value);
         }
 
-        return "'" . addcslashes((string)$value, "\000\n\r\\'\"\032") . "'";
+        return "'" . strtr((string)$value, [
+            "\0" => '\\0', "\n" => '\\n', "\r" => '\\r', "\x1a" => '\\Z',
+            "\\" => '\\\\', "'" => "\\'", '"' => '\\"',
+        ]) . "'";
     }
 }

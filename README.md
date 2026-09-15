@@ -1,91 +1,147 @@
-# GraphCommerce_FastBoot
+# GraphCommerce FastBoot
 
-A faster php-fpm bootstrap of Magento 2 and Mage-OS, for the deployments where every request starts from nothing.[^1] Four modules in one package: `FastBootCache` puts opcache PHP files in front of the configuration caches and is usable alone, `FastBoot` removes the work the framework repeats per request, `FastBootGraphQl` does the same for a GraphQL request, `FastBootPreload` keeps an opcache preload list that records itself. Install, enable, compile: an integration changes nothing. Every mechanism has a switch for the case where it must be off.
+FastBoot reduces the work Magento repeats at the start of each PHP-FPM request. It caches reusable configuration and GraphQL data as local PHP arrays, so OPcache can reuse the compiled data. Shared cache invalidation keeps the servers in sync. Optional class preloading reduces startup work further.
 
-## Numbers
+FastBoot runs with ordinary PHP-FPM. Each server keeps its own local cache; the GraphQL schema uses Redis as its authoritative shared cache. Application objects and customer sessions keep their normal request lifecycle.
 
-PHP time from the profiler, medians, on a shop with 500 000 products; the trivial query is `storeConfig { store_code }`, the listings ask 24 products with facets.
+**Status:** release candidate for customer staging. The package has been installed and tested on the targets below; customer-specific extensions and infrastructure still need staging validation. See [test results and memory measurements](docs/VALIDATION.md) and the [changelog](CHANGELOG.md).
 
-| | Trivial | Unfiltered listing | Category listing |
-| --- | --- | --- | --- |
-| Before | 61 ms | 148 ms | 109 ms |
-| With the modules | 8 ms | 95 ms | 50 ms |
+## What it improves
 
-Before, the 51 ms in front of the trivial query were 18 cache loads from Redis with their decompress and unserialise (30 ms), three store selects (6), a MySQL and a Redis connection (4) and the object manager (10); the query itself walked every declared GraphQL type (7) and loaded the tax rates for the response cache id (4). Now a request sends one Redis command per two seconds and no SQL, the trivial query runs in 2 ms, and the listings' remaining time is the search engine (45 to 60 ms of the unfiltered one) and the resolvers.
+| Area | Optimization |
+|---|---|
+| Magento startup | Load system configuration by requested scope and reuse compiled area configuration differences. |
+| Configuration caches | Reuse local PHP values while preserving shared invalidation and backend expiry. |
+| GraphQL | Reuse schema arrays, parsed queries and successful structural validation. Magento's processor, request-specific checks and custom validation rules still run. |
+| Storefront helpers | Avoid repeated store lookups, view XML parsing and selected tax, placeholder and database-quoting work. |
+| PHP startup | Optionally preload class definitions recorded from representative requests. |
 
-What each mechanism is worth alone, as the increase when only it is off, from the switch bench in `dev/bench` (medians of 15; preload from its own before and after; under a millisecond is noise, and the sum exceeds the total because the MySQL connection only stays away when the store config, the tax factor and the deployment check are all cached):
+Every optimization can be disabled separately. See the [configuration reference](docs/CONFIGURATION.md) for all switches and their defaults.
 
-| Switch | Module | What it remembers | Trivial | Listing |
-| --- | --- | --- | --- | --- |
-| `opcache.preload` (ini line) | Preload | the classes a request declares, linked once at php-fpm start | 10 ms | 1 ms |
-| `schema_scalars` | GraphQl | a built-in scalar without a walk over every declared type | 10 ms | 10 ms |
-| `schema_array` | GraphQl | the stitched schema as a PHP array, not 1.6 MB of JSON | 10 ms | 5 ms |
-| `guest_tax_factor` | GraphQl | the guest tax factor of the response cache id, four selects | 9 ms | 17 ms |
-| `cache_files` | Cache | the configuration cache types and default frontend entries as opcache files | 5 ms | 15 ms |
-| `website_stores` | FastBoot | the stores of a website, a three-table select | 6 ms | 7 ms |
-| `deploy_config_unchanged` | FastBoot | the deployment config check, a flag table read | 4 ms | 13 ms |
-| `scopes_cache` | FastBoot | the websites, groups and stores, three selects | 4 ms | 13 ms |
-| `validated_queries` | GraphQl | the validation rules over the document, once per version | 2 ms | 12 ms |
-| `area_config_diff` | FastBoot | only the entries an area changes for the object manager, not 15 000 again | 2 ms | 12 ms |
-| `placeholder_url` | GraphQl | the placeholder image URL, theme and asset context | 2 ms | 12 ms |
-| `default_store` | FastBoot | the default store of a group, a collection load | 2 ms | 8 ms |
-| `quote_without_connection` | FastBoot | quoting without a database connection | 2 ms | 9 ms |
-| `system_config_array` | FastBoot | the system configuration as one PHP array, no decrypt or unserialise | 2 ms | 1 ms |
-| `parsed_queries` | GraphQl | the parsed document from a file | 0 ms | 3 ms |
-| `view_config` | FastBoot | the theme's view.xml as a PHP array; only a request that asks an image size pays it | 0 ms | 0 ms |
-| `opcache.validate_timestamps=0`, `opcache.file_update_protection=0` | | no stat of every included file per request | 2 ms | ≈ 0 |
-| phpredis instead of Predis | | the Redis client in C | 2 ms | ≈ 0 |
-| `persistent` Redis connection (env.php) | | the connection kept between requests | 1 ms | ≈ 0 |
-| `zend.assertions=-1` | | webonyx's executor builds an assertion message per field otherwise; production's default | 1 ms | ≈ 0 |
-| `persistent` MySQL connection (env.php) | | the connection kept between requests; a request here runs no SQL | < 1 ms | ≈ 0 |
-| `opcache.jit=tracing` | | tracing JIT | −1 ms | slower in one run, faster in another |
+## Requirements
 
-The rows without a module are host settings, measured with the modules on. On the listing their differences are inside the search engine's variance between runs, hence ≈ 0; the trivial query shows them, and it shows that a request which runs no SQL and one Redis command per two seconds has little left to gain from its connections.
+- Magento 2.4.8-era module APIs or compatible Mage-OS packages. Composer checks the exact dependency ranges.
+- PHP 8.2–8.5 within the range supported by your Magento installation, with OPcache enabled for PHP-FPM.
+- The phpredis extension and a writable Redis primary when schema L1 is enabled.
+- A private, writable local `var` directory on each server.
 
-## What the modules do
+Composer installs the required GraphQL and PHP parser dependencies. The PHP parser is used when preparing preload dependencies.
 
-**FastBootCache.** A load of a covered cache type (`config`, `eav`, `translate`, `db_ddl`, `reflection`, `compiled_config`, `collections`) or default frontend entry (EAV, resolved stores, app config, DDL, theme; other modules register theirs) answers from a PHP file under `var/fastboot/<cache>/<version>/` after the first request of a version: an include of shared memory instead of a network read, a decompress and a deserialise. An entry saved with a lifetime keeps its expiry in the file; an entry only loaded, whose lifetime the frontend does not tell, is read from the cache again after two hours. The version is a token in the shared cache under the config tag: a clean or a remove on a covered type bumps it on every server and sweeps the files, a flush removes it and the next request past the grace starts a new version, and a server reads it once per two second grace from a stamp file, so a request within the grace opens no cache connection. A file holds scalars and arrays through `var_export`, never an object. `Model\Feature` reads the switches.
+| Tested application | Coverage |
+|---|---|
+| Mage-OS 3.5 / PHP 8.4 | Project GraphQL queries, configuration saves, invalidation, memory and performance. |
+| Magento 2.4.8 / PHP 8.3 and 8.4 | Core GraphQL, units, fresh DI compilation and preload using the installed ZIP. |
+| PHP 8.5 | Unit tests only. |
+| PHP 8.2 | Syntax checks only. |
 
-**FastBoot.** The system configuration as one PHP array; the theme's view.xml as one; the scopes, the stores of a website and the default store of a group without selects; the deployment config check from the cache; quoting without a database connection (Zend asks the PDO driver, so a request that served every select from the cache still connected and ran the session statements); and only the entries an area changes for the object manager (the compiled area metadata holds the whole configuration again, and it was merged entry by entry on every request).
+The [validation report](docs/VALIDATION.md) describes the compatibility fixture and the limits of these checks. Schema L1 currently uses a direct Redis primary connection; Sentinel discovery and Redis Cluster routing are not implemented.
 
-**FastBootGraphQl.** The stitched schema as a PHP array; a built-in scalar answered as such (webonyx looks for a scalar override in the schema's type list the first time a scalar value is completed, and Magento's type list is a closure that builds every declared type); a query parsed once, from the array form webonyx exports with the query as every node's source, and validated once per opcache version; the guest tax factor of the response cache id from the cache, dropped by a tax or customer group save; the placeholder image URL from the cache.
+## Install and configure
 
-**FastBootPreload.** A list of the classes real requests declare, in `var/fastboot/classes.txt`, that records itself for fifteen minutes after every compile, and a `preload.php` that loads it at php-fpm start. A shipped list cannot do this: a fifth of the 5 000 classes a request declares are the interceptors, proxies and factories generated for the shop's plugin configuration, an eighth its own and third party modules. What preload costs and saves: the master runs the script once before it forks a worker and compiles and links every class into opcache's shared memory; the workers share that segment and keep the classes between requests. Without preload a request pays per class for the autoloader, the include and the linking into its own process, about 2 µs a class and 10 ms for a listing. That work is gone, not moved; the memory is paid once per master (55 MB here) whatever the number of workers, and an unused preloaded class costs nothing per request. The costs sit at the edges: the master starts slower, the segment must fit `opcache.memory_consumption`, a class whose parent is missing warns, a script error stops the master, and preloaded classes ignore `opcache.validate_timestamps` until a restart. The list only grows while preload is on, since a preloaded class is declared in every request; a deleted class is skipped at start, one no longer used stays until the list is deleted and recorded again with the ini line off for one restart.
+Run these steps in the new Magento release directory as part of your normal deployment process.
 
-## Switches
+### 1. Install the Composer package
 
-Every mechanism is on. A deployment turns one off in `app/etc/env.php` (the same array in `config.php` is read too), since the reasons are per environment: a host whose `var/` is not shared the right way, a shop that must not have its configuration values on disk, a bench of one mechanism alone.
+Place the release ZIP in a Composer artifact directory, then run:
+
+```sh
+composer config repositories.fastboot artifact /absolute/path/to/artifacts
+composer require graphcommerce/magento-fast-boot:0.2.0-rc3
+bin/magento module:enable GraphCommerce_FastBootCache GraphCommerce_FastBoot GraphCommerce_FastBootGraphQl GraphCommerce_FastBootPreload
+```
+
+The ZIP is a Composer package. Composer extracts it under `vendor/graphcommerce/magento-fast-boot`. You can also distribute the package through your own Composer/VCS repository.
+
+### 2. Add the deployment configuration
+
+Merge this entry into the array returned by `app/etc/env.php`:
 
 ```php
 'fastboot' => [
-    'system_config_array' => false,
+    'release' => 'shop-build-2026-09-15-001',
+    'schema_l1' => [
+        'enabled' => true,
+        'installation' => 'my-shop-production',
+        'release' => 'shop-build-2026-09-15-001',
+        'grace' => 0,
+    ],
 ],
 ```
 
-## How this was built
+Replace the example identities:
 
-Sample one request with excimer, take the largest block that is not the query's own work, read the core code behind it, replace it with the smallest hook Magento offers, measure the medians again, run the parity gate of the catalog storefront package on both runtimes. Every block was one of four kinds: a cache read that is a network round trip plus a deserialise; work core repeats per request because it has no cache of its own; a connection made for nothing; a php-fpm setting left at its development default. Most hooks are plugins on public methods. Three are not: the GraphQL schema factory constructs its class with `new`, so the factory is replaced; the object manager's config loader is a shared instance created before DI exists, so it is a constructor argument of `Http` and `Area`; the stitched schema's config data is a virtual type, replaced by its type attribute. Nothing in `vendor/` is patched. The hard part was finding the blocks: none had a span in the profiler's timeline, and only a sampled trace with a window on the bootstrap shows them.
+- **Installation:** a stable, unique ID for this shop/environment. All its web, admin and CLI nodes use the same value. Staging uses a different value from production.
+- **Release:** an immutable application build ID. Both release fields use the same value. Nodes serving the same build agree on it; a new code, DI or deployment-config build gets a new value. During a rolling deployment, old and new builds retain their own release IDs and share the installation ID.
 
-## Rolling this out
+The schema connection inherits the default Magento cache frontend's Redis endpoint, database and credentials. If that frontend is not a directly usable Redis endpoint, configure an explicit connection. See [connection options and cache limits](docs/CONFIGURATION.md).
 
-Install, enable, `setup:di:compile`. `var/fastboot/` must be writable by php-fpm and shared by nothing else than the servers that share the cache; two installations that share `var/` but not their cache keep their trees apart by the cache backend's identity. Then, in the order of value:
+The 15 feature switches default to enabled. Schema L1 additionally requires `schema_l1.enabled=true` and the connection/identity settings above. Class preloading requires the separate PHP startup setting below.
 
-| Part | What to do | Risk |
-| --- | --- | --- |
-| The modules | Nothing. | Low. The files follow the cache's tags and lifetimes; a clean on any server reaches every server within the grace. |
-| System config as a PHP array | Decide whether the values may be on disk: they are the values `app:config:dump` writes, decrypted, under `var/`, readable by the php-fpm user like `env.php` and the crypt key in it. | Low. Set `system_config_array` to false where they may not. |
-| php-fpm ini | `opcache.validate_timestamps=0`, `opcache.file_update_protection=0`, `zend.assertions=-1`, and a php-fpm restart in the deployment. | Medium. Without the restart php-fpm runs the old code. |
-| Persistent connections, phpredis | `persistent` in env.php for the database and the Redis backend; the phpredis extension. | Low. |
-| Preload | `opcache.preload=<root>/app/code/GraphCommerce/FastBootPreload/preload.php` (or its vendor path), `opcache.preload_user` where php-fpm runs as root, restart. The list fills itself; the script loads nothing without one. | Medium. One preload serves one code base per master. |
+### 3. Compile and prepare
 
-What to watch: opcache memory. Every config invalidation leaves one version of about a thousand files as wasted memory until opcache restarts itself; `opcache.max_wasted_percentage` and `opcache.memory_consumption` set how many invalidations a master lives through. A shop that cleans its config cache every minute needs a larger opcache; one that cleans it on deployments notices nothing. And what this does not do: it makes no request faster than its own work; it removes the 50 ms every php-fpm request paid before its work began.
+Start with fresh generated code and DI metadata for the new release; do not carry compiled metadata over from an older package version. Then run:
 
-## Open work
+```sh
+bin/magento cache:clean config compiled_config
+bin/magento setup:di:compile
+bin/magento fastboot:status
+bin/magento fastboot:prepare
+```
 
-- **An admin configuration save exhausted PHP's memory** (756 MB) on the shop this was built on, on 2026-09-08, with the modules on; the modules are off there until the cause is found. The suspects are the two config plugins on a request that cleans the config cache and reads it again in the same request: `SystemFromFile` rebuilds the whole tree through the core type, and a nested `get` during that rebuild would rebuild it again, and `ScopesCache` answers every path with the whole scopes array. A reproduction outside the browser comes first.
-- **Magento's own test suites.** The proof a developer asks for: the unit, integration and API functional suites run with the modules enabled on a clean installation, and a report of every test that behaves differently. Until then the evidence is the catalog storefront package's parity gate (26 queries, both paths, both runtimes) and the shop this was built on.
-- **Symfony's cache adapters.** `PhpArrayAdapter` is the deploy-time form of the file layer: one warmed, read-only file with a fallback pool, right for the schema, the system and the view configuration, so production never writes an executable file. `PhpFilesAdapter` is the per-item form and could carry the file format. Neither answers the cross-server invalidation the version token does.
-- **The framework.** The object manager's factory reflects every class it creates (about 3 ms on a listing; Symfony's compiled container generates a method per service and caches its reflectors), the GraphQL config elements of the types a query touches are rebuilt per request (5 ms), the EAV config creates its attribute objects per request (2.5 ms).
-- **The placeholder URL** has one caller, the product fields prefill of the catalog storefront package, and belongs there.
+Continue your project's normal Magento deployment steps. FastBoot itself ships no database schema or data patches.
 
-[^1]: A process that keeps everything between requests, such as [mage-os-lab/module-worker-mode](https://github.com/mage-os-lab/module-worker-mode), pays the start once; these modules are for php-fpm, where it is paid per request.
+`fastboot:status` checks release configuration, the generic local-cache directory and schema Redis connectivity. It reports feature switches. Also check directory access as the FPM user; a successful CLI check does not establish FPM permissions or OPcache health.
+
+`fastboot:prepare` prepares area metadata, the GraphQL schema and default/store configuration scopes. It prepares files for the new release; it cannot warm a separate FPM process's OPcache. Run it on each node that needs local artifacts.
+
+### 4. Warm and verify
+
+Start the new FPM service and send representative requests to that release before routing customer traffic to it. Exercise your stores, customer/authentication flows, GraphQL queries, admin configuration saves and cache invalidation. Check the serving FPM process's OPcache usage and logs.
+
+## Optional class preload
+
+Start by warming representative requests without preload. The preload module records the classes those requests use, normally during a 15-minute recording window after compilation. Then add this setting to PHP's FPM startup configuration:
+
+```ini
+opcache.preload=/absolute/magento/root/vendor/graphcommerce/magento-fast-boot/src/FastBootPreload/preload.php
+; Set opcache.preload_user to the application user if the FPM master runs as root.
+```
+
+Use a dedicated FPM master/service for each preloaded Magento application/release. **Restart that master/service after recording the classes.** Recycling individual workers does not reload preloaded definitions. Warm the restarted service and verify it before directing traffic to it.
+
+For a symlink/path installation, set `FASTBOOT_MAGENTO_ROOT=/absolute/magento/root` in the master/service environment before startup. A pool-only environment setting is too late. An invalid explicit root prevents startup.
+
+Only class definitions are preloaded. Runtime cache values, TTLs and invalidation metadata remain changeable. See the [preload module guide](src/FastBootPreload/README.md) for recording details and path requirements.
+
+## Freshness and memory
+
+With the default `schema_l1.grace=0`, a warm schema load checks Redis metadata before using the local array. This is a check when loading the schema, **not a Redis call for every GraphQL field or array access**. Generic caches separately read a shared generation token once per request. An in-flight request can finish using data it already loaded when another node invalidates it.
+
+A missing local value is fetched or rebuilt from its authoritative source. Redis remains authoritative for schema data; a strict schema read fails if Redis validation fails. It does not serve a stale local schema. See [how schema L1/L2 works](SCHEMA-L1.md).
+
+Local file limits bound the amount of data admitted to the cache. They do not set OPcache's memory budget. Monitor OPcache in the serving FPM service and allow headroom for cold startup. Preload reduces worker costs but increases the master footprint; warm PHP allocation figures alone do not describe total server memory.
+
+Keep cache directories private to each server and outside the public document root. Configuration files can contain decrypted settings. Retire old local caches with their release and FPM lifecycle: deleting files alone does not reclaim their compiled OPcache memory.
+
+## Disable or roll back
+
+To disable one optimization, set its switch to the PHP boolean `false` in the `fastboot` configuration and deploy the change with a new release ID and FPM restart. For example:
+
+```php
+'validated_queries' => false,
+```
+
+To bypass schema L1 while keeping shared invalidation active, set `schema_array=false` and **retain `schema_l1.enabled=true`**. Keep the module's invalidation hooks active on web, admin and CLI nodes while any node still uses schema L1.
+
+Disabling Magento's config cache also bypasses the derived data caches. The [switch reference](docs/CONFIGURATION.md#feature-switches) identifies the remaining independent shortcuts.
+
+To remove FastBoot entirely, remove the `opcache.preload` setting before removing its files. Disable the four modules, rebuild generated code/metadata and clean caches through your normal deployment process, then restart the FPM master/service. Restore the previous application release if that is your deployment's rollback mechanism.
+
+## Further reading
+
+- [Configuration reference](docs/CONFIGURATION.md): switches, Redis settings and local-cache limits.
+- [Schema L1/L2 design](SCHEMA-L1.md): reads, writes, invalidation, TTL and failures.
+- [Validation report](docs/VALIDATION.md): measured performance, memory and tested scope.
+- [Changelog](CHANGELOG.md): release changes.
+
+For source contributors, the repository also contains `dev/tests/README.md` and `dev/bench/README.md`. Development tools and tests are excluded from the runtime ZIP.

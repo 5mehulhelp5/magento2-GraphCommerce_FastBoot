@@ -53,4 +53,9 @@
     <type name="Magento\Store\Model\Group">
         <plugin name="graphcommerce_fastboot_default_store" type="GraphCommerce\FastBoot\Plugin\Store\DefaultStore"/>
     </type>
+<type name="Magento\Deploy\Model\DeploymentConfig\Hash"><plugin name="graphcommerce_fastboot_deploy_hash_changed" type="GraphCommerce\FastBoot\Plugin\Deploy\ConfigUnchanged"/></type>
+<type name="Magento\Framework\Console\CommandList"><arguments><argument name="commands" xsi:type="array">
+ <item name="fastboot_status" xsi:type="object">GraphCommerce\FastBoot\Console\StatusCommand</item>
+ <item name="fastboot_prepare" xsi:type="object">GraphCommerce\FastBoot\Console\PrepareCommand</item>
+</argument></arguments></type>
 </config>

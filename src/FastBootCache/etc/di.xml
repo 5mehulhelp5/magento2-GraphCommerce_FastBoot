@@ -1,7 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <!-- Opcache in front of the cache types that hold configuration, by their tag. -->
-    <type name="Magento\Framework\Cache\Frontend\Decorator\TagScope">
+    <!-- Optional constructor arguments need explicit wiring in Magento's compiled object manager. -->
+    <type name="GraphCommerce\FastBootCache\Model\Feature">
+        <arguments><argument name="cacheState" xsi:type="object">Magento\Framework\App\Cache\StateInterface</argument></arguments>
+    </type>
+    <type name="GraphCommerce\FastBootCache\Model\Schema\Settings">
+        <arguments><argument name="directories" xsi:type="object">Magento\Framework\App\Filesystem\DirectoryList</argument></arguments>
+    </type>
+    <!-- Scope interception to application caches. The plugin-list cache must bootstrap without an interceptor. -->
+    <type name="Magento\Framework\App\Cache\Type\Config">
+        <plugin name="graphcommerce_fastboot_opcache_layer" type="GraphCommerce\FastBootCache\Plugin\OpcacheLayer"/>
+    </type>
+    <type name="Magento\Eav\Model\Cache\Type">
+        <plugin name="graphcommerce_fastboot_opcache_layer" type="GraphCommerce\FastBootCache\Plugin\OpcacheLayer"/>
+    </type>
+    <type name="Magento\Framework\App\Cache\Type\Translate">
+        <plugin name="graphcommerce_fastboot_opcache_layer" type="GraphCommerce\FastBootCache\Plugin\OpcacheLayer"/>
+    </type>
+    <type name="Magento\Framework\DB\Adapter\DdlCache">
+        <plugin name="graphcommerce_fastboot_opcache_layer" type="GraphCommerce\FastBootCache\Plugin\OpcacheLayer"/>
+    </type>
+    <type name="Magento\Framework\App\Cache\Type\Reflection">
+        <plugin name="graphcommerce_fastboot_opcache_layer" type="GraphCommerce\FastBootCache\Plugin\OpcacheLayer"/>
+    </type>
+    <type name="Magento\Framework\App\Cache\Type\Collection">
         <plugin name="graphcommerce_fastboot_opcache_layer" type="GraphCommerce\FastBootCache\Plugin\OpcacheLayer"/>
     </type>
     <type name="GraphCommerce\FastBootCache\Plugin\OpcacheLayer">
@@ -12,7 +34,6 @@
                 <item name="translate" xsi:type="const">Magento\Framework\App\Cache\Type\Translate::CACHE_TAG</item>
                 <item name="db_ddl" xsi:type="const">Magento\Framework\DB\Adapter\DdlCache::CACHE_TAG</item>
                 <item name="reflection" xsi:type="const">Magento\Framework\App\Cache\Type\Reflection::CACHE_TAG</item>
-                <item name="compiled_config" xsi:type="const">Magento\Framework\App\Interception\Cache\CompiledConfig::CACHE_TAG</item>
                 <item name="collections" xsi:type="const">Magento\Framework\App\Cache\Type\Collection::CACHE_TAG</item>
             </argument>
         </arguments>

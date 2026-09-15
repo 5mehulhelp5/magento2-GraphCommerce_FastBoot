@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace GraphCommerce\FastBootCache\Model;
@@ -31,7 +32,7 @@ class Version implements ResetAfterRequestInterface
         private readonly CacheInterface $cache,
         private readonly PhpFilesFactory $filesFactory,
         private readonly Filesystem $filesystem,
-        private readonly int $grace = 2,
+        private readonly int $grace = 0,
     ) {
     }
 
@@ -39,20 +40,26 @@ class Version implements ResetAfterRequestInterface
     {
         if ($this->current === null) {
             $stamp = $this->stamp();
-            if ($this->grace > 0 && is_file($stamp) && filemtime($stamp) > time() - $this->grace) {
-                $this->current = trim((string)file_get_contents($stamp));
+            if ($this->grace > 0 && is_file($stamp) && filemtime($stamp) <= time() && filemtime($stamp) > time() - $this->grace) {
+                $candidate = trim((string)@file_get_contents($stamp));
+                $this->current = preg_match('/^[a-f0-9]{24}$/D', $candidate) ? $candidate : null;
             }
             if (!$this->current) {
                 $token = $this->cache->load(self::KEY);
-                if (!$token) {
-                    $token = bin2hex(random_bytes(6));
+                if (!is_string($token) || !preg_match('/^[a-f0-9]{24}$/D', $token)) {
+                    $token = bin2hex(random_bytes(12));
                     $this->cache->save($token, self::KEY, [ConfigCache::CACHE_TAG]);
                     $this->filesFactory->create()->sweep();
                 }
                 $this->current = (string)$token;
                 if ($this->grace > 0) {
-                    @mkdir(dirname($stamp), 0775, true);
-                    @file_put_contents($stamp, $this->current);
+                    @mkdir(dirname($stamp), 0700, true);
+                    $temporary = $stamp.'.'.bin2hex(random_bytes(8)).'.tmp';
+                    if (@file_put_contents($temporary, $this->current) !== false) {
+                        @chmod($temporary, 0600);
+                        @rename($temporary, $stamp);
+                    }
+                    @unlink($temporary);
                 }
             }
         }
@@ -79,8 +86,6 @@ class Version implements ResetAfterRequestInterface
 
     private function stamp(): string
     {
-        $var = $this->filesystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath();
-
-        return rtrim($var, '/') . '/fastboot/.version';
+        return $this->filesFactory->create()->namespaceDirectory().'/.version';
     }
 }

@@ -1,82 +1,62 @@
 <?php
+
 declare(strict_types=1);
 
 namespace GraphCommerce\FastBootGraphQl\Plugin\Query;
 
-use GraphCommerce\FastBootCache\Model\PhpFiles;
-use GraphCommerce\FastBootCache\Model\Feature;
-use GraphQL\Error\DebugFlag;
-use GraphQL\GraphQL;
+use GraphCommerce\FastBootCache\Model\{Feature, PhpFiles};
+use GraphCommerce\FastBootGraphQl\Model\Query\CachedRule;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Type\Schema;
-use Magento\Framework\GraphQl\Exception\ExceptionFormatter;
-use Magento\Framework\GraphQl\Query\ErrorHandlerInterface;
-use Magento\Framework\GraphQl\Query\QueryDataFormatter;
-use Magento\Framework\GraphQl\Query\QueryParser;
+use GraphQL\Validator\DocumentValidator;
+use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use Magento\Framework\GraphQl\Query\QueryProcessor;
-use Magento\GraphQl\Model\Query\ContextInterface;
+use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 
-/**
- * A query that ran without errors under the current opcache version is
- * valid against this schema, and runs without the validation rules from
- * then on: the rules walk the document against the schema on every request
- * under php-fpm, 7 ms for a product listing. A config cache clean, which
- * every schema change makes, drops the record with the version.
- */
+/** Cache structural proof, retaining Magento's processor, security rules and custom validation. */
 class ValidatedQueries
 {
     private const SWITCH = 'validated_queries';
-
-    private const GROUP = 'VALIDATED';
-
-    public function __construct(
-        private readonly PhpFiles $files,
-        private readonly QueryParser $queryParser,
-        private readonly ExceptionFormatter $exceptionFormatter,
-        private readonly ErrorHandlerInterface $errorHandler,
-        private readonly QueryDataFormatter $formatter,
-        private readonly Feature $feature,
-    ) {
+    public function __construct(private PhpFiles $files, private Feature $feature, private \Magento\Framework\GraphQl\Query\QueryParser $parser)
+    {
     }
-
-    public function aroundProcess(
-        QueryProcessor $subject,
-        \Closure $proceed,
-        Schema $schema,
-        DocumentNode|string $source,
-        ?ContextInterface $contextValue = null,
-        ?array $variableValues = null,
-        ?string $operationName = null
-    ): array {
+    public function aroundProcess(QueryProcessor $subject, \Closure $proceed, Schema $schema, DocumentNode|string $source, ?ContextInterface $contextValue = null, ?array $variableValues = null, ?string $operationName = null): array
+    {
         $body = $source instanceof DocumentNode ? $source->loc?->source?->body : $source;
-        if ($body === null || !$this->feature->on(self::SWITCH)) {
+        if (!$this->feature->on(self::SWITCH) || $body === null || strlen($body) > 65536) {
             return $proceed($schema, $source, $contextValue, $variableValues, $operationName);
         }
-        $id = sha1($body);
-        if ($this->files->read(self::GROUP, $id) !== true) {
-            $result = $proceed($schema, $source, $contextValue, $variableValues, $operationName);
-            if (!isset($result['errors'])) {
-                $this->files->write(self::GROUP, $id, true);
+        $generation = $this->files->generation();
+        $document = $source instanceof DocumentNode ? $source : $this->parser->parse($source);
+        $id = hash('sha256', \GraphQL\Language\Printer::doPrint($document));
+        $proof = new \GraphCommerce\FastBootGraphQl\Model\Query\ValidationProof($schema, $id);
+        $restore = [];
+        $cached = $this->files->read('VALIDATED', $id) === true;
+        if ($cached) {
+            $defaults = DocumentValidator::defaultRules();
+            foreach (DocumentValidator::allRules() as $rule) {
+                $class = get_class($rule);
+                // Exact built-ins only. Custom rules, security rules and scalar parseLiteral stay live.
+                if (isset($defaults[$class]) && $class !== ValuesOfCorrectType::class) {
+                    $restore[$rule->getName()] = $rule;
+                    DocumentValidator::addRule(new CachedRule($rule, $proof));
+                }
             }
-
-            return $result;
         }
-
-        $executionResult = GraphQL::executeQuery(
-            $schema,
-            is_string($source) ? $this->queryParser->parse($source) : $source,
-            null,
-            $contextValue,
-            $variableValues,
-            $operationName,
-            null,
-            []
-        )->setErrorsHandler(
-            [$this->errorHandler, 'handle']
-        )->toArray(
-            (int)($this->exceptionFormatter->shouldShowDetail() ? DebugFlag::INCLUDE_DEBUG_MESSAGE : false)
-        );
-
-        return $this->formatter->formatResponse($executionResult);
+        try {
+            $result = $proceed($schema, $source, $contextValue, $variableValues, $operationName);
+            if (!$cached && !isset($result['errors'])) {
+                $this->files->write('VALIDATED', $id, true, null, $generation);
+            }
+            return $result;
+        } finally {
+            // Never leak temporary rules to another operation or a long-running process.
+            foreach ($restore as $rule) {
+                $current = DocumentValidator::allRules()[$rule->getName()] ?? null;
+                if ($current instanceof CachedRule) {
+                    DocumentValidator::addRule($rule);
+                }
+            }
+        }
     }
 }

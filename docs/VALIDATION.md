@@ -26,6 +26,8 @@ Each mode ran in a fresh single-worker FPM master, with 3 warmups and 20 measure
 
 That is approximately 59%/78% less time for store configuration and 14%/38% for the listing. Listing round medians ranged from 48.16–53.83 ms native, 40.55–43.60 ms FastBoot, and 27.72–31.50 ms with preload. The listing includes external database/search work and showed more variation than bootstrap. These updated numbers supersede RC1 measurements; individual switch ablation was exploratory, not a precise ranking of every mechanism.
 
+**These are historical whole-query batch medians, not fixed startup savings.** In particular, the 15.28 ms store-query saving and 7.00 ms listing saving do not establish that FastBoot saves half as much startup work on listings. The [follow-up below](#why-the-two-queries-show-different-savings) investigates that discrepancy with retained attribution logs and alternating runs.
+
 | Memory measurement | Native | FastBoot | FastBoot + preload |
 |---|---:|---:|---:|
 | Warm PHP allocated peak, store configuration | 10 MiB | 4 MiB | 4 MiB |
@@ -40,6 +42,25 @@ That is approximately 59%/78% less time for store configuration and 14%/38% for 
 OS counters are medians from macOS `proc_pid_rusage`; they are snapshots, not peak or Linux PSS measurements. RSS includes shared mappings and must not be summed across workers as private RAM. Preload reduces worker costs but raises the master footprint. These results do **not** establish a total-host memory saving, particularly for a single-worker deployment. Shared OPcache is not multiplied by worker count. The preload counter was 24.04 MiB and is already represented in OPcache accounting; do not add it again. Cold-start allocation headroom remains necessary even when warm requests allocate only 4–8 MiB.
 
 An 8,000-request, four-worker run used hot queries, 1,000 distinct queries, their readback and repeated mixed traffic with `opcache.validate_timestamps=0`. All responses matched expectations. Query/blob admission limits held; OPcache bytes/scripts were identical over the final 4,000 requests, with no OOM/hash/manual restarts. The largest per-worker RSS increase between the final two 2,000-request phases was 400 KiB. This is bounded soak evidence, not an indefinite leak proof or a capacity forecast.
+
+## Why the two queries show different savings
+
+The table above measures everything inside the PHP request. Store configuration is a small GraphQL operation, not an empty-bootstrap measurement. Its saving also includes parsing, validation and resolver work. More product work can dilute a percentage improvement, but does not by itself explain a smaller absolute saving.
+
+Retained attribution-log sequences match the original timing samples. Across the three rounds, median GraphQL processor time for the small query fell from approximately 5.16 to 1.09 ms. For the listing it rose from 29.20 to 31.09 ms; top-level resolver time rose from 21.33 to 26.17 ms, including slower search/client work. Those timers are nested and must not be added together. This locates work that offset savings in the listing batch, but the sequential native-then-FastBoot protocol cannot establish that FastBoot caused the slower resolver/search timings.
+
+A follow-up on the same day ran six blocks in native/FastBoot/FastBoot/native/native/FastBoot order, without preload. Native disabled all four modules and used fresh native DI; FastBoot used its compiled DI. Each block used a fresh single-worker FPM master, alternating the two queries, with 10 warmups and 20 measured requests per query. All 360 responses matched their query's expected result. Existing attribution hooks were active in both modes, as in the historical runs. Timestamp validation was enabled. This follow-up used the current shared data and imported system settings, including enabled Magento attribute metadata caching; it is not an exact reconstruction of the earlier configuration.
+
+| Follow-up PHP request time | Native | FastBoot without preload | Net saving |
+|---|---:|---:|---:|
+| Store configuration | 25.63 ms | 12.76 ms | 12.87 ms |
+| 24-item product listing | 49.22 ms | 37.99 ms | 11.24 ms |
+
+These remain medians of three block medians, not guaranteed per-request reductions. The FastBoot listing block medians were **34.18, 46.63 and 37.99 ms**, with GraphQL processor time of 23.23, 34.43 and 26.18 ms respectively. Large variation occurred even between consecutive blocks with the same FastBoot settings.
+
+Subtracting processor time from each request before aggregation gives another useful boundary: time outside the GraphQL processor fell from 20.30 to 11.21 ms for the small query and from 20.54 to 11.59 ms for the listing, approximately 9 ms in both cases. This includes startup, schema preparation, dispatch and response work; it is not a pure boot timer.
+
+The evidence supports reduced shared request overhead. It does not support treating the historical 7 ms net listing difference as a fixed FastBoot benefit or a proven regression. Use alternating runs and separate phase timings when evaluating a customer's stack. The local audit retains the tagged follow-up samples and runner under `audit/fastboot/full/query-delta-check/`, and the historical log/timing matches in `audit/fastboot/full/historical-phase-matches.json`. The follow-up restored the audit configuration and generated files; it did not change the regular backend or its PHP services.
 
 ## Correctness and installation
 

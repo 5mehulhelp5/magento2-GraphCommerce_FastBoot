@@ -2,11 +2,8 @@
 
 ## Installation
 
-Place the release ZIP in the Composer artifact repository:
-
 ```sh
-composer config repositories.fastboot artifact /absolute/path/to/artifacts
-composer require graphcommerce/magento-fast-boot:0.2.0-rc5
+composer require graphcommerce/magento-fast-boot
 bin/magento module:enable GraphCommerce_FastBootCache GraphCommerce_FastBoot GraphCommerce_FastBootGraphQl
 ```
 

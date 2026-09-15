@@ -2,6 +2,10 @@
 
 FastBoot reduces repeated Magento bootstrap and GraphQL work using node-local PHP data caches with shared invalidation. The package includes an independent PHP class preload module.
 
+```sh
+composer require graphcommerce/magento-fast-boot
+```
+
 | Module | Documentation |
 |---|---|
 | FastBoot | [Installation and deployment](src/FastBoot/README.md) |

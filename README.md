@@ -18,6 +18,8 @@ FastBoot runs with ordinary PHP-FPM. Each server keeps its own local cache; the 
 
 Every optimization can be disabled separately. See the [configuration reference](docs/CONFIGURATION.md) for all switches and their defaults.
 
+For customer deployments, follow the [production setup guide](docs/PRODUCTION.md): FPM and OPcache configuration, preload warmup, Magento cache settings, worker sizing and verification. Installing the package alone does not reproduce the preload benchmark.
+
 ## Requirements
 
 - Magento 2.4.8-era module APIs or compatible Mage-OS packages. Composer checks the exact dependency ranges.
@@ -98,6 +100,8 @@ Continue your project's normal Magento deployment steps. FastBoot itself ships n
 
 Start the new FPM service and send representative requests to that release before routing customer traffic to it. Exercise your stores, customer/authentication flows, GraphQL queries, admin configuration saves and cache invalidation. Check the serving FPM process's OPcache usage and logs.
 
+Apply the [production settings and verification steps](docs/PRODUCTION.md) to the service actually receiving these requests. CLI PHP settings and a separate benchmark FPM service do not establish how the customer-facing service is configured.
+
 ## Optional class preload
 
 Start by warming representative requests without preload. The preload module records the classes those requests use, normally during a 15-minute recording window after compilation. Then add this setting to PHP's FPM startup configuration:
@@ -139,6 +143,7 @@ To remove FastBoot entirely, remove the `opcache.preload` setting before removin
 
 ## Further reading
 
+- [Production setup](docs/PRODUCTION.md): PHP-FPM, OPcache, Magento caches, deployment and monitoring.
 - [Configuration reference](docs/CONFIGURATION.md): switches, Redis settings and local-cache limits.
 - [Schema L1/L2 design](SCHEMA-L1.md): reads, writes, invalidation, TTL and failures.
 - [Validation report](docs/VALIDATION.md): measured performance, memory and tested scope.

@@ -4,6 +4,8 @@ Configure FastBoot under the `fastboot` key in Magento's deployment configuratio
 
 See the [installation guide](../README.md#install-and-configure) for the minimum configuration and deployment order.
 
+PHP-FPM, OPcache, preload and Magento's own production settings are covered in the [production setup guide](PRODUCTION.md). They are not configured by the `fastboot` array.
+
 ## Installation and release identities
 
 | Setting | Purpose |

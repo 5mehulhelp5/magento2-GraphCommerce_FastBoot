@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphCommerce\FastBoot\Model\ObjectManager;
 
 use GraphCommerce\FastBootCache\Model\Feature;
+use GraphCommerce\FastBootCache\Model\Release;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\ObjectManager\ConfigLoader\Compiled;
@@ -15,7 +16,7 @@ use Magento\Framework\ObjectManager\ConfigLoaderInterface;
  * entries included, and the object manager merges it entry by entry into the
  * global one it already holds: 15 000 arguments replaced by themselves on
  * every request. This loader hands the object manager only the entries the
- * area changes, from a file under var/fastboot/metadata that follows the
+ * area changes, from a file under var/cache/fastboot/metadata that follows
  * an immutable release identity (or the source hashes without one).
  */
 class AreaConfigLoader implements ConfigLoaderInterface
@@ -28,7 +29,7 @@ class AreaConfigLoader implements ConfigLoaderInterface
     public function __construct(
         private readonly DirectoryList $directoryList,
         private readonly Feature $feature,
-        private readonly \Magento\Framework\App\DeploymentConfig $deploymentConfig,
+        private readonly Release $release,
     ) {
     }
 
@@ -44,11 +45,11 @@ class AreaConfigLoader implements ConfigLoaderInterface
         ) {
             return $this->loaded[$area] = include $areaFile;
         }
-        $release = $this->deploymentConfig->get('fastboot/release', $this->deploymentConfig->get('fastboot/schema_l1/release'));
+        $release = $this->release->id();
         // Immutable releases avoid hashing large compiled files on every request. Without a release use content hashes.
         $stamp = hash('sha256', serialize([$release, realpath($areaFile), realpath($globalFile),
             $release ? null : hash_file('sha256', $areaFile), $release ? null : hash_file('sha256', $globalFile)]));
-        $diffFile = $this->directoryList->getPath(DirectoryList::VAR_DIR) . '/fastboot/metadata/' . $stamp . '.php';
+        $diffFile = $this->directoryList->getPath(DirectoryList::CACHE) . '/fastboot/metadata/' . $stamp . '.php';
         if (!$rebuild && is_file($diffFile)) {
             try {
                 $diff = @include $diffFile;

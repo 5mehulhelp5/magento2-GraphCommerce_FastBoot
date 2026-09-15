@@ -3,7 +3,7 @@
 /**
  * The opcache preload script: `opcache.preload=<path to this file>` in the
  * php-fpm ini. Loads the classes real requests declared, from the list
- * GraphCommerce_FastBootPreload keeps in var/fastboot/classes.txt, through
+ * GraphCommerce_FastBootPreload keeps in var/cache/preload/classes.txt, through
  * the installation's autoloader. Without the list it loads nothing, so a
  * php-fpm master always starts.
  */
@@ -18,7 +18,8 @@ if (!$configuredRoot) {
 } elseif (!is_file($root . '/vendor/autoload.php') || !is_file($root . '/app/bootstrap.php')) {
     throw new \RuntimeException('FASTBOOT_MAGENTO_ROOT must point to the Magento installation being preloaded.');
 }
-$list = $root . '/var/fastboot/classes.txt';
+$cache = getenv('FASTBOOT_CACHE_DIR') ?: $root . '/var/cache';
+$list = rtrim($cache, '/') . '/preload/classes.txt';
 if (!is_file($root . '/vendor/autoload.php') || !is_file($list)) {
     return;
 }

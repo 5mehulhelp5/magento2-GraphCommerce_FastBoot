@@ -49,7 +49,7 @@ class PrepareCommand extends Command
             }
         }
         $output->writeln('Area metadata and '.count($stores).' store config scopes prepared.');
-        $output->writeln('Warm representative requests in the new FPM pool, then restart its FPM master/service to use the recorded preload list.');
+        $output->writeln('Warm representative requests in the serving PHP-FPM service.');
         return Command::SUCCESS;
     }
 }

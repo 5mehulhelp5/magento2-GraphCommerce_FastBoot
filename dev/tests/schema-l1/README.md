@@ -22,4 +22,4 @@ The first three use unique test keys on localhost Redis, port 6379, database 12.
 
 The failure test requires Docker and the `valkey/valkey:8-alpine` image. It creates a uniquely named, loopback-only container and removes it afterward. It pauses/restarts that container, not the installation's Redis service.
 
-Actual Magento clean/reset/flush behavior and GraphQL response parity require an application-specific harness. See the [validation report](../../../docs/VALIDATION.md) for completed application checks and the [test/build guide](../README.md) for units and artifact verification.
+Actual Magento clean/reset/flush behavior and GraphQL response parity require an application-specific harness. See the [measurement notes](../../bench/RESULTS.md) for application measurements and the [test/build guide](../README.md) for units and artifact verification.

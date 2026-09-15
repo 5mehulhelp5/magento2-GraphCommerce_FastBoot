@@ -2,7 +2,7 @@
 
 These tools are for contributors working from the source repository. They are excluded from the runtime ZIP. Use a disposable Magento development/staging installation with this package registered and an appropriate PHPUnit version installed.
 
-The [validation report](../../docs/VALIDATION.md) records completed checks and supported-target limits.
+The [benchmark results](../bench/RESULTS.md) describe measured application behavior and its limits.
 
 The [CI guide](../ci/README.md) describes the GitHub Actions matrix and its coverage limits.
 
@@ -44,7 +44,7 @@ The failure test requires Python, Docker and the `valkey/valkey:8-alpine` image.
 Run from the package repository root:
 
 ```sh
-python3 dev/release/build.py --version 0.2.0-rc3
+python3 dev/release/build.py --version 0.2.0-rc4
 ```
 
 The builder writes a deterministic ZIP and SHA-256 file under `dist/`. It includes the runtime modules, Composer metadata, license and customer documentation. `BUILD-MANIFEST.json` records a hash for each packaged file. Build a new version for subsequent releases; preserve previously distributed archives.
@@ -53,7 +53,7 @@ Verify installation using a separate, empty directory:
 
 ```sh
 python3 dev/release/install-smoke.py \
-  --archive dist/graphcommerce-magento-fast-boot-0.2.0-rc3.zip \
+  --archive dist/graphcommerce-magento-fast-boot-0.2.0-rc4.zip \
   --magento-root "$MAGENTO_ROOT" \
   --output /absolute/path/to/an/empty/install-check
 ```
@@ -63,5 +63,3 @@ This check verifies hashes, resolves the package with Composer against the exist
 ## Application checks
 
 Units and portable Redis tests do not replace an application run. Exercise representative GraphQL operations, admin configuration saves, stores, customer sessions, tax, cross-node invalidation and rollback using the customer's extensions. Use a dedicated FPM service for comparisons and inspect both cold and warm memory.
-
-The investigation's installation-specific harnesses and raw results remain in its separate audit workspace. The legacy scripts under `dev/bench` are tied to their original local environment; read their guide before using them.

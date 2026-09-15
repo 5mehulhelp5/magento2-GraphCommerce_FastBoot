@@ -6,6 +6,7 @@ namespace GraphCommerce\FastBoot\Test\Unit\Model;
 
 use GraphCommerce\FastBoot\Model\ObjectManager\AreaConfigLoader;
 use GraphCommerce\FastBootCache\Model\Feature;
+use GraphCommerce\FastBootCache\Model\Release;
 use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -26,16 +27,20 @@ class AreaConfigLoaderTest extends TestCase
         file_put_contents($root.'/generated/metadata/global.php', '<?php return '.var_export($global, true).';');
         file_put_contents($root.'/generated/metadata/graphql.php', '<?php return '.var_export($area, true).';');
         $directory = $this->createStub(DirectoryList::class);
-        $directory->method('getPath')->willReturn($root.'/var');
+        $directory->method('getPath')->willReturnCallback(static function ($code) use ($root) {
+            self::assertSame(DirectoryList::CACHE, $code);
+            return $root.'/custom-cache';
+        });
         $feature = $this->createStub(Feature::class);
         $feature->method('on')->willReturn(true);
         $deployment = $this->createStub(DeploymentConfig::class);
         $deployment->method('get')->willReturn('release');
-        $loader = fn () => new AreaConfigLoader($directory, $feature, $deployment);
+        $release = new Release($deployment, $directory);
+        $loader = fn () => new AreaConfigLoader($directory, $feature, $release);
         $expected = ['arguments' => ['changed' => ['x' => 2]]];
         try {
             self::assertSame($expected, $loader()->load('graphql'));
-            $file = glob($root.'/var/fastboot/metadata/*.php')[0];
+            $file = glob($root.'/custom-cache/fastboot/metadata/*.php')[0];
             file_put_contents($file, '<?php invalid syntax');
             self::assertSame($expected, $loader()->load('graphql'));
             file_put_contents($file, '<?php return false;');

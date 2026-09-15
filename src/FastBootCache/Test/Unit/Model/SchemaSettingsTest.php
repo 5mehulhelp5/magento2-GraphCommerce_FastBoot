@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace GraphCommerce\FastBootCache\Test\Unit\Model;
 
 use GraphCommerce\FastBootCache\Model\Feature;
+use GraphCommerce\FastBootCache\Model\Release;
+use Magento\Framework\App\Filesystem\DirectoryList;
 use GraphCommerce\FastBootCache\Model\Schema\Settings;
 use Magento\Framework\App\Cache\StateInterface;
 use Magento\Framework\App\DeploymentConfig;
@@ -31,7 +33,7 @@ class SchemaSettingsTest extends TestCase
     public function testEnablingWithoutReleaseFailsBeforeOpeningRedis(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('requires release');
+        $this->expectExceptionMessage('static content deployment version');
         $this->settings(['enabled' => true,'installation' => 'test'])->remote();
     }
     private function settings(array $options, bool $cacheEnabled = true, bool $featureEnabled = true): Settings
@@ -46,6 +48,8 @@ class SchemaSettingsTest extends TestCase
         $state->method('isEnabled')->willReturn($cacheEnabled);
         $feature = $this->createStub(Feature::class);
         $feature->method('on')->willReturn($featureEnabled);
-        return new Settings($config, $state, $feature);
+        $directories = $this->createStub(DirectoryList::class);
+        $directories->method('getPath')->willReturn('/missing-fastboot-test-static');
+        return new Settings($config, $state, $feature, $directories, new Release($config, $directories));
     }
 }

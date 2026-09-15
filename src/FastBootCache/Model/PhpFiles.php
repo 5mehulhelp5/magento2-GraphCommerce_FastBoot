@@ -13,7 +13,7 @@ class PhpFiles
 {
     private ?string $root = null;
     public const LOADED_LIFETIME = 0; // Unknown backend lifetimes must never be extended.
-    public function __construct(private Filesystem $filesystem, private Version $version, private DeploymentConfig $deploymentConfig)
+    public function __construct(private Filesystem $filesystem, private Version $version, private DeploymentConfig $deploymentConfig, private Release $release)
     {
     }
     public static function lifetime($lifeTime): ?int
@@ -28,8 +28,8 @@ class PhpFiles
     public function namespaceDirectory(): string
     {
         if ($this->root === null) {
-            $identity = [$this->deploymentConfig->get('cache/frontend/default'), $this->deploymentConfig->get('fastboot/release', $this->deploymentConfig->get('fastboot/schema_l1/release', 'unconfigured')), defined('BP') ? BP : __DIR__];
-            $var = $this->filesystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath();
+            $identity = [$this->deploymentConfig->get('cache/frontend/default'), $this->release->id(), defined('BP') ? BP : __DIR__];
+            $var = $this->filesystem->getDirectoryRead(DirectoryList::CACHE)->getAbsolutePath();
             $this->root = rtrim($var, '/').'/fastboot/v2/'.hash('sha256', json_encode($identity, JSON_THROW_ON_ERROR));
         }
         return $this->root;
@@ -40,6 +40,9 @@ class PhpFiles
     }
     public function read(string $group, string $id): mixed
     {
+        if ($this->release->id() === null) {
+            return null;
+        }
         $index = $this->path($group, $id);
         $record = is_file($index) ? json_decode((string)@file_get_contents($index), true) : null;
         if (!is_array($record) || !isset($record['hash']) || !is_string($record['hash']) || !preg_match('/^[a-f0-9]{64}$/D', $record['hash']) || !array_key_exists('expires', $record) || ($record['expires'] !== null && !is_numeric($record['expires'])) || ($record['expires'] !== null && $record['expires'] <= microtime(true))) {
@@ -66,6 +69,9 @@ class PhpFiles
     }
     public function write(string $group, string $id, mixed $value, ?int $lifeTime = null, ?string $expectedVersion = null): void
     {
+        if ($this->release->id() === null) {
+            return;
+        }
         if (!self::exportable($value) || ($lifeTime !== null && $lifeTime <= 0)) {
             return;
         }

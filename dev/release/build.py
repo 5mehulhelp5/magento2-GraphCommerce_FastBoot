@@ -8,7 +8,7 @@ files={}
 for f in sorted(root.rglob('*')):
  if not f.is_file():continue
  rel=f.relative_to(root)
- if rel.parts[0] not in ['src','docs'] and str(rel)not in ['composer.json','LICENSE','README.md','SCHEMA-L1.md','CHANGELOG.md']:continue
+ if rel.parts[0] not in ['src','docs'] and str(rel)not in ['composer.json','LICENSE','README.md','CHANGELOG.md']:continue
  if 'Test'in rel.parts or f.suffix in ['.log','.zip'] or f.is_symlink():continue
  files[str(rel)]=f.read_bytes()
 manifest=json.loads(files['composer.json']);manifest['version']=a.version;files['composer.json']=(json.dumps(manifest,indent=4)+'\n').encode()

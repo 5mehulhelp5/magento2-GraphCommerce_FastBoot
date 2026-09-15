@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace GraphCommerce\FastBoot\Console;
 
-use GraphCommerce\FastBootCache\Model\{Feature,PhpFiles};
+use GraphCommerce\FastBootCache\Model\{Feature,PhpFiles,Release};
 use GraphCommerce\FastBootCache\Model\Schema\Settings;
-use Magento\Framework\App\DeploymentConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class StatusCommand extends Command
 {
-    public function __construct(private Feature $feature, private Settings $settings, private PhpFiles $files, private DeploymentConfig $deploymentConfig)
+    public function __construct(private Feature $feature, private Settings $settings, private PhpFiles $files, private Release $release)
     {
         parent::__construct('fastboot:status');
     }
@@ -24,9 +23,9 @@ class StatusCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $errors = [];
-        $release = $this->deploymentConfig->get('fastboot/release', $this->deploymentConfig->get('fastboot/schema_l1/release'));
+        $release = $this->release->id();
         if (!is_string($release) || $release === '') {
-            $errors[] = 'Set fastboot.release to a new immutable artifact ID on every deployment.';
+            $errors[] = 'No static content deployment version. Run setup:static-content:deploy before fastboot:prepare.';
         }
         $directory = $this->files->namespaceDirectory();
         if (!is_dir($directory) && !@mkdir($directory, 0700, true) && !is_dir($directory)) {

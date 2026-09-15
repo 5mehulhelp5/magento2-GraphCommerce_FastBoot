@@ -48,9 +48,11 @@ return [
         'id_prefix' => 'fastboot_ci_',
     ]]],
     'session' => ['save' => 'files'],
-    'fastboot' => ['release' => 'ci', 'schema_l1' => [
-        'enabled' => true, 'installation' => 'fastboot-disposable-ci', 'release' => 'ci', 'grace' => 0,
+    'fastboot' => ['schema_l1' => [
+        'enabled' => true, 'installation' => 'fastboot-disposable-ci', 'grace' => 0,
     ]],
 ];
 """)
+(root/'pub/static').mkdir(parents=True, exist_ok=True)
+(root/'pub/static/deployed_version.txt').write_text('ci-build')
 print('Prepared disposable Magento 2.4.8 fixture at', root)

@@ -7,7 +7,7 @@ FastBoot stores Magento's assembled GraphQL schema in two places:
 
 Servers never share the L1 directory. A server that needs a schema version it does not have reads it from Redis and creates its own local copy. If Redis has no current schema, Magento rebuilds it from the source configuration.
 
-Use the [README](README.md#install-and-configure) to enable this cache and the [configuration reference](docs/CONFIGURATION.md#schema-l1-settings) to change its connection or limits.
+Use the [FastBoot guide](FASTBOOT.md) to enable this cache and the [configuration reference](CONFIGURATION.md#redis-connection) to change its connection or limits.
 
 ## A warm read
 
@@ -36,7 +36,7 @@ The Redis record publishes the payload, content hash, revision, invalidation gen
 
 FastBoot integrates with Magento's config-cache clean/remove operations, application cache clean, manager flush and direct schema-data reset. The installation has a shared invalidation generation, so a configuration change reaches both old and new release records during a rolling deployment.
 
-Use one installation ID for the shop/environment and a distinct release ID for each application build. Keep these hooks active on every web, admin and CLI node while any node uses schema L1. To temporarily use native schema loading, set `schema_array=false` while retaining `schema_l1.enabled=true`.
+Use one installation ID for the shop/environment and Magento's static-content deployment version for each application build. Keep these hooks active on every web, admin and CLI node while any node uses schema L1. Diagnostic bypasses are described in the [developer guide](https://github.com/graphcommerce-org/magento2-GraphCommerce_FastBoot/blob/main/dev/README.md#feature-switches).
 
 Deleting only legacy Magento cache keys through external tooling does not necessarily invalidate FastBoot's schema record. Integrate external writers with the supported cache APIs. A failed invalidation is an error and must be retried; it is not reported as a successful clean.
 
@@ -63,16 +63,10 @@ The local directory is trusted application storage. Warm reads do not hash the c
 
 ## OPcache and memory
 
-Local files contain arrays and scalar values. Their names are based on content hashes, and writes use atomic rename. Identical payloads reuse the same filename; genuinely different payloads use new files. This also works with `opcache.validate_timestamps=0` because runtime data is not overwritten at an already compiled path.
+Local files contain arrays and scalar values. Their names are based on content hashes, and writes use atomic rename. Identical payloads reuse the same filename; different payloads use new files. This also works with `opcache.validate_timestamps=0` because runtime data is not overwritten at an already compiled path.
 
 These files are **not preloaded**. PHP class preload is a separate optimization whose definitions remain fixed until the FPM master/service restarts. Cache freshness is decided by FastBoot's runtime metadata checks, not by OPcache's source-file timestamp validation.
 
 Schema L1 admits at most 16 files and 32 MiB of PHP source per local namespace by default. Source size is not compiled-memory usage. Include shared OPcache, worker allocations and the preload master's footprint in capacity planning. Deleting files alone does not reclaim compiled memory; retire cache namespaces with the release/FPM lifecycle.
 
 Whole-object serialization is not used here. It would require reconstructing object graphs in each request; the cache instead stores the reusable data from which Magento operates.
-
-## Implementation and evidence
-
-`FastBootCache/Model/Schema` contains the Redis connection, local files and settings. `FastBootGraphQl` connects that cache to Magento's schema data and invalidation paths.
-
-The [combined validation report](docs/VALIDATION.md) covers concurrency, expiry, corruption, failed local writes, Redis timeout/recovery and Magento integration. The [historical schema-only measurements](docs/SCHEMA-BENCHMARK.md) isolate this mechanism's timing and memory costs. Customer staging still needs its real Redis topology, network latency and extension invalidation paths.

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GraphCommerce\FastBootGraphQl\Test\Unit\Plugin\Query;
 
-use GraphCommerce\FastBootCache\Model\{Feature, PhpFiles, Version};
+use GraphCommerce\FastBootCache\Model\{Feature, PhpFiles, Version, Release};
 use GraphCommerce\FastBootGraphQl\Plugin\Query\ValidatedQueries;
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\{ObjectType, Type};
@@ -32,7 +32,9 @@ class ValidationGenerationTest extends TestCase
         });
         $deployment = $this->createStub(DeploymentConfig::class);
         $deployment->method('get')->willReturnCallback(fn ($key, $default = null) => $default);
-        $files = new PhpFiles($filesystem, $version, $deployment);
+        $release = $this->createStub(Release::class);
+        $release->method('id')->willReturn('test-release');
+        $files = new PhpFiles($filesystem, $version, $deployment, $release);
         $feature = $this->createStub(Feature::class);
         $feature->method('on')->willReturn(true);
         $plugin = new ValidatedQueries($files, $feature, new QueryParser());

@@ -10,7 +10,7 @@ use Magento\Framework\App\ObjectManager\ConfigLoader\Compiled;
 use Magento\Framework\Filesystem;
 
 /**
- * The classes real requests declare, in var/fastboot/classes.txt, which
+ * The classes real requests declare, in var/cache/preload/classes.txt, which
  * preload.php loads at php-fpm start. The list records itself: a list that
  * is missing or older than the compiled metadata starts a recording window
  * (a marker file, `WINDOW` seconds) with an empty list, and every request
@@ -19,9 +19,9 @@ use Magento\Framework\Filesystem;
  */
 class ClassList
 {
-    private const FILE = 'fastboot/classes.txt';
+    private const FILE = 'preload/classes.txt';
 
-    private const MARK = 'fastboot/classes.recording';
+    private const MARK = 'preload/classes.recording';
 
     private const WINDOW = 900;
 
@@ -32,7 +32,7 @@ class ClassList
 
     public function recording(): bool
     {
-        $var = $this->filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
+        $var = $this->filesystem->getDirectoryWrite(DirectoryList::CACHE);
         if ($var->isExist(self::MARK)) {
             if (time() - (int)$var->stat(self::MARK)['mtime'] < self::WINDOW) {
                 return true;
@@ -55,7 +55,7 @@ class ClassList
 
     public function append(array $classes): int
     {
-        $var = $this->filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
+        $var = $this->filesystem->getDirectoryWrite(DirectoryList::CACHE);
         $path = $var->getAbsolutePath(self::FILE);
         if (!is_dir(dirname($path)) && !@mkdir(dirname($path), 0700, true) && !is_dir(dirname($path))) {
             return 0;

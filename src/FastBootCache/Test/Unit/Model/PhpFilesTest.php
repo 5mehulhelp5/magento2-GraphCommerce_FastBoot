@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GraphCommerce\FastBootCache\Test\Unit\Model;
 
-use GraphCommerce\FastBootCache\Model\{PhpFiles,Version};
+use GraphCommerce\FastBootCache\Model\{PhpFiles,Version,Release};
 use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\Directory\ReadInterface;
@@ -38,7 +38,9 @@ class PhpFilesTest extends TestCase
         $v->method('current')->willReturn($version);
         $config = $this->createStub(DeploymentConfig::class);
         $config->method('get')->willReturnCallback(fn ($key, $default = null) => $key === 'fastboot/files' ? $options : $default);
-        return new PhpFiles($fs, $v, $config);
+        $release = $this->createStub(Release::class);
+        $release->method('id')->willReturn('test-release');
+        return new PhpFiles($fs, $v, $config, $release);
     }
     public function testVersionsAreIsolatedButIdenticalPayloadReusesOneBlob(): void
     {

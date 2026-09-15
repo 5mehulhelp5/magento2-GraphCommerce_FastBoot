@@ -4,23 +4,30 @@ Settings in `app/etc/env.php`.
 
 ## Redis connection
 
-Place these entries under `fastboot.schema_l1`:
+```php
+'fastboot' => [
+    'schema_l1' => [
+        'enabled' => true, // Default: false.
+        'installation' => 'my-shop-production', // Defaults to the cache frontend's id_prefix.
 
-| Setting | Default | Meaning |
-|---|---|---|
-| `enabled` | `false` | Configures the Redis schema backend and its invalidation hooks. |
-| `installation` | Default cache `id_prefix` | Stable installation identity; explicit configuration is recommended. |
-| `grace` | `0` seconds | How long a validated local schema may be reused without checking Redis again. Zero selects strict freshness. |
-| `max_files` | `16` | Maximum immutable schema files admitted per local namespace. |
-| `max_bytes` | `33554432` (32 MiB) | Maximum PHP source bytes admitted per local namespace. |
-| `host` | Default cache `backend_options.server` | Writable Redis primary host. |
-| `port` | Default cache port, otherwise `6379` | Redis port. |
-| `database` | Default cache database, otherwise `0` | Redis database number. |
-| `username` | Default cache username | Redis ACL username, if used with a password. |
-| `password` | Default cache password | Redis authentication secret. |
-| `timeout` | `0.3` seconds | Connection timeout. |
-| `read_timeout` | `0.3` seconds | Socket read timeout. |
-| `context` | Empty array | TLS options under `context['stream']`. |
+        // Cache defaults:
+        'grace' => 0,            // Seconds between validations; 0 = strict freshness.
+        'max_files' => 16,       // Immutable schema files per local namespace.
+        'max_bytes' => 33554432, // 32 MiB of PHP source per local namespace.
+
+        // Connection overrides; omitted values inherit Magento's default cache frontend:
+        // 'host' => 'redis-cache.internal',
+        // 'port' => 6379,
+        // 'database' => 0,
+        // 'username' => 'cache-user',
+        // 'password' => '...',
+
+        'timeout' => 0.3,      // Connection timeout, seconds.
+        'read_timeout' => 0.3, // Socket read timeout, seconds.
+        'context' => [],       // TLS options under context['stream'].
+    ],
+],
+```
 
 Direct primary connections are supported. Sentinel discovery and Cluster routing are not implemented. For TLS, use a `tls://` host and `context['stream']` options.
 

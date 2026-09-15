@@ -13,6 +13,8 @@ The primary target was Mage-OS 3.5.0 / PHP 8.4.23 with the project’s existing 
 | PHP 8.5 | 20 units / 152 assertions. | No full Magento runtime coverage. |
 | PHP 8.2 | Source syntax checks. | No full Magento runtime coverage. |
 
+For the subsequent regular HTML listing evaluation, see [Luma category pages](LUMA.md). GitHub Actions now runs the portable cache/DI/package checks; the source repository’s `dev/ci/README.md` describes its coverage.
+
 ## Performance and memory
 
 Each mode ran in a fresh single-worker FPM master, with 3 warmups and 20 measured requests per query. Values below are medians of three round medians (60 measured requests per cell). **Native has all four FastBoot modules disabled and freshly compiled native DI metadata**, with the same other application cache settings. The native rounds ran first; subsequent rounds alternated FastBoot/preload order. These are PHP request timings over FastCGI, not customer-network latency. Timing comparisons are relative to this host; they cannot predict absolute server timings.

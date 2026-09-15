@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0-rc5
+
+- Use Credis when the PHP Redis extension is unavailable; phpredis remains the preferred transport when installed.
+- Keep schema publication, TTL and invalidation atomic with either client.
+- Test units, Redis invariants, authentication, timeout recovery and Composer installation with and without the extension.
+- Move the extension recommendation into generic performance tips.
+
 ## 0.2.0-rc4
 
 - Use Magento's static-content deployment version as the default FastBoot build identity.

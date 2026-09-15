@@ -16,6 +16,7 @@ $r = new Remote($options);
 $a = new Local($r, $root.'/a', 0);
 $b = new Local($r, $root.'/b', 0);
 try {
+    check(extension_loaded('redis') ? $r->getBackend() instanceof \Redis : $r->getBackend() instanceof \Credis_Client, 'available Redis client selected automatically');
     $r->save('{"v":1}', 'schema', ['CONFIG'], 20);
     check($a->load() === ['v' => 1] && $b->load() === ['v' => 1], 'two local roots promote from shared Redis');
     $r->save('{"v":2}', 'schema', ['CONFIG'], 20);
@@ -48,16 +49,16 @@ try {
     $failed = new class ($options) extends Remote {
         public function metadata(): ?array
         {
-            throw new RedisException('injected outage');
+            throw new \CredisException('injected outage');
         }public function entry(): ?array
         {
-            throw new RedisException('injected outage');
+            throw new \CredisException('injected outage');
         }
     };
     try {
         (new Local($failed, $root.'/a', 0))->load();
         check(false, 'outage must not return stale data');
-    } catch (RedisException $e) {
+    } catch (\CredisException $e) {
         check(true, 'strict Redis failure propagates without serving stale data');
     }
     check($a->load() === ['v' => 7], 'reader recovers after Redis returns');

@@ -8,6 +8,7 @@ Magento's static-content deployment version identifies the application build. Us
 
 ## Redis connection
 
+FastBoot uses phpredis when installed and otherwise uses Credis in PHP. No client selection setting is needed.
 
 Place these entries under `fastboot.schema_l1`:
 
@@ -25,7 +26,7 @@ Place these entries under `fastboot.schema_l1`:
 | `password` | Default cache password | Redis authentication secret. |
 | `timeout` | `0.3` seconds | Connection timeout. |
 | `read_timeout` | `0.3` seconds | Socket read timeout. |
-| `context` | Empty array | phpredis stream context options. |
+| `context` | Empty array | TLS options under `context['stream']`, shared by both clients. |
 
 For an explicit endpoint, merge the following into the existing `schema_l1` array:
 
@@ -36,7 +37,7 @@ For an explicit endpoint, merge the following into the existing `schema_l1` arra
 // Supply username/password through your existing secret configuration.
 ```
 
-Use a direct writable primary. Sentinel discovery and Cluster routing are not implemented. Use a `tls://` host and phpredis stream context for TLS; verify certificate handling and connectivity in your environment.
+Use a direct writable primary. Sentinel discovery and Cluster routing are not implemented. Use a `tls://` host and `context['stream']` options for TLS; verify certificate handling and connectivity in your environment.
 
 `schema_l1.grace` applies only to the schema cache. It does not alter generic-cache freshness. A positive grace interval deliberately permits bounded stale schema reads; the entry's expiry still wins. See [freshness and failures](CACHE.md).
 

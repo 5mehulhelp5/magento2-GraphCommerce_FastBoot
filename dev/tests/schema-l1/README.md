@@ -2,7 +2,7 @@
 
 These source-repository tests exercise the schema cache against real Redis. They are excluded from the runtime ZIP.
 
-Set `MAGENTO_ROOT` to a disposable Magento installation containing this package and phpredis. From this directory, run:
+Set `MAGENTO_ROOT` to a disposable Magento installation containing this package. Tests support both phpredis and the Credis fallback. From this directory, run:
 
 ```sh
 php tests.php
@@ -16,7 +16,7 @@ python3 redis-failure.py
 | `tests.php` | Two local nodes, shared publication, invalidation and local reuse. |
 | `edge-cases.php` | Tag modes, expiry/grace, corruption, failed local writes, admission limits and stale-publication rejection. |
 | `concurrency.py` | Eight cold readers, then concurrent writers/readers producing coherent values. |
-| `redis-failure.py` | Authentication failure, real read timeout, same-client recovery, empty restart and connection refusal. |
+| `redis-failure.py` | Password/ACL authentication, database isolation, authentication failure, real read timeout, same-client recovery, empty restart and connection refusal. |
 
 The first three use unique test keys on localhost Redis, port 6379, database 12. They delete only their own keys and do not flush a database. Change the fixture options if using a different dedicated Redis instance. Local fixture files remain under Magento's `var` directory for inspection.
 

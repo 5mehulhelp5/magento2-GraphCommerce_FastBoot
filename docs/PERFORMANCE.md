@@ -17,6 +17,12 @@ If deployment configuration owns this setting, update and import it through that
 
 Use production mode, fresh compiled DI and deployed static assets. Keep configuration, EAV, layout, block and full-page caches enabled. If Magento uses Varnish, verify that traffic passes through Varnish and that both hits and invalidation work. An enabled Magento cache flag does not make a direct origin request a Varnish hit.
 
+## PHP Redis extension
+
+Enable `ext-redis` (phpredis) in the serving PHP and CLI environments to reduce PHP-side Redis client work. FastBoot uses it when available and otherwise uses Magento's Credis PHP client. The extension is a performance recommendation, not an installation or correctness requirement.
+
+Schema L1 still needs a writable Redis server: atomic scripts coordinate publication, expiry and invalidation. Both clients use the same scripts and freshness rules. Measure end-to-end latency on your infrastructure; installing the extension does not remove Redis network round trips.
+
 ## PHP-FPM and OPcache
 
 Enable OPcache and size its memory, interned strings and script capacity for the deployed application and generated data. Check capacity and restart counters after representative warmup. Keep timestamp validation enabled for editable deployments; disable it only when releases are immutable and the FPM master restarts on every code change. [PHP configuration reference](https://www.php.net/manual/en/opcache.configuration.php).

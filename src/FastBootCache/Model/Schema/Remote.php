@@ -7,7 +7,7 @@ namespace GraphCommerce\FastBootCache\Model\Schema;
 /** Atomic single-schema-family transport. Not a general Magento cache backend. */
 class Remote implements \Magento\Framework\Config\CacheInterface
 {
-    private ?\Redis $redis = null;
+    private \Redis|\Credis_Client|null $redis = null;
     public function __construct(private array $options)
     {
         foreach (['timeout', 'read_timeout'] as $name) {
@@ -17,31 +17,61 @@ class Remote implements \Magento\Framework\Config\CacheInterface
             }
         }
     }
-    private function connection(): \Redis
+    private function connection(): \Redis|\Credis_Client
     {
         if ($this->redis !== null) {
             return $this->redis;
         }
         $start = hrtime(true);
-        $r = new \Redis();
-        // Persistent sockets are scoped by database and authentication identity, never shared across installations.
+        // Persistent sockets are scoped by endpoint, database and authentication identity.
         $persistentId = 'fastboot-schema-'.hash('sha256', json_encode($this->options, JSON_THROW_ON_ERROR));
-        $r->pconnect($this->options['host'] ?? '127.0.0.1', (int)($this->options['port'] ?? 6379), (float)($this->options['timeout'] ?? 0.3), $persistentId, 0, (float)($this->options['read_timeout'] ?? 0.3), $this->options['context'] ?? []);
-        if (isset($this->options['password']) && $this->options['password'] !== '') {
-            $auth = empty($this->options['username']) ? $this->options['password'] : [$this->options['username'], $this->options['password']];
-            if (!$r->auth($auth)) {
-                throw new \RedisException('FastBoot schema Redis authentication failed');
+        $host = $this->options['host'] ?? '127.0.0.1';
+        $port = (int)($this->options['port'] ?? 6379);
+        $timeout = (float)($this->options['timeout'] ?? 0.3);
+        $readTimeout = (float)($this->options['read_timeout'] ?? 0.3);
+        if (extension_loaded('redis')) {
+            $r = new \Redis();
+        } else {
+            // Use Magento's PHP client when phpredis is unavailable. Its EVAL API is adapted below.
+            $r = new \Credis_Client($host, $port, $timeout, $persistentId, 0, null, null, $this->options['context']['stream'] ?? []);
+            $r->forceStandalone()->setMaxConnectRetries(0)->setReadTimeout($readTimeout);
+        }
+        try {
+            if ($r instanceof \Redis) {
+                $r->pconnect($host, $port, $timeout, $persistentId, 0, $readTimeout, $this->options['context'] ?? []);
+                $r->setOption(\Redis::OPT_READ_TIMEOUT, $readTimeout);
+                $r->setOption(\Redis::OPT_SERIALIZER, \Redis::SERIALIZER_NONE);
+            } else {
+                $r->connect();
+            }
+            if (isset($this->options['password']) && $this->options['password'] !== '') {
+                $username = empty($this->options['username']) ? null : $this->options['username'];
+                $authenticated = $r instanceof \Redis
+                    ? $r->auth($username === null ? $this->options['password'] : [$username, $this->options['password']])
+                    : $r->auth($this->options['password'], $username);
+                if (!$authenticated) {
+                    throw new \RuntimeException('FastBoot schema Redis authentication failed');
+                }
+                Metrics::add('redis_commands');
+            }
+            if (!$r->select((int)($this->options['database'] ?? 0))) {
+                throw new \RuntimeException('FastBoot schema Redis SELECT failed');
             }
             Metrics::add('redis_commands');
+        } catch (\Throwable $error) {
+            $this->disconnect($r);
+            throw $error;
         }
-        $r->setOption(\Redis::OPT_READ_TIMEOUT, (float)($this->options['read_timeout'] ?? 0.3));
-        $r->setOption(\Redis::OPT_SERIALIZER, \Redis::SERIALIZER_NONE);
-        if (!$r->select((int)($this->options['database'] ?? 0))) {
-            throw new \RedisException('FastBoot schema Redis SELECT failed');
-        }
-        Metrics::add('redis_commands');
         Metrics::add('connect_ms', (hrtime(true) - $start) / 1e6);
         return $this->redis = $r;
+    }
+    private function disconnect(\Redis|\Credis_Client $connection): void
+    {
+        try {
+            // Credis otherwise retains persistent streams, including unread replies after a timeout.
+            $connection instanceof \Credis_Client ? $connection->close(true) : $connection->close();
+        } catch (\Throwable) {
+        }
     }
     private function key(): string
     {
@@ -57,14 +87,15 @@ class Remote implements \Magento\Framework\Config\CacheInterface
         $start = hrtime(true);
         Metrics::add('redis_commands');
         try {
+            if ($r instanceof \Credis_Client && in_array(strtolower($method), ['eval', 'evalsha'], true)) {
+                [$script, $values, $keyCount] = $args;
+                return $r->$method($script, array_slice($values, 0, $keyCount), array_slice($values, $keyCount));
+            }
             return $r->$method(...$args);
-        } catch (\RedisException $error) {
+        } catch (\Throwable $error) {
             // Discard a timed-out socket; do not retry a write whose outcome is unknown.
             $this->redis = null;
-            try {
-                $r->close();
-            } catch (\RedisException) {
-            }
+            $this->disconnect($r);
             throw $error;
         } finally {
             Metrics::add('redis_ms', (hrtime(true) - $start) / 1e6);

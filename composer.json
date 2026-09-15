@@ -18,7 +18,8 @@
         "magento/module-catalog-graph-ql": "^100.4.8",
         "magento/module-tax": "^100.4.8",
         "magento/module-customer": "^103.0.8",
-        "webonyx/graphql-php": "^15.0"
+        "webonyx/graphql-php": "^15.0",
+        "colinmollenhour/credis": "^1.17"
     },
     "replace": {
         "graphcommerce/module-fast-boot-cache": "self.version",
@@ -27,7 +28,7 @@
         "graphcommerce/module-fast-boot-graph-ql": "self.version"
     },
     "suggest": {
-        "ext-redis": "Required when the optional schema_l1 Redis transport is enabled"
+        "ext-redis": "Recommended for lower CPU overhead when communicating with Redis"
     },
     "autoload": {
         "files": [

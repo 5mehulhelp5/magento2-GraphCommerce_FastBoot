@@ -17,7 +17,7 @@ FastBoot reduces the configuration and GraphQL work Magento repeats in each PHP 
 
 - Magento 2.4.8-era APIs or compatible Mage-OS packages; Composer checks exact module ranges.
 - PHP 8.2–8.5 within the version range supported by your Magento installation, with OPcache enabled.
-- phpredis and a writable Redis primary for the GraphQL schema cache.
+- A writable Redis primary when using the GraphQL schema L1 cache. The PHP Redis extension is optional.
 - A private, writable, node-local cache directory.
 
 **Status: release candidate for customer staging.** CI checks syntax on PHP 8.2–8.5 and Magento 2.4.8 units, Redis behavior, DI compilation and packaging on PHP 8.3/8.4. Validate your extensions and infrastructure in staging before production rollout.

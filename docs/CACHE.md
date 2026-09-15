@@ -5,6 +5,8 @@ FastBoot stores Magento's assembled GraphQL schema in two places:
 - **L1:** a private PHP-array file on each server, reused through OPcache.
 - **L2:** the authoritative schema record in Redis, shared by the installation's servers.
 
+The Redis transport uses phpredis when available and Credis otherwise, with identical atomic scripts. The PHP extension is optional.
+
 Servers never share the L1 directory. A server that needs a schema version it does not have reads it from Redis and creates its own local copy. If Redis has no current schema, Magento rebuilds it from the source configuration.
 
 Use the [FastBoot guide](FASTBOOT.md) to enable this cache and the [configuration reference](CONFIGURATION.md#redis-connection) to change its connection or limits.

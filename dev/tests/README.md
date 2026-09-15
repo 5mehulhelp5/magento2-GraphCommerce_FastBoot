@@ -35,16 +35,25 @@ python3 dev/tests/schema-l1/concurrency.py
 python3 dev/tests/schema-l1/redis-failure.py
 ```
 
-The first three commands require phpredis and local Redis at port 6379, database 12. They use unique test keys and delete only their own keys; they do not flush the database or change Magento business data. Local fixture directories remain under the selected installation's `var` directory.
+The first three commands require local Redis at port 6379, database 12. They use unique test keys and delete only their own keys; they do not flush the database or change Magento business data. Local fixture directories remain under the selected installation's `var` directory.
 
 The failure test requires Python, Docker and the `valkey/valkey:8-alpine` image. It creates its own loopback-only container, pauses/restarts only that container, and removes it afterward. See the [schema test guide](schema-l1/README.md) for coverage.
+
+Run a test command with the Redis extension disabled, without changing system PHP configuration:
+
+```sh
+python3 dev/tests/without-redis.py -- php dev/tests/schema-l1/tests.php
+python3 dev/tests/without-redis.py -- python3 dev/tests/schema-l1/redis-failure.py
+```
+
+The wrapper also disables the extension for child PHP processes. CI repeats units, schema invariants, concurrency, failure and package installation checks through this path.
 
 ## Build a release artifact
 
 Run from the package repository root:
 
 ```sh
-python3 dev/release/build.py --version 0.2.0-rc4
+python3 dev/release/build.py --version 0.2.0-rc5
 ```
 
 The builder writes a deterministic ZIP and SHA-256 file under `dist/`. It includes the runtime modules, Composer metadata, license and customer documentation. `BUILD-MANIFEST.json` records a hash for each packaged file. Build a new version for subsequent releases; preserve previously distributed archives.
@@ -53,7 +62,7 @@ Verify installation using a separate, empty directory:
 
 ```sh
 python3 dev/release/install-smoke.py \
-  --archive dist/graphcommerce-magento-fast-boot-0.2.0-rc4.zip \
+  --archive dist/graphcommerce-magento-fast-boot-0.2.0-rc5.zip \
   --magento-root "$MAGENTO_ROOT" \
   --output /absolute/path/to/an/empty/install-check
 ```

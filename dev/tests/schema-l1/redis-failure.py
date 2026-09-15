@@ -8,8 +8,8 @@ try:
  docker('run','-d','--name',name,'-p','127.0.0.1::6379','valkey/valkey:8-alpine','valkey-server','--save','','--appendonly','no','--requirepass','audit-fixture-only')
  port=docker('port',name,'6379/tcp').rsplit(':',1)[1]
  time.sleep(.5)
- check('seed');check('bad-auth')
- live=subprocess.Popen(['php',str(D/'redis-failure.php'),port,str(pathlib.Path(os.environ.get('MAGENTO_ROOT',D.parents[4]))/'var'/name/'persistent'),'persistent'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+ check('seed');check('bad-auth');check('acl')
+ live=subprocess.Popen(['php',str(D/'redis-failure.php'),port,str(pathlib.Path(os.environ.get('MAGENTO_ROOT',D.parents[4]))/'var'/name/'persistent'),'persistent-acl'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
  try:
   assert live.stdout.readline().strip()=='READY'
   docker('pause',name)

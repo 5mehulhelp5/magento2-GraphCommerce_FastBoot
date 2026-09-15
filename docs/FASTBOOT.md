@@ -8,7 +8,7 @@ Install the published Composer package using your artifact repository:
 
 ```sh
 composer config repositories.fastboot artifact /absolute/path/to/artifacts
-composer require graphcommerce/magento-fast-boot:0.2.0-rc4
+composer require graphcommerce/magento-fast-boot:0.2.0-rc5
 bin/magento module:enable GraphCommerce_FastBootCache GraphCommerce_FastBoot GraphCommerce_FastBootGraphQl
 ```
 
@@ -27,7 +27,7 @@ Merge into `app/etc/env.php`:
 ],
 ```
 
-Use a stable installation ID shared by this environment's web, admin and CLI nodes. Staging and production use different IDs. The schema connection inherits the default Magento cache frontend's Redis endpoint and credentials; configure an [explicit endpoint](CONFIGURATION.md#redis-connection) when needed.
+Use a stable installation ID shared by this environment's web, admin and CLI nodes. Staging and production use different IDs. Schema L1 requires a Redis server; the PHP Redis extension is optional. The schema connection inherits the default Magento cache frontend's Redis endpoint and credentials; configure an [explicit endpoint](CONFIGURATION.md#redis-connection) when needed.
 
 FastBoot uses Magento's `pub/static/deployed_version.txt` as its build identity. **Deploy a new static-content version for every code, DI or deployment-configuration release**, and distribute the same version to all nodes serving that build. Magento's version is normally timestamp-based; a CI build ID supplied through static deployment's `--content-version` option avoids independent node timestamps and identifies PHP-only deployments too.
 

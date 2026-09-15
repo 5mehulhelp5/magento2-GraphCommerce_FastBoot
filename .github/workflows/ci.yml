@@ -77,6 +77,15 @@ jobs:
           php dev/tests/schema-l1/edge-cases.php
           python3 dev/tests/schema-l1/concurrency.py
           python3 dev/tests/schema-l1/redis-failure.py
+      - name: Repeat schema and unit regressions without ext-redis
+        run: |
+          python3 dev/tests/without-redis.py -- sh -ec '
+            php "$MAGENTO_ROOT/vendor/bin/phpunit" --no-configuration --bootstrap dev/tests/bootstrap.php src
+            php dev/tests/schema-l1/tests.php
+            php dev/tests/schema-l1/edge-cases.php
+            python3 dev/tests/schema-l1/concurrency.py
+            python3 dev/tests/schema-l1/redis-failure.py
+          '
       - name: Compile fresh Magento DI metadata
         working-directory: ${{ env.MAGENTO_ROOT }}
         run: php bin/magento setup:di:compile
@@ -86,6 +95,7 @@ jobs:
           python3 dev/release/build.py --version 0.0.0-rc0 --output .ci/rebuild
           cmp .ci/artifacts/*.zip .ci/rebuild/*.zip
           python3 dev/release/install-smoke.py --archive .ci/artifacts/graphcommerce-magento-fast-boot-0.0.0-rc0.zip --magento-root "$MAGENTO_ROOT" --output .ci/install
+          python3 dev/tests/without-redis.py -- python3 dev/release/install-smoke.py --archive .ci/artifacts/graphcommerce-magento-fast-boot-0.0.0-rc0.zip --magento-root "$MAGENTO_ROOT" --output .ci/install-no-redis
       - name: Collect fixture logs
         if: always()
         run: |

@@ -4,16 +4,16 @@
     "type": "magento2-module",
     "license": "MIT",
     "require": {
-        "php": "~8.1.0|~8.2.0|~8.3.0|~8.4.0",
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
         "graphcommerce/module-fast-boot-cache": "*",
-        "magento/framework": "*",
-        "magento/module-graph-ql": "*",
-        "magento/module-graph-ql-cache": "*",
-        "magento/module-customer-graph-ql": "*",
-        "magento/module-catalog-graph-ql": "*",
-        "magento/module-tax": "*",
-        "magento/module-customer": "*",
-        "webonyx/graphql-php": "*"
+        "magento/framework": "^103.0.8",
+        "magento/module-graph-ql": "^100.4.8",
+        "magento/module-graph-ql-cache": "^100.4.5",
+        "magento/module-customer-graph-ql": "^100.4.8",
+        "magento/module-catalog-graph-ql": "^100.4.8",
+        "magento/module-tax": "^100.4.8",
+        "magento/module-customer": "^103.0.8",
+        "webonyx/graphql-php": "^15.0"
     },
     "autoload": {
         "files": [

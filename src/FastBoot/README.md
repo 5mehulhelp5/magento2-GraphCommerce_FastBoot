@@ -1,3 +1,16 @@
 # GraphCommerce_FastBoot
 
-The work Magento repeats on every php-fpm request, remembered: the system configuration and the theme's view.xml as PHP arrays, the scopes and the stores of a website from the cache, the default store of a group from the store repository, the deployment config check from the cache, quoting without a database connection, and only the entries an area changes for the object manager. The repository README holds the design, the numbers and the rollout.
+This module reduces repeated Magento configuration and lookup work during ordinary PHP-FPM requests.
+
+| Area | Behavior |
+|---|---|
+| System configuration | Load reusable PHP data for the requested default, website or store scope. |
+| Area DI configuration | Apply compiled area differences to the global configuration. |
+| Theme view configuration | Reuse parsed `view.xml` data by theme and area. |
+| Store resolution | Reuse scope data and website/store relationships; use the store repository for default-store lookup. |
+| Deployment configuration | Key reusable checks by the actual configuration contents. |
+| SQL quoting | Avoid opening a connection when the shortcut's supported conditions hold; otherwise use the connected driver. |
+
+It also supplies `bin/magento fastboot:status` and `bin/magento fastboot:prepare`.
+
+The combined package installs this module with FastBootCache, FastBootGraphQl and FastBootPreload. Start with the [installation guide](../../README.md); use the [configuration reference](../../docs/CONFIGURATION.md) to disable individual features and the [validation report](../../docs/VALIDATION.md) for measurements.

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace GraphCommerce\FastBoot\Plugin\Deploy;
@@ -24,6 +25,7 @@ class ConfigUnchanged
     public function __construct(
         private readonly CacheInterface $cache,
         private readonly Feature $feature,
+        private readonly \Magento\Deploy\Model\DeploymentConfig\DataCollector $collector,
     ) {
     }
 
@@ -32,7 +34,7 @@ class ConfigUnchanged
         if (!$this->feature->on(self::SWITCH)) {
             return $proceed($sectionName);
         }
-        $key = self::KEY . (string)$sectionName;
+        $key = self::KEY . hash('sha256', serialize([$sectionName, $this->collector->getConfig($sectionName)]));
         if ($this->cache->load($key)) {
             return false;
         }
@@ -42,5 +44,10 @@ class ConfigUnchanged
         }
 
         return $changed;
+    }
+    public function afterRegenerate($subject, $result)
+    {
+        $this->cache->clean([ConfigCache::CACHE_TAG]);
+        return $result;
     }
 }

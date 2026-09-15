@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace GraphCommerce\FastBootCache\Plugin;
@@ -27,6 +28,8 @@ class OpcacheLayer
         private readonly PhpFiles $files,
         private readonly Version $version,
         private readonly Feature $feature,
+        private readonly \GraphCommerce\FastBootCache\Model\EntryLifetime $lifetime,
+        private readonly \Magento\Framework\App\Cache\StateInterface $cacheState,
         private readonly array $types = [],
     ) {
     }
@@ -34,16 +37,19 @@ class OpcacheLayer
     public function aroundLoad(TagScope $subject, callable $proceed, $identifier)
     {
         $tag = $subject->getTag();
-        if (!in_array($tag, $this->types, true) || !$this->feature->on(self::SWITCH)) {
+        $type = array_search($tag, $this->types, true);
+        if (!is_string($type) || !$this->cacheState->isEnabled($type) || !$this->feature->on(self::SWITCH) || !$this->cacheState->isEnabled('config')) {
             return $proceed($identifier);
         }
         $value = $this->files->read($tag, (string)$identifier);
         if ($value !== null) {
             return $value;
         }
+        $generation = $this->version->current();
         $value = $proceed($identifier);
-        if ($value !== false) {
-            $this->files->write($tag, (string)$identifier, $value, PhpFiles::LOADED_LIFETIME);
+        $ttl = $value === false ? false : $this->lifetime->remaining($subject, (string)$identifier, $value);
+        if ($ttl !== false) {
+            $this->files->write($tag, (string)$identifier, $value, $ttl, $generation);
         }
 
         return $value;
@@ -52,8 +58,14 @@ class OpcacheLayer
     public function afterSave(TagScope $subject, $result, $data, $identifier, array $tags = [], $lifeTime = null)
     {
         $tag = $subject->getTag();
-        if (in_array($tag, $this->types, true) && $this->feature->on(self::SWITCH)) {
-            $this->files->write($tag, (string)$identifier, $data, PhpFiles::lifetime($lifeTime));
+        if ($result && in_array($tag, $this->types, true)) {
+            $this->version->bump();
+            if ($this->feature->on(self::SWITCH) && $this->cacheState->isEnabled('config')) {
+                $ttl = $this->lifetime->remaining($subject, (string)$identifier, $data);
+                if ($ttl !== false) {
+                    $this->files->write($tag, (string)$identifier, $data, $ttl);
+                }
+            }
         }
 
         return $result;

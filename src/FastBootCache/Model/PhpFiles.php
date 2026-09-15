@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace GraphCommerce\FastBootCache\Model;
@@ -7,169 +8,167 @@ use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
 
-/**
- * Values as PHP files under var/fastboot/<version>/<group>/, which opcache
- * keeps in shared memory: an include of a cached file returns the value in
- * microseconds, where a cache entry costs a network read, a decompress and
- * a deserialise on every request. A write goes to a temporary file and
- * renames, so a request never includes a half file, and invalidates the
- * path in opcache, so a rewritten entry is read anew whatever the timestamp
- * validation says. A bump of the version sweeps the directories, so a
- * writer or reader of the old version can find its directory gone under it:
- * every file operation fails soft, as a cache miss. Opcache keeps the
- * compiled copies of dropped files as wasted memory until its own restart,
- * so opcache.max_wasted_percentage sets how many config invalidations a
- * php-fpm master lives through.
- */
+/** Immutable content-addressed PHP values; mutable expiry/version metadata stays outside OPcache. */
 class PhpFiles
 {
-    private const DIR = 'fastboot';
-
     private ?string $root = null;
-
-    public function __construct(
-        private readonly Filesystem $filesystem,
-        private readonly Version $version,
-        private readonly DeploymentConfig $deploymentConfig,
-    ) {
+    public const LOADED_LIFETIME = 0; // Unknown backend lifetimes must never be extended.
+    public function __construct(private Filesystem $filesystem, private Version $version, private DeploymentConfig $deploymentConfig)
+    {
     }
-
-    private const EXPIRES = 'fastboot_expires';
-
-    /** The lifetime Magento's frontends give an entry saved with `false`. */
-    private const DEFAULT_LIFETIME = 7200;
-
-    /**
-     * The lifetime of a file written from a load, whose cache lifetime the
-     * frontend does not tell: the entry is read from the cache again after it.
-     */
-    public const LOADED_LIFETIME = self::DEFAULT_LIFETIME;
-
-    /**
-     * The seconds an entry stays valid as the frontend understands them:
-     * null for no lifetime, false for the frontend's default.
-     */
     public static function lifetime($lifeTime): ?int
     {
-        if ($lifeTime === null) {
-            return null;
-        }
-
-        return $lifeTime === false ? self::DEFAULT_LIFETIME : max(0, (int)$lifeTime);
+        return $lifeTime === null ? null : ($lifeTime === false ? 7200 : max(0, (int)$lifeTime));
     }
-
+    /** Capture before deriving data; a same-request invalidation must fence the later write. */
+    public function generation(): string
+    {
+        return $this->version->current();
+    }
+    public function namespaceDirectory(): string
+    {
+        if ($this->root === null) {
+            $identity = [$this->deploymentConfig->get('cache/frontend/default'), $this->deploymentConfig->get('fastboot/release', $this->deploymentConfig->get('fastboot/schema_l1/release', 'unconfigured')), defined('BP') ? BP : __DIR__];
+            $var = $this->filesystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath();
+            $this->root = rtrim($var, '/').'/fastboot/v2/'.hash('sha256', json_encode($identity, JSON_THROW_ON_ERROR));
+        }
+        return $this->root;
+    }
+    private function path(string $group, string $id, ?string $version = null): string
+    {
+        return $this->namespaceDirectory().'/indexes/'.hash('sha256', $version ?? $this->version->current()).'/'.hash('sha256', $group).'/'.hash('sha256', $id).'.json';
+    }
     public function read(string $group, string $id): mixed
     {
-        $file = $this->path($group, $id);
+        $index = $this->path($group, $id);
+        $record = is_file($index) ? json_decode((string)@file_get_contents($index), true) : null;
+        if (!is_array($record) || !isset($record['hash']) || !is_string($record['hash']) || !preg_match('/^[a-f0-9]{64}$/D', $record['hash']) || !array_key_exists('expires', $record) || ($record['expires'] !== null && !is_numeric($record['expires'])) || ($record['expires'] !== null && $record['expires'] <= microtime(true))) {
+            return null;
+        }
+        $file = $this->namespaceDirectory().'/blobs/'.$record['hash'].'.php';
         if (!is_file($file)) {
             return null;
         }
-        $value = @include $file;
-        if ($value === false) {
+        try {
+            $value = @include $file;
+        } catch (\ParseError) {
+            $value = null;
+        }
+        if (!is_array($value) || !array_key_exists('value', $value)) {
+            if (function_exists('opcache_invalidate')) {
+                @opcache_invalidate($file, true);
+            }
+            @unlink($index);
+            @unlink($file);
             return null;
         }
-        if (is_array($value) && isset($value[self::EXPIRES])) {
-            return $value[self::EXPIRES] > time() ? $value['value'] : null;
-        }
-
-        return $value;
+        return $value['value'];
     }
-
-    /**
-     * @param int|null $lifeTime seconds the value stays valid; a value with a lifetime is
-     *   wrapped with its expiry, and a read past it answers null
-     */
-    public function write(string $group, string $id, mixed $value, ?int $lifeTime = null): void
+    public function write(string $group, string $id, mixed $value, ?int $lifeTime = null, ?string $expectedVersion = null): void
     {
-        if (!self::exportable($value)) {
+        if (!self::exportable($value) || ($lifeTime !== null && $lifeTime <= 0)) {
             return;
         }
-        if ($lifeTime !== null) {
-            $value = [self::EXPIRES => time() + $lifeTime, 'value' => $value];
-        }
-        $file = $this->path($group, $id);
-        $dir = dirname($file);
-        if (!is_dir($dir)) {
-            @mkdir($dir, 0775, true);
-        }
-        $temporary = $file . '.' . getmypid() . '.tmp';
-        if (@file_put_contents($temporary, "<?php\nreturn " . var_export($value, true) . ";\n") === false) {
+        $version = $this->version->current();
+        if ($expectedVersion !== null && $version !== $expectedVersion) {
             return;
         }
-        if (!@rename($temporary, $file)) {
-            @unlink($temporary);
-
+        $content = "<?php\nreturn ".var_export(['value' => $value], true).";\n";
+        $options = (array)$this->deploymentConfig->get('fastboot/files', []);
+        if (strlen($content) > ($options['max_entry_bytes'] ?? 2097152)) {
             return;
         }
-        if (function_exists('opcache_invalidate')) {
-            opcache_invalidate($file, true);
+        $root = $this->namespaceDirectory();
+        $hash = hash('sha256', $content);
+        $blob = $root.'/blobs/'.$hash.'.php';
+        $index = $this->path($group, $id, $version);
+        if (!is_dir($root.'/blobs') && !@mkdir($root.'/blobs', 0700, true) && !is_dir($root.'/blobs')) {
+            return;
         }
-    }
-
-    /** Only scalars, null and arrays of them become a file: an object would export as code. */
-    private static function exportable(mixed $value): bool
-    {
-        if (is_array($value)) {
-            foreach ($value as $item) {
-                if (!self::exportable($item)) {
-                    return false;
+        $lock = @fopen($root.'/write.lock', 'c');
+        if (!$lock) {
+            return;
+        }
+        try {
+            if (!flock($lock, LOCK_EX)) {
+                return;
+            }
+            if (in_array($group, ['PARSED','VALIDATED'], true) && !is_file($index) && count(glob(dirname($index).'/*.json') ?: []) >= ($options['max_queries'] ?? 256)) {
+                return;
+            }
+            $quotaFile = $root.'/quota.json';
+            $quota = is_file($quotaFile) ? json_decode((string)@file_get_contents($quotaFile), true) : null;
+            if (!is_array($quota) || !isset($quota['bytes'],$quota['files'])) {
+                $files = glob($root.'/blobs/*.php') ?: [];
+                $quota = ['files' => count($files),'bytes' => array_sum(array_map('filesize', $files))];
+            }
+            if (!is_file($blob)) {
+                if ($quota['files'] >= ($options['max_files'] ?? 2048) || $quota['bytes'] + strlen($content) > ($options['max_bytes'] ?? 67108864)) {
+                    return;
+                }
+                if (!$this->atomic($blob, $content)) {
+                    return;
+                }
+                $quota['files']++;
+                $quota['bytes'] += strlen($content);
+                if (!$this->atomic($quotaFile, json_encode($quota, JSON_THROW_ON_ERROR))) {
+                    @unlink($blob);
+                    return;
                 }
             }
-
-            return true;
+            // Arbitrary user-supplied queries cannot create unbounded index files either.
+            if (!is_dir(dirname($index)) && !@mkdir(dirname($index), 0700, true) && !is_dir(dirname($index))) {
+                return;
+            }
+            $this->atomic($index, json_encode(['hash' => $hash,'expires' => $lifeTime === null ? null : microtime(true) + $lifeTime], JSON_THROW_ON_ERROR));
+        } finally {
+            flock($lock, LOCK_UN);
+            fclose($lock);
         }
-
+    }
+    private function atomic(string $file, string $content): bool
+    {
+        $temporary = $file.'.'.bin2hex(random_bytes(8)).'.tmp';
+        if (@file_put_contents($temporary, $content) !== strlen($content)) {
+            @unlink($temporary);
+            return false;
+        }
+        @chmod($temporary, 0600);
+        if (!@rename($temporary, $file)) {
+            @unlink($temporary);
+            return false;
+        }
+        return true;
+    }
+    private static function exportable(mixed $value, int $depth = 0): bool
+    {
+        if ($depth > 64) {
+            return false;
+        }
+        if (is_array($value)) {
+            foreach ($value as $item) {
+                if (!self::exportable($item, $depth + 1)) {
+                    return false;
+                }
+            } return true;
+        }
         return $value === null || is_scalar($value);
     }
-
-    /**
-     * Drops every version directory; the process that bumped the version calls
-     * it, and a request still reading a file of the old version falls back to
-     * the cache when the file is gone.
-     */
-    public function sweep(): void
-    {
-        foreach (glob($this->root() . '/*', GLOB_ONLYDIR) ?: [] as $dir) {
-            $this->removeDirectory($dir);
-        }
-    }
-
     public function remove(string $group, string $id): void
     {
         @unlink($this->path($group, $id));
     }
-
-    private function path(string $group, string $id): string
+    /** Remove obsolete indexes only. Blobs stay reusable and bounded until release cleanup/FPM restart. */
+    public function sweep(): void
     {
-        return $this->root() . '/' . $this->version->current() . '/'
-            . preg_replace('/[^A-Za-z0-9_.-]/', '_', $group) . '/'
-            . preg_replace('/[^A-Za-z0-9_.-]/', '_', $id) . '.php';
-    }
-
-    /**
-     * One tree per cache: two installations that share var/ but not their
-     * cache, such as a php-fpm host and a worker container, keep their
-     * versions apart.
-     */
-    private function root(): string
-    {
-        if ($this->root === null) {
-            $var = $this->filesystem->getDirectoryRead(DirectoryList::VAR_DIR)->getAbsolutePath();
-            $backend = (array)$this->deploymentConfig->get('cache/frontend/default/backend_options', []);
-            $this->root = rtrim($var, '/') . '/' . self::DIR . '/' . substr(hash('sha256', json_encode([
-                $this->deploymentConfig->get('cache/frontend/default/id_prefix'),
-                $backend['server'] ?? '',
-                $backend['port'] ?? '',
-                $backend['database'] ?? '',
-            ])), 0, 8);
+        $root = $this->namespaceDirectory().'/indexes';
+        foreach (glob($root.'/*', GLOB_ONLYDIR) ?: [] as $dir) {
+            $this->removeDirectory($dir);
         }
-
-        return $this->root;
     }
-
     private function removeDirectory(string $dir): void
     {
-        foreach (glob($dir . '/*') ?: [] as $file) {
+        foreach (glob($dir.'/*') ?: [] as $file) {
             is_dir($file) ? $this->removeDirectory($file) : @unlink($file);
         }
         @rmdir($dir);

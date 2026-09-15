@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace GraphCommerce\FastBootCache\Model;
@@ -14,9 +15,11 @@ use Magento\Framework\App\DeploymentConfig;
 class Feature
 {
     private ?array $switches = null;
+    private const CACHED = ['schema_array' => true,'cache_files' => true,'system_config_array' => true,'view_config' => true,'parsed_queries' => true,'validated_queries' => true,'scopes_cache' => true,'website_stores' => true,'deploy_config_unchanged' => true,'placeholder_url' => true,'guest_tax_factor' => true];
 
     public function __construct(
         private readonly DeploymentConfig $deploymentConfig,
+        private readonly ?\Magento\Framework\App\Cache\StateInterface $cacheState = null,
     ) {
     }
 
@@ -24,6 +27,7 @@ class Feature
     {
         $this->switches ??= (array)$this->deploymentConfig->get('fastboot', []);
 
-        return ($this->switches[$name] ?? true) !== false;
+        return ($this->switches[$name] ?? true) !== false
+            && (!isset(self::CACHED[$name]) || $this->cacheState === null || $this->cacheState->isEnabled('config'));
     }
 }

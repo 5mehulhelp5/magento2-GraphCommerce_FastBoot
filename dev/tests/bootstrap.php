@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Unit test bootstrap: the Magento vendor autoloader of the installation
  * that holds the package (MAGENTO_ROOT, else the project two levels up),
@@ -19,5 +20,5 @@ if (!isset($loader)) {
 }
 $package = json_decode((string)file_get_contents(dirname(__DIR__, 2) . '/composer.json'), true);
 foreach ($package['autoload']['psr-4'] as $prefix => $path) {
-    $loader->addPsr4($prefix, dirname(__DIR__, 2) . '/' . $path);
+    $loader->addPsr4($prefix, dirname(__DIR__, 2) . '/' . $path, true);
 }

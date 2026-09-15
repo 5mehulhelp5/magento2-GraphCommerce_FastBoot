@@ -1,61 +1,63 @@
 <?php
+
 declare(strict_types=1);
 
 namespace GraphCommerce\FastBootGraphQl\Model\Config;
 
-use GraphCommerce\FastBootCache\Model\PhpFiles;
-use GraphCommerce\FastBootCache\Model\Feature;
-use Magento\Framework\Config\CacheInterface;
-use Magento\Framework\Config\Data;
-use Magento\Framework\Config\ReaderInterface;
-use Magento\Framework\Serialize\SerializerInterface;
+use GraphCommerce\FastBootCache\Model\Schema\{Settings, Metrics};
 
-/**
- * A config data set that a request takes from an opcache PHP file instead
- * of the cache entry. A di.xml virtual type of Magento\Framework\Config\Data
- * becomes one of these by its type attribute alone; the reader and the
- * cache id stay. The file is written from the cache entry or the reader on
- * the first request of a version.
- */
-class OpcacheData extends Data
+class OpcacheData extends \Magento\Framework\Config\Data
 {
-    private const SWITCH = 'schema_array';
-
-    private readonly string $fileId;
-
+    private \Magento\Framework\Serialize\SerializerInterface $schemaSerializer;
+    private \Magento\Framework\Cache\FrontendInterface $schemaCache;
     public function __construct(
-        ReaderInterface $reader,
-        CacheInterface $cache,
+        \Magento\Framework\Config\ReaderInterface $reader,
+        \Magento\Framework\Config\CacheInterface $cache,
         $cacheId,
-        private readonly PhpFiles $files,
-        private readonly Feature $feature,
-        ?SerializerInterface $serializer = null,
+        private Settings $settings,
+        ?\Magento\Framework\Serialize\SerializerInterface $serializer = null,
         ?array $cacheTags = null,
     ) {
-        $this->fileId = (string)$cacheId;
-        parent::__construct($reader, $cache, $cacheId, $serializer, $cacheTags);
+        $this->schemaSerializer = $serializer ?? new \Magento\Framework\Serialize\Serializer\Json();
+        $this->schemaCache = $settings->mode() === 'native' ? $cache : $settings->frontend($cache);
+        // Parent requires Config CacheInterface. Override initData/reset to use our chosen frontend.
+        $this->_reader = $reader;
+        $this->_cacheId = $cacheId;
+        parent::__construct($reader, $cache, $cacheId, $this->schemaSerializer, $cacheTags);
     }
-
     protected function initData()
     {
-        if (!$this->feature->on(self::SWITCH)) {
-            parent::initData();
+        $start = hrtime(true);
+        try {
+            if ($this->settings->mode() === 'native') {
+                parent::initData();
+                return;
+            }
+            $data = $this->settings->local()->load();
+            if ($data === null || $data === false) {
+                $generation = $this->settings->remote()->generation();
+                $data = $this->_reader->read();
+                if (!$this->settings->remote()->publish(json_encode($data, JSON_THROW_ON_ERROR), $this->cacheTags, 7200, $generation)) {
+                    Metrics::add('rejected_publications');
+                }
 
-            return;
-        }
-        $data = $this->files->read('data', $this->fileId);
-        if (is_array($data)) {
+            }
             $this->merge($data);
-
-            return;
+        } finally {
+            Metrics::add('schema_ms', (hrtime(true) - $start) / 1e6);
         }
-        parent::initData();
-        $this->files->write('data', $this->fileId, $this->_data);
     }
-
     public function reset()
     {
-        $this->files->remove('data', $this->fileId);
-        parent::reset();
+        if ($this->settings->mode() === 'native') {
+            parent::reset();
+            return;
+        }
+        $this->schemaCache->remove($this->_cacheId);
+        $this->_data = [];
+        $data = $this->_reader->read();
+        if ($data) {
+            $this->merge($data);
+        }
     }
 }

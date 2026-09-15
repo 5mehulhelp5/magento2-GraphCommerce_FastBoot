@@ -4,10 +4,10 @@
     "type": "magento2-module",
     "license": "MIT",
     "require": {
-        "php": "~8.1.0|~8.2.0|~8.3.0|~8.4.0",
-        "magento/framework": "*",
-        "magento/module-eav": "*",
-        "magento/module-store": "*"
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
+        "magento/framework": "^103.0.8",
+        "magento/module-eav": "^102.1.8",
+        "magento/module-store": "^101.1.8"
     },
     "autoload": {
         "files": [
@@ -16,5 +16,8 @@
         "psr-4": {
             "GraphCommerce\\FastBootCache\\": ""
         }
+    },
+    "suggest": {
+        "ext-redis": "Required when the optional schema_l1 Redis transport is enabled"
     }
 }

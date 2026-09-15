@@ -1,101 +1,67 @@
 <?php
+
 declare(strict_types=1);
 
 namespace GraphCommerce\FastBootGraphQl\Test\Unit\Model\Config;
 
-use GraphCommerce\FastBootCache\Model\PhpFiles;
-use GraphCommerce\FastBootCache\Model\Version;
+use GraphCommerce\FastBootCache\Model\Schema\{Settings, Remote, Local};
 use GraphCommerce\FastBootGraphQl\Model\Config\OpcacheData;
-use GraphCommerce\FastBootCache\Model\Feature;
-use Magento\Framework\App\DeploymentConfig;
-use Magento\Framework\Config\CacheInterface;
-use Magento\Framework\Config\ReaderInterface;
-use Magento\Framework\Filesystem;
-use Magento\Framework\Filesystem\Directory\ReadInterface;
+use Magento\Framework\Config\{CacheInterface, ReaderInterface};
 use Magento\Framework\Serialize\Serializer\Json;
 use PHPUnit\Framework\TestCase;
 
 class OpcacheDataTest extends TestCase
 {
-    private string $var;
-    private string $tree;
-
-    protected function setUp(): void
+    public function testNativeModeUsesMagentoCache(): void
     {
-        $this->var = sys_get_temp_dir() . '/fastboot-test-' . bin2hex(random_bytes(4));
-        mkdir($this->var);
-        $this->tree = substr(hash('sha256', json_encode([[], '', '', ''])), 0, 8);
-    }
-
-    protected function tearDown(): void
-    {
-        foreach (glob($this->var . '/fastboot/*/*/*/*') ?: [] as $file) {
-            unlink($file);
-        }
-        foreach (['/fastboot/*/*/*', '/fastboot/*/*', '/fastboot/*'] as $level) {
-            foreach (glob($this->var . $level) ?: [] as $dir) {
-                rmdir($dir);
-            }
-        }
-        @rmdir($this->var . '/fastboot');
-        rmdir($this->var);
-    }
-
-    public function testTheSecondRequestOfAVersionReadsTheFileAndNotTheCache(): void
-    {
-        $files = $this->files('v1');
+        $settings = $this->createMock(Settings::class);
+        $settings->method('mode')->willReturn('native');
+        $settings->expects(self::never())->method('remote');
+        $cache = $this->createStub(CacheInterface::class);
+        $cache->method('load')->willReturn('{"types":{"Query":[]}}');
         $reader = $this->createMock(ReaderInterface::class);
-        $reader->method('read')->willReturn(['types' => ['Query' => ['fields' => 1]]]);
-        $cache = $this->createMock(CacheInterface::class);
-        $cache->method('load')->willReturn(false);
-        $cache->expects(self::once())->method('save');
-
-        $first = new OpcacheData($reader, $cache, 'Schema_Data', $files, $this->on(), new Json());
-        self::assertSame(1, $first->get('types/Query/fields'));
-        self::assertFileExists($this->var . '/fastboot/' . $this->tree . '/v1/data/Schema_Data.php');
-
-        $untouched = $this->createMock(CacheInterface::class);
-        $untouched->expects(self::never())->method('load');
-        $second = new OpcacheData($this->createMock(ReaderInterface::class), $untouched, 'Schema_Data', $files, $this->on(), new Json());
-        self::assertSame(['Query' => ['fields' => 1]], $second->get('types'));
-
-        $second->reset();
-        self::assertFileDoesNotExist($this->var . '/fastboot/' . $this->tree . '/v1/data/Schema_Data.php');
+        $reader->expects(self::never())->method('read');
+        $data = new OpcacheData($reader, $cache, 'schema', $settings, new Json());
+        self::assertSame(['types' => ['Query' => []]], $data->get(null));
     }
-
-    public function testVersionsLiveApartUntilASweep(): void
+    public function testWarmArrayDoesNotReadSourceOrPublish(): void
     {
-        $this->files('v1')->write('CONFIG', 'A', ['old' => true]);
-        $files = $this->files('v2');
-        $files->write('CONFIG', 'A', 'a string too');
-        self::assertFileExists($this->var . '/fastboot/' . $this->tree . '/v1/CONFIG/A.php');
-        self::assertSame('a string too', $files->read('CONFIG', 'A'));
-        self::assertNull($files->read('CONFIG', 'B'));
-
-        $files->sweep();
-        self::assertFileDoesNotExist($this->var . '/fastboot/' . $this->tree . '/v1/CONFIG/A.php');
-        self::assertNull($files->read('CONFIG', 'A'));
+        $remote = $this->createMock(Remote::class);
+        $remote->expects(self::never())->method('publish');
+        $local = $this->createStub(Local::class);
+        $local->method('load')->willReturn(['types' => ['Query' => []]]);
+        $settings = $this->settings($remote, $local);
+        $reader = $this->createMock(ReaderInterface::class);
+        $reader->expects(self::never())->method('read');
+        $data = new OpcacheData($reader, $this->createStub(CacheInterface::class), 'schema', $settings, new Json());
+        self::assertSame(['types' => ['Query' => []]], $data->get(null));
     }
-
-    private function files(string $version): PhpFiles
+    public function testBuildCapturesGenerationBeforeSourceReadAndRejectsPublicationWithoutRetrying(): void
     {
-        $directory = $this->createMock(ReadInterface::class);
-        $directory->method('getAbsolutePath')->willReturn($this->var . '/');
-        $filesystem = $this->createMock(Filesystem::class);
-        $filesystem->method('getDirectoryRead')->willReturn($directory);
-        $versions = $this->createMock(Version::class);
-        $versions->method('current')->willReturn($version);
-        $deployment = $this->createMock(DeploymentConfig::class);
-        $deployment->method('get')->willReturn([]);
-
-        return new PhpFiles($filesystem, $versions, $deployment);
+        $captured = false;
+        $remote = $this->createMock(Remote::class);
+        $remote->expects(self::once())->method('generation')->willReturnCallback(function () use (&$captured) {
+            $captured = true;
+            return 'before-clean';
+        });
+        $remote->expects(self::once())->method('publish')->with('{"types":[]}', self::anything(), 7200, 'before-clean')->willReturn(false);
+        $local = $this->createStub(Local::class);
+        $local->method('load')->willReturn(null);
+        $reader = $this->createMock(ReaderInterface::class);
+        $reader->expects(self::once())->method('read')->willReturnCallback(function () use (&$captured) {
+            self::assertTrue($captured);
+            return ['types' => []];
+        });
+        $data = new OpcacheData($reader, $this->createStub(CacheInterface::class), 'schema', $this->settings($remote, $local), new Json());
+        self::assertSame(['types' => []], $data->get(null));
     }
-
-    private function on(): Feature
+    private function settings(Remote $remote, Local $local): Settings
     {
-        $config = $this->createMock(DeploymentConfig::class);
-        $config->method('get')->willReturn([]);
-
-        return new Feature($config);
+        $settings = $this->createStub(Settings::class);
+        $settings->method('mode')->willReturn('opcache');
+        $settings->method('frontend')->willReturn($remote);
+        $settings->method('remote')->willReturn($remote);
+        $settings->method('local')->willReturn($local);
+        return $settings;
     }
 }

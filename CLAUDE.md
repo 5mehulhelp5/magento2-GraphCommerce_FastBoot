@@ -1,17 +1,15 @@
-# GraphCommerce_FastBoot
+# FastBoot development
 
-A faster php-fpm bootstrap of Magento: opcache PHP files in front of the configuration caches, and the per-request work of the framework remembered.
+The combined Composer package contains FastBootCache, FastBoot, FastBootGraphQl and FastBootPreload. Keep implementation in these modules; prototypes are not runtime dependencies.
 
-## Layout
+- Optimize ordinary PHP-FPM. Each mechanism has an independently configurable `fastboot` switch. Schema L1 additionally requires installation/release identity. Never weaken request-specific GraphQL security checks or bypass Magento's processor/plugin chain to cache validation.
+- Local PHP files contain scalars and arrays only. Redis/shared Magento caches remain authoritative. Preserve proven backend TTLs; unknown expiry must not be promoted. Schema metadata uses atomic Redis generation fences and strict validation by default; generic files snapshot the shared version once per request.
+- Files are immutable, content-addressed, private and admission-bounded. Mutable indexes carry expiry. Do not preload runtime data files. A failed local write is a cache miss; a strict schema Redis failure is an error, not permission to serve stale data.
+- Changed PHP/DI/config artifacts need a fresh release ID and an FPM restart. Clean config/compiled_config before DI compilation. The preparation command must rebuild area differences after compilation, including when operating repeatedly in a development workspace.
+- Keep unit and portable Redis tests under `dev/tests` and module `Test/Unit` directories. Validate combined real Magento responses, configuration saves, cache invalidation and memory as well as individual shortcuts. Compare timings relatively on the same host; PHP allocated memory and shared OPcache memory are separate measurements.
+- `dev/release/build.py` builds the reproducible Composer artifact; `install-smoke.py` validates archive hashes and installation against an existing dependency tree. Neither publishes anything. Maintain README, SCHEMA-L1 and docs/VALIDATION when behavior or deployment requirements change.
 
-One composer package, one git repository, one Magento module per directory under `src/`, named as the module. `FastBootCache` is the base every other module depends on: the file layer (`Model\PhpFiles`, `Model\Version`), the two cache plugins, and the `Feature` switch reader. `FastBoot` holds what any request pays; `FastBootGraphQl` what a GraphQL request pays; `FastBootPreload` the self-recording preload list and its script, apart because its lifecycle is the php-fpm master's, not the request's. A mechanism for another area or module goes into a module with that suffix, and depends only on the core modules it plugs into.
-
-## Rules
-
-- An integration changes nothing to get the gain: every mechanism is on by default, works with the php-fpm defaults, and fails soft (a file that cannot be written is a cache miss, not an error). The ini settings and the preload are gains on top, never requirements.
-- Every mechanism has a switch, read by `Feature` from the `fastboot` array of env.php, named by a `private const SWITCH` in the class that implements it, listed in the README's switch table with its measured contribution.
-- A file the layer writes holds only scalars and arrays through `var_export`, never an object; a cache entry with a lifetime keeps it in the file; a loaded entry of unknown lifetime is re-read after two hours.
-- A change is measured before it is kept: `.tmp/perf/phpbench.sh` medians of the trivial query and the 24 item listing, and the switch bench (`.tmp/perf/ablate.sh`) for the README table. The catalog storefront package's parity gate must stay green on php-fpm and the worker.
-- `setup:di:compile` reads the DI configuration through the config cache: run `cache:clean config compiled_config` before it, or new arguments and preferences are missing from the metadata while the plugins appear.
-- With `opcache.validate_timestamps=0` on the host, a PHP or env.php change needs a php-fpm restart before it is seen.
-- READMEs are short; this file holds the reasoning. No mention of the worker runtime outside the README's footnote.
+- Never attach cache interception to broad bootstrap decorators such as TagScope: the compiled plugin-list cache needs those decorators before interceptors can be resolved. Bind only the supported application cache types.
+- Capture cache generation before computing derived artifacts and fence publication with it. Direct schema reset must retire structural-validation proofs.
+- Explicitly configure optional object dependencies in di.xml when correctness depends on their presence; exercise compiled Magento, which may use constructor defaults.
+- Preload belongs to a dedicated FPM master/service and changes require restarting that master. Respect FASTBOOT_MAGENTO_ROOT for path repositories.

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace GraphCommerce\FastBootGraphQl\Plugin\Query;
@@ -18,11 +19,12 @@ use Magento\Framework\GraphQl\Query\QueryParser;
  * query as the source of every node's location, so an error still names its
  * line. The record lives under the opcache version.
  */
-class ParsedQueries
+class ParsedQueries implements \Magento\Framework\ObjectManager\ResetAfterRequestInterface
 {
     private const SWITCH = 'parsed_queries';
 
     private const GROUP = 'PARSED';
+    private array $documents = [];
 
     public function __construct(
         private readonly PhpFiles $files,
@@ -32,10 +34,20 @@ class ParsedQueries
 
     public function aroundParse(QueryParser $subject, \Closure $proceed, string $query): DocumentNode
     {
-        if (!$this->feature->on(self::SWITCH)) {
+        if (!$this->feature->on(self::SWITCH) || strlen($query) > 65536) {
             return $proceed($query);
         }
-        $id = sha1($query);
+        // A document accepted by a permissive parser must not bypass a stricter instance.
+        // Older supported Magento parsers have no nesting policy; newer ones keep it private.
+        $parser = new \ReflectionClass(QueryParser::class);
+        $depth = $parser->hasProperty('maxNestingDepth')
+            ? $parser->getProperty('maxNestingDepth')->getValue($subject)
+            : null;
+        $id = hash('sha256', json_encode([get_class($subject), $depth, $query], JSON_THROW_ON_ERROR));
+        if (isset($this->documents[$id])) {
+            return $this->documents[$id];
+        }
+        $generation = $this->files->generation();
         $array = $this->files->read(self::GROUP, $id);
         if (is_array($array)) {
             $source = new Source($query, 'GraphQL');
@@ -48,11 +60,20 @@ class ParsedQueries
                 },
             ]);
 
-            return $document;
+            return $this->documents[$id] = $document;
         }
         $document = $proceed($query);
-        $this->files->write(self::GROUP, $id, AST::toArray($document));
+        $this->files->write(self::GROUP, $id, AST::toArray($document), null, $generation);
 
-        return $document;
+        return $this->documents[$id] = $document;
+    }
+    public function afterReloadState(QueryParser $subject, $result)
+    {
+        $this->_resetState();
+        return $result;
+    }
+    public function _resetState(): void
+    {
+        $this->documents = [];
     }
 }

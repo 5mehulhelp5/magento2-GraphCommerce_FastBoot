@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace GraphCommerce\FastBootGraphQl\Plugin\Catalog;
@@ -24,6 +25,7 @@ class PlaceholderUrl
         private readonly CacheInterface $cache,
         private readonly StoreManagerInterface $storeManager,
         private readonly Feature $feature,
+        private readonly \Magento\Framework\View\DesignInterface $design,
     ) {
     }
 
@@ -32,7 +34,8 @@ class PlaceholderUrl
         if (!$this->feature->on(self::SWITCH)) {
             return $proceed($imageType);
         }
-        $key = self::KEY . $this->storeManager->getStore()->getId() . '_' . $imageType;
+        $store = $this->storeManager->getStore();
+        $key = self::KEY . hash('sha256', serialize([$store->getId(), $imageType, $store->isCurrentlySecure(), $this->design->getConfigurationDesignTheme('frontend')]));
         $url = $this->cache->load($key);
         if ($url === false) {
             $url = $proceed($imageType);

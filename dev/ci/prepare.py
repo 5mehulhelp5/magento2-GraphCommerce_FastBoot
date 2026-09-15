@@ -12,6 +12,8 @@ parser.add_argument('--archive', help='Existing official Magento 2.4.8 source ta
 args = parser.parse_args()
 package = pathlib.Path(__file__).resolve().parents[2]
 root = pathlib.Path(args.root).resolve()
+if root == package or package in root.parents:
+    parser.error('Fixture root must be outside the package to prevent recursive Composer copies')
 if root.exists() and any(root.iterdir()):
     parser.error('Fixture root must be empty')
 root.mkdir(parents=True, exist_ok=True)

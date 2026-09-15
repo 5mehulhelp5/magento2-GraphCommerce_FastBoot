@@ -9,7 +9,7 @@ FastBoot reduces repeated Magento bootstrap and GraphQL work using node-local PH
 | FastBootGraphQl | [GraphQL optimizations](src/FastBootGraphQl/README.md) |
 | FastBootPreload | [Class preloading](src/FastBootPreload/README.md) |
 
-[Benchmarks: GraphQL and Luma results](https://github.com/graphcommerce-org/magento2-GraphCommerce_FastBoot/blob/main/dev/bench/RESULTS.md).
+[GraphQL and Luma benchmarks](https://github.com/graphcommerce-org/magento2-GraphCommerce_FastBoot/blob/main/dev/bench/RESULTS.md), measured locally on an M5 Mac.
 
 ## Requirements
 

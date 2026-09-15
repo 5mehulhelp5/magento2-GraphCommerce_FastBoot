@@ -13,3 +13,5 @@ The combined Composer package contains FastBootCache, FastBoot, FastBootGraphQl 
 - Capture cache generation before computing derived artifacts and fence publication with it. Direct schema reset must retire structural-validation proofs.
 - Explicitly configure optional object dependencies in di.xml when correctness depends on their presence; exercise compiled Magento, which may use constructor defaults.
 - Preload belongs to a dedicated FPM master/service and changes require restarting that master. Respect FASTBOOT_MAGENTO_ROOT for path repositories.
+
+- Customer READMEs target senior Magento engineers: package-specific setup, configuration and behavior only. No generic Magento/PHP tuning advice, benchmark narrative, Redis-extension recommendations or module-to-module guide referrals. Keep only the root module index for navigation.

@@ -27,9 +27,6 @@
         "graphcommerce/module-fast-boot-preload": "self.version",
         "graphcommerce/module-fast-boot-graph-ql": "self.version"
     },
-    "suggest": {
-        "ext-redis": "Recommended for lower CPU overhead when communicating with Redis"
-    },
     "autoload": {
         "files": [
             "src/FastBootCache/registration.php",

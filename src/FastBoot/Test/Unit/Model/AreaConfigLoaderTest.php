@@ -21,13 +21,18 @@ class AreaConfigLoaderTest extends TestCase
     {
         $root = sys_get_temp_dir().'/fastboot-area-'.bin2hex(random_bytes(8));
         define('BP', $root);
-        $runtime = $this->createMock(ConfigLoader::class);
-        $runtime->expects(self::once())->method('load')->with('graphql')->willReturn(['arguments' => ['runtime' => true]]);
+        $calls = 0;
+        $runtime = $this->createStub(ConfigLoader::class);
+        $runtime->method('load')->willReturnCallback(static function (string $area) use (&$calls): array {
+            $calls++;
+            return ['arguments' => ['runtime' => $area]];
+        });
         $feature = $this->createStub(Feature::class);
         $feature->method('on')->willReturn(true);
         $loader = new AreaConfigLoader($this->createStub(DirectoryList::class), $feature, $this->createStub(Release::class), $runtime);
-        self::assertSame(['arguments' => ['runtime' => true]], $loader->load('graphql'));
-        self::assertSame(['arguments' => ['runtime' => true]], $loader->load('graphql'));
+        self::assertSame(['arguments' => ['runtime' => 'graphql']], $loader->load('graphql'));
+        self::assertSame(['arguments' => ['runtime' => 'graphql']], $loader->load('graphql'));
+        self::assertSame(1, $calls);
     }
 
     #[RunInSeparateProcess]

@@ -8,6 +8,7 @@ use GraphCommerce\FastBootCache\Model\Feature;
 use GraphCommerce\FastBootCache\Model\Release;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\App\ObjectManager\ConfigLoader;
 use Magento\Framework\App\ObjectManager\ConfigLoader\Compiled;
 use Magento\Framework\ObjectManager\ConfigLoaderInterface;
 
@@ -17,7 +18,9 @@ use Magento\Framework\ObjectManager\ConfigLoaderInterface;
  * global one it already holds: 15 000 arguments replaced by themselves on
  * every request. This loader hands the object manager only the entries the
  * area changes, from a file under var/cache/fastboot/metadata that follows
- * an immutable release identity (or the source hashes without one).
+ * an immutable release identity (or the source hashes without one). An
+ * installation without compiled metadata reads the di.xml files through the
+ * runtime loader of Magento.
  */
 class AreaConfigLoader implements ConfigLoaderInterface
 {
@@ -30,6 +33,7 @@ class AreaConfigLoader implements ConfigLoaderInterface
         private readonly DirectoryList $directoryList,
         private readonly Feature $feature,
         private readonly Release $release,
+        private readonly ConfigLoader $runtimeLoader,
     ) {
     }
 
@@ -40,9 +44,10 @@ class AreaConfigLoader implements ConfigLoaderInterface
         }
         $areaFile = Compiled::getFilePath($area);
         $globalFile = Compiled::getFilePath(Area::AREA_GLOBAL);
-        if ($area === Area::AREA_GLOBAL || !is_file($areaFile) || !is_file($globalFile)
-            || !$this->feature->on(self::SWITCH)
-        ) {
+        if (!is_file($areaFile) || !is_file($globalFile)) {
+            return $this->loaded[$area] = $this->runtimeLoader->load($area);
+        }
+        if ($area === Area::AREA_GLOBAL || !$this->feature->on(self::SWITCH)) {
             return $this->loaded[$area] = include $areaFile;
         }
         $release = $this->release->id();

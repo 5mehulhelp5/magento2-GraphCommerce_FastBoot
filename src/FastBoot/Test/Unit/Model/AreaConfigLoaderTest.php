@@ -8,12 +8,28 @@ use GraphCommerce\FastBoot\Model\ObjectManager\AreaConfigLoader;
 use GraphCommerce\FastBootCache\Model\Feature;
 use GraphCommerce\FastBootCache\Model\Release;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\App\ObjectManager\ConfigLoader;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 class AreaConfigLoaderTest extends TestCase
 {
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
+    public function testInstallationWithoutCompiledMetadataUsesTheRuntimeLoader(): void
+    {
+        $root = sys_get_temp_dir().'/fastboot-area-'.bin2hex(random_bytes(8));
+        define('BP', $root);
+        $runtime = $this->createMock(ConfigLoader::class);
+        $runtime->expects(self::once())->method('load')->with('graphql')->willReturn(['arguments' => ['runtime' => true]]);
+        $feature = $this->createStub(Feature::class);
+        $feature->method('on')->willReturn(true);
+        $loader = new AreaConfigLoader($this->createStub(DirectoryList::class), $feature, $this->createStub(Release::class), $runtime);
+        self::assertSame(['arguments' => ['runtime' => true]], $loader->load('graphql'));
+        self::assertSame(['arguments' => ['runtime' => true]], $loader->load('graphql'));
+    }
+
     #[RunInSeparateProcess]
     #[PreserveGlobalState(false)]
     public function testCorruptArtifactsRepairAndPreparationRebuildsChangedMetadata(): void
@@ -34,7 +50,7 @@ class AreaConfigLoaderTest extends TestCase
         $feature->method('on')->willReturn(true);
         $release = $this->createStub(Release::class);
         $release->method('id')->willReturn('deployed-build');
-        $loader = fn () => new AreaConfigLoader($directory, $feature, $release);
+        $loader = fn () => new AreaConfigLoader($directory, $feature, $release, $this->createStub(ConfigLoader::class));
         $expected = ['arguments' => ['changed' => ['x' => 2]]];
         try {
             self::assertSame($expected, $loader()->load('graphql'));

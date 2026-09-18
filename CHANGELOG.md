@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Read the di.xml files through the runtime loader of Magento when the installation has no compiled metadata, so a developer-mode install serves requests.
+
 ## 0.2.0-rc5
 
 - Use Credis when the PHP Redis extension is unavailable; phpredis remains the preferred transport when installed.

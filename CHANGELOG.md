@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0-rc6
 
 - Read the di.xml files through the runtime loader of Magento when the installation has no compiled metadata, so a developer-mode install serves requests.
 
